@@ -61,7 +61,7 @@ public class LaboratoryScreen extends BaseScreen {
     private final DebugRenderer debugRenderer = new DebugRenderer();
 
     private boolean paused = false;
-    private boolean debugEnabled = true;
+    private boolean debugEnabled = false;
 
     public LaboratoryScreen(LaboratoryGame game, GameAssets assets) {
         super(game, assets);
