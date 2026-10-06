@@ -42,7 +42,10 @@ public class GameAssets implements Disposable {
 
     private static Texture loadNearest(String path) {
         Texture texture = new Texture(Gdx.files.internal(path));
+        // Nearest 필터 + ClampToEdge: 타일 경계에서 이웃 조각/바깥 텍셀을 샘플링해 생기는
+        // 얇은 선(bleeding)을 줄인다. (렌더러의 반텍셀 인셋과 함께 사용)
         texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        texture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
         return texture;
     }
 
