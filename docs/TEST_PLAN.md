@@ -56,3 +56,18 @@
 - given 보물 운반 중·반납 영역 내·새 입력, when 반납, then 1회만 성공(중복 반납 불가).
 - given 플레이어 사망, when 이번 탐사 미반납 보물 존재, then 해당 보상 제거.
 - given 이전 탐사에서 반납 완료, when 새 탐사 시작, then 보상 유지.
+
+## Laboratory Tileset V2 테스트
+
+에셋/카탈로그(`LaboratoryTileCatalogV2Test`, 순수 Java·GL 불필요):
+- 아틀라스 크기(JSON 선언값 + 실제 PNG IHDR): floor 384×256, wall 256×256, structure 256×256, overlay 384×256
+- 타일 수: floor 24 / wall 16 / structure 16 / overlay 24, 각 아틀라스 열×행 일치, 누락 ID 없음(격자 좌표 유효)
+- ID↔인덱스/행열 매핑, 충돌(열린 문=통과, breach=조건부), 태그(toxic/shock/electric/decor)
+
+맵(`LaboratoryLayoutTest`): 20×15, 스폰 통과·3×3 위험 없음, 외벽 충돌(출입구 제외), 문 방향·구조물 타일·문 미덮어쓰기,
+정비 도달/오염 밀폐(BFS), 벽 셀=벽타일·비벽=바닥, 오버레이 벽 위 금지, 바닥 3연속 금지, 경고선 경계, hazard(TOXIC/SHOCK) 존재, 재현성.
+
+벽 오토타일(`WallAutotilerTest`): 직선·바깥 모서리·끝단·T자(접합)·안쪽 모서리 매핑, 문 미덮어쓰기.
+
+회귀: 이동/달리기 시작/충돌/카메라/애니메이션 로딩 테스트 그대로 통과.
+검증 명령: `./gradlew.bat clean core:test lwjgl3:build` 후 `./gradlew.bat lwjgl3:run`.

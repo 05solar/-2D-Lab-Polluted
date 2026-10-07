@@ -136,3 +136,48 @@ visuals(RoomVisuals)의 출처:
 - 추가로 자연스러움을 크게 올리려면: 바닥 변형 서브타일, 벽 전용 세트(T/십자/끝단/문틀),
   가구 아틀라스 확보가 필요. 확보되면 `WallAutotiler.Shape`가 이미 형태를 구분하므로
   `tileFor`만 실제 타일로 교체하면 됨.
+
+---
+
+# Laboratory Tileset V2 적용 (2026-10-07)
+
+## 1. 기존 화면이 어색했던 실제 원인
+- v1은 손제작 16타일(바닥 중립 1종, 세로벽이 어두운 면)이라 바닥 반복 격자감·검은 세로벽이 불가피했고 가구 에셋이 없었다.
+- V2 전용 타일셋(바닥24/벽16/구조물16/오버레이24, 64px)을 받아 타일 배치를 전면 교체했다.
+
+## 2. 수정한 클래스·파일
+- 신규: `LaboratoryTileCatalogV2`(JSON 파싱·ID 매핑), `LaboratoryTileSetV2`(ID→리전), `FloorVariantResolver`,
+  `OverlayResolver`, `Hazard`, `LaboratoryZone`.
+- 교체: `LaboratoryLayout`(4레이어 빌드), `WallAutotiler`(V2 ID·직교+대각), `RoomVisuals`(4레이어),
+  `WorldRenderer`(레이어별 렌더), `GameAssets`(4아틀라스 로드·소유), `AssetPaths`, `TileType`(충돌/문만),
+  `LaboratoryRoom`(hazard), `LaboratoryScreen`(V2 렌더·LAB_DUMP). 제거: `TileVisual`, 구버전 `laboratory_tileset_64.png`.
+- 에셋: `assets/laboratory_tiles_v2/`(4 아틀라스 + JSON + MD).
+
+## 3. 사용한 신규 타일·배치 비율(실행 덤프 기준)
+- 바닥 213셀: 기본 clean A/B/C 중심(≈67%) + 마모/긁힘/먼지/습기(15~20%) + 보수판/해치/배수/균열(5~10%) + 경고선 소량.
+- 벽 87셀: horizontal/vertical + outer 모서리 + 외벽↔내부벽 T자(wall_t_open_*). 문 3개(세로 닫힘·세로 열림·가로 열림).
+- 오버레이 25셀: 오염(toxic puddle/bubbles/spatter/drain_leak) 불규칙 군집, 정비(cable h/v/corner + exposed_wires + electric_sparks),
+  중앙 장식(grime/oil/rubble/scorch/glass/lab_residue) 산포. 셀당 최대 1개, 인접 반복 없음.
+
+## 4. 벽 오토타일 처리
+- `WallAutotiler.classify`가 직교 이웃(+대각)으로 형태 결정: cnt 2(직선/바깥모서리), 1(끝단), 3(T자), 4+대각(안쪽모서리), 4(십자).
+- **OOB=비연결**로 외벽을 직선·모서리로 유지(성벽형 톱니 방지). 문('DOOR_*')은 연결로 보되 WALL이 아니라 오토타일 대상 아님.
+
+## 5. 문·충돌 처리
+- 문 방향=벽 방향(가로/세로), 열림/닫힘. 닫힌 문 solid, 열린 문 통과. 구조물 레이어에서 문 타일을 그려 벽이 덮지 않음.
+- 충돌은 TileType(논리 셀) 기준, 이미지 투명 여백 미사용. 독성/감전은 `Hazard`로 분리(시각≠규칙).
+
+## 6. 테스트 결과
+- `./gradlew.bat clean core:test lwjgl3:build` 성공. core **34/34 통과**
+  (신규: Catalog 6, Layout 11, Autotiler 5 / 회귀: 이동·달리기·충돌·입력·방 그대로).
+
+## 7. 실제 실행 화면 확인 결과
+- 클린 실행 로그: 4 아틀라스(384×256/256×256/256×256/384×256) 로드, tileSet regions=80, **Exception/stderr 없음**, 구버전 미로드.
+- 실행이 산출한 해석 그리드(LAB_DUMP)를 타일셋으로 충실 재구성: `docs/images/map_v2_after.png`.
+  네 구역 구분·외벽 연속·모서리/T자 정확·열린 문 void 없음·오염/전선 오버레이 적절·바닥 반복 감소 확인.
+- (환경 제약) 백그라운드라 실시간 GUI 픽셀은 직접 못 봄 → 렌더 경로 재현 이미지 + 실행 로그로 검증.
+  최종 눈 확인은 사용자가 `./gradlew.bat lwjgl3:run` 으로 수행 권장.
+
+## 8. 남은 문제
+- 가구·소품(실험대/서버랙/발전기 등)은 V2에도 전용 스프라이트가 없어 미배치(Y-sort 렌더 레이어 자리만 준비). 에셋 확보 시 2차.
+- `wall_breach_*` 지름길 충돌 토글, 문 개폐 상호작용, hazard 실제 피해는 이후 단계.

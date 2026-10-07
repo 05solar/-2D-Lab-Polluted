@@ -124,3 +124,27 @@ Config -> 각 시스템/엔티티 생성
 
 ## 저장 방식
 - 아직 없음. 런타임 엔티티를 직접 직렬화하지 않고 `SaveData`로 변환하는 방식을 6단계에서 도입.
+
+## Laboratory Tileset V2 (타일 배치 전면 교체)
+
+에셋 경로·생명주기: 런타임 루트 `assets/laboratory_tiles_v2/`. `GameAssets`가 유일한 텍스처 소유자로
+`laboratory_tiles_v2.json`을 읽어 4개 아틀라스(floor/wall/structure/overlay)를 로드하고 종료 시 해제한다.
+구버전 단일 타일셋(`laboratory_tileset_64.png`)은 제거했고 더 이상 로드하지 않는다.
+
+책임 분리(논리/데이터/시각):
+```
+world/
+├── LaboratoryTileCatalogV2.java  # JSON 파싱(순수 Java). 타일 ID→(아틀라스,행/열,인덱스,충돌,태그). 인덱스 하드코딩 금지의 단일 출처
+├── LaboratoryTileSetV2.java      # 카탈로그+텍스처 → ID→TextureRegion(반텍셀 인셋). 텍스처 생성 안 함(GameAssets 소유)
+├── TileType.java                 # 충돌/문 상태만(FLOOR/WALL/DOOR_CLOSED/DOORWAY_OPEN)
+├── Hazard.java                   # NONE/TOXIC/SHOCK (시각과 분리된 위험 규칙)
+├── LaboratoryZone.java           # ENTRANCE/CENTRAL/CONTAM/MAINT
+├── WallAutotiler.java            # 이웃(직교+대각) → 벽 타일 ID(직선/끝/바깥·안쪽 모서리/T자/십자). OOB=비연결
+├── FloorVariantResolver.java     # 고정 seed 바닥 변형(구역별 분포, 3연속 금지)
+├── OverlayResolver.java          # 고정 seed 오버레이(독성 군집/전선/스파크/장식) + hazard
+├── LaboratoryLayout.java         # 문자 맵 → 논리/구조물/구역 → 4레이어 RoomVisuals + hazard 포함 Room 빌드
+├── RoomVisuals.java              # 레이어별 타일 ID: floor/overlay/wall/structure (1회 계산)
+└── LaboratoryRoom.java           # 논리 타일 + hazard 질의(+SolidGrid)
+```
+렌더 레이어(한 배열에 섞지 않음): `WorldRenderer`가 floor→overlay→wall→structure 순으로 전체 맵을 그리고,
+그 뒤 `LaboratoryScreen`이 플레이어→(F1 디버그)를 그린다. 텍스처는 Nearest + ClampToEdge.

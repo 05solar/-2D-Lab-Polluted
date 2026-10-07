@@ -27,7 +27,6 @@ import io.github.some_example_name.render.WorldRenderer;
 import io.github.some_example_name.world.LaboratoryLayout;
 import io.github.some_example_name.world.LaboratoryRoom;
 import io.github.some_example_name.world.RoomVisuals;
-import io.github.some_example_name.world.TileVisual;
 
 /**
  * 연구소 탐사 화면. 월드/시스템/렌더러를 묶어 프레임 순서를 조율한다.
@@ -74,37 +73,35 @@ public class LaboratoryScreen extends BaseScreen {
             new CollisionSystem(), new RunStartDetector(),
             config.playerWalkSpeed, config.playerRunSpeed);
 
-        worldRenderer = new WorldRenderer(assets.tileRegions());
+        worldRenderer = new WorldRenderer(assets.tileSet());
         entityRenderer = new EntityRenderer(new AnimationController(assets.playerAnimations()));
 
-        logVisualCounts();
+        dumpResolvedGridIfRequested();
         updateCamera();
     }
 
-    /** 방에 실제로 들어 있는 각 시각 타일 개수를 한 번만 출력한다(렌더/매핑 진단용). */
-    private void logVisualCounts() {
-        Object[][] rows = {
-            {"BASIC_FLOOR", TileVisual.FLOOR_BASIC},
-            {"CRACKED_FLOOR", TileVisual.FLOOR_CRACKED},
-            {"STAINED_FLOOR", TileVisual.FLOOR_STAIN},
-            {"WARNING_FLOOR", TileVisual.FLOOR_WARNING},
-            {"NORTH_WALL", TileVisual.WALL_NORTH},
-            {"SOUTH_WALL", TileVisual.WALL_SOUTH},
-            {"WEST_WALL", TileVisual.WALL_WEST},
-            {"EAST_WALL", TileVisual.WALL_EAST},
-            {"NORTH_WEST_CORNER", TileVisual.WALL_CORNER_NW},
-            {"NORTH_EAST_CORNER", TileVisual.WALL_CORNER_NE},
-            {"SOUTH_WEST_CORNER", TileVisual.WALL_CORNER_SW},
-            {"SOUTH_EAST_CORNER", TileVisual.WALL_CORNER_SE},
-            {"CLOSED_DOOR", TileVisual.DOOR_CLOSED},
-            {"OPEN_DOORWAY", TileVisual.DOORWAY_OPEN},
-            {"TOXIC_SPILL", TileVisual.FLOOR_TOXIC},
-            {"EXPOSED_WIRES", TileVisual.FLOOR_WIRES},
-        };
-        for (Object[] row : rows) {
-            Gdx.app.log("TileVisualCount", row[0] + "=" + visuals.count((TileVisual) row[1]));
+    /**
+     * 환경변수 LAB_DUMP=1 일 때만 해석된 4레이어 시각 타일 ID를 1회 덤프한다(렌더 결과 검증용).
+     * 평상시 실행 로그는 깨끗하게 유지한다.
+     */
+    private void dumpResolvedGridIfRequested() {
+        if (System.getenv("LAB_DUMP") == null) {
+            return;
+        }
+        for (int ty = visuals.heightInTiles() - 1; ty >= 0; ty--) {
+            StringBuilder sb = new StringBuilder();
+            for (int tx = 0; tx < visuals.widthInTiles(); tx++) {
+                sb.append(tx).append(',').append(ty).append('|')
+                  .append(nz(visuals.floorAt(tx, ty))).append('|')
+                  .append(nz(visuals.overlayAt(tx, ty))).append('|')
+                  .append(nz(visuals.wallAt(tx, ty))).append('|')
+                  .append(nz(visuals.structureAt(tx, ty))).append(';');
+            }
+            Gdx.app.log("LabDump", sb.toString());
         }
     }
+
+    private static String nz(String s) { return s == null ? "-" : s; }
 
     @Override
     public void render(float delta) {

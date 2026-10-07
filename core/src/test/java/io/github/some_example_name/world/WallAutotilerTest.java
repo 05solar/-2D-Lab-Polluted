@@ -1,98 +1,105 @@
 package io.github.some_example_name.world;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 
+import com.badlogic.gdx.math.Vector2;
 import org.junit.Test;
 
 /**
- * 벽 오토타일: 방향 벽/바깥 모서리 매핑, 세로 분리벽, 문 양옆 벽(문 미덮어쓰기), T자 분류.
- * 타일셋이 지원하지 않는 형태(분리벽/T자)는 가장 가까운 방향 벽 타일로 대체됨을 함께 확인한다.
+ * V2 벽 오토타일: 직선/바깥 모서리/끝/T자/안쪽 모서리 매핑과 문 미덮어쓰기.
  */
 public class WallAutotilerTest {
 
     private final WallAutotiler autotiler = new WallAutotiler();
 
+    private static RoomVisuals visuals(String... rows) {
+        return LaboratoryLayout.fromRows(rows).visuals();
+    }
     private static LaboratoryRoom room(String... rows) {
         return LaboratoryLayout.fromRows(rows).room();
     }
 
-    private static RoomVisuals visuals(String... rows) {
-        return LaboratoryLayout.fromRows(rows).visuals();
-    }
-
     @Test
-    public void directionalEdgesAndOuterCorners() {
-        String[] box = {
+    public void straightEdgesAndOuterCorners() {
+        RoomVisuals v = visuals(
             "#####",
             "#...#",
             "#...#",
             "#...#",
-            "#####",
-        };
-        RoomVisuals v = visuals(box);
-        // 직선 벽: 방 안쪽을 향한 방향
-        assertEquals(TileVisual.WALL_NORTH, v.visualAt(2, 4)); // 상단
-        assertEquals(TileVisual.WALL_SOUTH, v.visualAt(2, 0)); // 하단
-        assertEquals(TileVisual.WALL_WEST, v.visualAt(0, 2));  // 좌측
-        assertEquals(TileVisual.WALL_EAST, v.visualAt(4, 2));  // 우측
-        // 바깥 모서리
-        assertEquals(TileVisual.WALL_CORNER_SW, v.visualAt(0, 0));
-        assertEquals(TileVisual.WALL_CORNER_SE, v.visualAt(4, 0));
-        assertEquals(TileVisual.WALL_CORNER_NW, v.visualAt(0, 4));
-        assertEquals(TileVisual.WALL_CORNER_NE, v.visualAt(4, 4));
+            "#####");
+        assertEquals("wall_horizontal", v.wallAt(2, 4));
+        assertEquals("wall_horizontal", v.wallAt(2, 0));
+        assertEquals("wall_vertical", v.wallAt(0, 2));
+        assertEquals("wall_vertical", v.wallAt(4, 2));
+        assertEquals("wall_outer_sw", v.wallAt(0, 0));
+        assertEquals("wall_outer_se", v.wallAt(4, 0));
+        assertEquals("wall_outer_nw", v.wallAt(0, 4));
+        assertEquals("wall_outer_ne", v.wallAt(4, 4));
     }
 
     @Test
-    public void verticalDividerMapsToNearestVerticalWall() {
-        // 양옆이 모두 바닥인 세로 분리벽 → 전용 타일 없음 → 가장 가까운 세로벽(WALL_EAST).
+    public void tJunctionsWhereInteriorWallMeetsBorder() {
         String[] rows = {
             "#####",
             "#.#.#",
             "#.#.#",
             "#.#.#",
-            "#####",
-        };
-        LaboratoryRoom r = room(rows);
-        assertEquals(WallAutotiler.Shape.DIVIDER_VERTICAL, autotiler.classify(r, 2, 2));
-        assertEquals(TileVisual.WALL_EAST, visuals(rows).visualAt(2, 2));
-    }
-
-    @Test
-    public void doorIsNotOverwrittenAndAdjacentWallsAreDoorSide() {
-        String[] rows = {
-            "#####",
-            "#.#.#",
-            "#.D.#",   // 세로벽(tx2) 중간에 닫힌 문
-            "#.#.#",
-            "#####",
-        };
+            "#####"};
         LaboratoryRoom r = room(rows);
         RoomVisuals v = visuals(rows);
-
-        // 문 타일은 오토타일이 덮어쓰지 않는다.
-        assertEquals(TileType.DOOR_CLOSED, r.tileAt(2, 2));
-        assertEquals(TileVisual.DOOR_CLOSED, v.visualAt(2, 2));
-
-        // 문 위/아래 벽은 문측벽으로 표시되며, 전용 타일이 없어 세로벽으로 대체된다.
-        assertTrue("문 위 벽은 문측", autotiler.isDoorSide(r, 2, 3));
-        assertTrue("문 아래 벽은 문측", autotiler.isDoorSide(r, 2, 1));
-        assertEquals(TileVisual.WALL_EAST, v.visualAt(2, 3));
-        assertEquals(TileVisual.WALL_EAST, v.visualAt(2, 1));
+        assertEquals(WallAutotiler.Shape.T_OPEN_NORTH, autotiler.classify(r, 2, 4));
+        assertEquals("wall_t_open_north", v.wallAt(2, 4));
+        assertEquals(WallAutotiler.Shape.T_OPEN_SOUTH, autotiler.classify(r, 2, 0));
+        assertEquals("wall_t_open_south", v.wallAt(2, 0));
+        // 세로 분리벽 가운데는 수직 벽
+        assertEquals("wall_vertical", v.wallAt(2, 2));
     }
 
     @Test
-    public void wallTipClassifiesAsTJunction() {
-        // 아래에서 솟아 끝이 열린 벽 끝(세 방향 바닥) → T자(닫힌 변=남쪽) → 북향 직선벽으로 대체.
+    public void wallEndCaps() {
+        // 왼쪽 벽이 중간에서 끝나는 가로 벽(오른쪽으로만 연결) → wall_end_left
         String[] rows = {
-            "#######",
-            "#.....#",
-            "#..#..#",
-            "#..#..#",
-            "#######",
-        };
+            "#####",
+            "#...#",
+            "#.###", // (2,2)(3,2) 벽, 왼쪽 끝은 (2,2)
+            "#...#",
+            "#####"};
+        // (2,2): N=(2,3)floor, S=(2,1)floor, E=(3,2)wall, W=(1,2)floor → 1개(E) → END_LEFT
         LaboratoryRoom r = room(rows);
-        assertEquals(WallAutotiler.Shape.T_FROM_SOUTH, autotiler.classify(r, 3, 2));
-        assertEquals(TileVisual.WALL_NORTH, visuals(rows).visualAt(3, 2));
+        assertEquals(WallAutotiler.Shape.END_LEFT, autotiler.classify(r, 2, 2));
+        assertEquals("wall_end_left", visuals(rows).wallAt(2, 2));
+    }
+
+    @Test
+    public void doorNotOverwrittenAndMatchesDirection() {
+        String[] rows = {
+            "#####",
+            "#.#.#",
+            "#.d.#",   // 세로 닫힌 문
+            "#.#.#",
+            "#####"};
+        RoomVisuals v = visuals(rows);
+        LaboratoryRoom r = room(rows);
+        assertNull("문 셀엔 벽 타일 없음", v.wallAt(2, 2));
+        assertEquals("vertical_door_closed", v.structureAt(2, 2));
+        assertEquals(TileType.DOOR_CLOSED, r.tileAt(2, 2));
+        // 문 위/아래 벽은 세로벽으로 이어진다
+        assertEquals("wall_vertical", v.wallAt(2, 3));
+        assertEquals("wall_vertical", v.wallAt(2, 1));
+    }
+
+    @Test
+    public void innerCornerFromDiagonalOpening() {
+        // 가운데 벽 셀: N,S,E,W 모두 벽, NE 대각만 바닥 → 안쪽 모서리 NE
+        TileType W = TileType.WALL, F = TileType.FLOOR;
+        TileType[][] t = {
+            {W, W, W},  // ty0
+            {W, W, W},  // ty1 (center row)
+            {W, W, F},  // ty2: NE diagonal of (1,1) = (2,2) = FLOOR
+        };
+        LaboratoryRoom r = new LaboratoryRoom(t, new Vector2(2.5f, 2.5f));
+        assertEquals(WallAutotiler.Shape.INNER_NE, autotiler.classify(r, 1, 1));
+        assertEquals("wall_inner_ne", autotiler.tileId(r, 1, 1));
     }
 }

@@ -45,3 +45,9 @@
 
 ## 7단계: 콘텐츠·완성도 — TODO
 - 추가 구역, 사운드, 애니메이션, UI, 클리어 조건, Android 조작·성능(선택)
+
+## 1단계 보강 2: Laboratory Tileset V2 적용 — DONE
+- 신규 64px 타일셋(바닥24/벽16/구조물16/오버레이24)으로 맵 타일 배치 전면 교체. 구버전 타일셋 제거.
+- JSON 카탈로그 기반 ID→리전 매핑(인덱스 하드코딩 제거), 4레이어 렌더(floor/overlay/wall/structure).
+- 벽 오토타일 V2(직선/끝/바깥·안쪽 모서리/T자/십자), 고정 seed 바닥 변형, 오염/전선 오버레이 + hazard 분리.
+- core 테스트 34개 통과, lwjgl3:build 성공, 클린 실행 시 에셋 로딩/stderr 오류 없음(미리보기: docs/images/map_v2_after.png).

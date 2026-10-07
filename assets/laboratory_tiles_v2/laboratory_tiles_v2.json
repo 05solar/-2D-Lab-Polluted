@@ -1,0 +1,52 @@
+{
+  "version": 2,
+  "tileSize": 64,
+  "origin": "top-left",
+  "indexOrder": "row-major",
+  "renderOrder": ["floor", "overlay", "wall", "structure"],
+  "atlases": {
+    "floor": {
+      "file": "lab_floor_tiles_v2_64.png",
+      "size": [384, 256], "columns": 6, "rows": 4,
+      "solid": false,
+      "items": [
+        "floor_clean_a", "floor_clean_b", "floor_clean_c", "floor_seam_horizontal", "floor_seam_vertical", "floor_seam_cross",
+        "floor_worn_light", "floor_scratched", "floor_patch_welded", "floor_patch_bolted", "floor_dust_edge", "floor_damp_stain",
+        "floor_crack_light", "floor_crack_medium", "floor_crack_nw", "floor_crack_se", "floor_broken_panel", "floor_exposed_underplate",
+        "floor_warning_north", "floor_warning_south", "floor_warning_corner_nw", "floor_warning_corner_ne", "floor_drainage_grate", "floor_access_hatch"
+      ]
+    },
+    "wall": {
+      "file": "lab_wall_autotiles_v2_64.png",
+      "size": [256, 256], "columns": 4, "rows": 4,
+      "solid": true,
+      "items": [
+        "wall_horizontal", "wall_horizontal_damaged", "wall_vertical", "wall_vertical_damaged",
+        "wall_end_left", "wall_end_right", "wall_end_top", "wall_end_bottom",
+        "wall_outer_nw", "wall_outer_ne", "wall_outer_sw", "wall_outer_se",
+        "wall_inner_nw", "wall_inner_ne", "wall_inner_sw", "wall_inner_se"
+      ]
+    },
+    "structure": {
+      "file": "lab_structure_doors_v2_64.png",
+      "size": [256, 256], "columns": 4, "rows": 4,
+      "items": [
+        {"id":"wall_t_open_north","solid":true}, {"id":"wall_t_open_south","solid":true}, {"id":"wall_t_open_east","solid":true}, {"id":"wall_t_open_west","solid":true},
+        {"id":"wall_cross","solid":true}, {"id":"wall_support_horizontal","solid":true}, {"id":"wall_support_vertical","solid":true}, {"id":"wall_console","solid":true},
+        {"id":"horizontal_door_closed","solid":true}, {"id":"horizontal_door_open","solid":false}, {"id":"vertical_door_closed","solid":true}, {"id":"vertical_door_open","solid":false},
+        {"id":"door_jamb_left","solid":true}, {"id":"door_jamb_right","solid":true}, {"id":"wall_breach_horizontal","solid":"configurable"}, {"id":"wall_breach_vertical","solid":"configurable"}
+      ]
+    },
+    "overlay": {
+      "file": "lab_overlay_decals_v2_64.png",
+      "size": [384, 256], "columns": 6, "rows": 4,
+      "solid": false,
+      "items": [
+        {"id":"grime_small","tag":"decor"}, {"id":"grime_medium","tag":"decor"}, {"id":"oil_stain","tag":"decor"}, {"id":"water_stain","tag":"decor"}, {"id":"contamination_spatter","tag":"contamination"}, {"id":"toxic_puddle_small","tag":"toxic"},
+        {"id":"toxic_puddle_large","tag":"toxic"}, {"id":"toxic_bubbles","tag":"toxic"}, {"id":"crack_overlay_small","tag":"decor"}, {"id":"crack_overlay_medium","tag":"decor"}, {"id":"crack_overlay_branching","tag":"decor"}, {"id":"broken_glass","tag":"decor"},
+        {"id":"rubble_small","tag":"decor"}, {"id":"rubble_large","tag":"decor"}, {"id":"cable_horizontal","tag":"electric"}, {"id":"cable_vertical","tag":"electric"}, {"id":"cable_corner","tag":"electric"}, {"id":"cable_t_junction","tag":"electric"},
+        {"id":"exposed_wires","tag":"electric"}, {"id":"electric_sparks","tag":"shock"}, {"id":"scorch_mark","tag":"decor"}, {"id":"warning_stencil","tag":"decor"}, {"id":"drain_leak","tag":"contamination"}, {"id":"lab_residue","tag":"decor"}
+      ]
+    }
+  }
+}
