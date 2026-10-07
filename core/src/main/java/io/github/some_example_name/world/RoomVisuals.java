@@ -6,7 +6,7 @@ package io.github.some_example_name.world;
  * 내부 배열은 [ty][tx], ty=0 이 맨 아래 줄(월드 y는 위로 증가).
  *
  * 레이어(없으면 null):
- *   floor      — 모든 통과 가능 셀의 기본/변형 바닥
+ *   floor      — 모든 셀(벽·문 포함)의 기본/변형 바닥. 항상 존재한다.
  *   overlay    — 바닥 위 데칼(오염/전선/장식). 바닥 리전을 교체하지 않는다.
  *   wall       — 벽 셀의 오토타일 결과(wall_*, T자/십자 포함)
  *   structure  — 문/구조물(바닥·벽과 별도 레이어)

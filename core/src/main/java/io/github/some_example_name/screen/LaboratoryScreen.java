@@ -23,6 +23,7 @@ import io.github.some_example_name.movement.RunStartDetector;
 import io.github.some_example_name.render.AnimationController;
 import io.github.some_example_name.render.DebugRenderer;
 import io.github.some_example_name.render.EntityRenderer;
+import io.github.some_example_name.render.TileDebugRenderer;
 import io.github.some_example_name.render.WorldRenderer;
 import io.github.some_example_name.world.LaboratoryLayout;
 import io.github.some_example_name.world.LaboratoryRoom;
@@ -58,9 +59,11 @@ public class LaboratoryScreen extends BaseScreen {
     private final WorldRenderer worldRenderer;
     private final EntityRenderer entityRenderer;
     private final DebugRenderer debugRenderer = new DebugRenderer();
+    private final TileDebugRenderer tileDebugRenderer = new TileDebugRenderer();
 
     private boolean paused = false;
-    private boolean debugEnabled = false;
+    private boolean debugEnabled = false;      // F1: 충돌 박스
+    private boolean tileDebugEnabled = false;   // F2: 타일 레이어/타입
 
     public LaboratoryScreen(LaboratoryGame game, GameAssets assets) {
         super(game, assets);
@@ -114,6 +117,9 @@ public class LaboratoryScreen extends BaseScreen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
             debugEnabled = !debugEnabled;
         }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F2)) {
+            tileDebugEnabled = !tileDebugEnabled;
+        }
 
         float animDelta = paused ? 0f : dt;
         if (!paused) {
@@ -130,6 +136,9 @@ public class LaboratoryScreen extends BaseScreen {
         entityRenderer.render(batch, player, animDelta);
         batch.end();
 
+        if (tileDebugEnabled) {
+            tileDebugRenderer.render(camera, room, visuals, batch);
+        }
         if (debugEnabled) {
             debugRenderer.render(camera, room, player);
         }
@@ -157,6 +166,7 @@ public class LaboratoryScreen extends BaseScreen {
     public void dispose() {
         batch.dispose();
         debugRenderer.dispose();
+        tileDebugRenderer.dispose();
         // 텍스처는 GameAssets 소유이므로 여기서 해제하지 않는다.
     }
 }

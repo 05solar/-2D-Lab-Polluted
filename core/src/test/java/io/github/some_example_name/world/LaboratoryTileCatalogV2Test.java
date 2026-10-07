@@ -122,6 +122,44 @@ public class LaboratoryTileCatalogV2Test {
         }
     }
 
+    @Test
+    public void transparentAtlasesHaveAlphaChannel() throws IOException {
+        // 벽/구조물/오버레이는 투명 배경 RGBA여야 한다(바닥 아래가 비치도록).
+        for (String file : new String[]{"lab_wall_autotiles_v2_64.png",
+                "lab_structure_doors_v2_64.png", "lab_overlay_decals_v2_64.png"}) {
+            java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(new File(assetDir, file));
+            assertNotNull(file, img);
+            assertTrue(file + " 알파 채널 존재", img.getColorModel().hasAlpha());
+            int topLeft = img.getRGB(0, 0) >>> 24;
+            assertEquals(file + " 좌상단 투명(alpha=0)", 0, topLeft);
+            boolean anyOpaque = false, anyTransparent = false;
+            for (int y = 0; y < img.getHeight() && !(anyOpaque && anyTransparent); y++) {
+                for (int x = 0; x < img.getWidth(); x++) {
+                    int a = img.getRGB(x, y) >>> 24;
+                    if (a == 0) anyTransparent = true;
+                    if (a > 0) anyOpaque = true;
+                    if (anyOpaque && anyTransparent) break;
+                }
+            }
+            assertTrue(file + " 투명 픽셀 존재", anyTransparent);
+            assertTrue(file + " 불투명 픽셀 존재", anyOpaque);
+        }
+    }
+
+    @Test
+    public void floorAtlasIsOpaqueBase() throws IOException {
+        // 바닥 렌더에서 blending을 끄므로 아틀라스 전체가 불투명해야 한다.
+        java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(
+            new File(assetDir, "lab_floor_tiles_v2_64.png"));
+        assertNotNull(img);
+        if (img.getColorModel().hasAlpha()) {
+            for (int y = 0; y < img.getHeight(); y++)
+                for (int x = 0; x < img.getWidth(); x++)
+                    assertEquals("바닥은 모든 픽셀 불투명 " + x + "," + y,
+                        255, img.getRGB(x, y) >>> 24);
+        }
+    }
+
     /** PNG IHDR에서 width/height를 읽는다(순수 Java, 이미지 라이브러리 불필요). */
     private static int[] pngSize(File f) throws IOException {
         try (RandomAccessFile raf = new RandomAccessFile(f, "r")) {

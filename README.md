@@ -23,6 +23,10 @@ Windows PowerShell:
 ```
 macOS/Linux에서는 `./gradlew`를 사용한다.
 
+게임 화면에서 F1은 충돌 영역, F2는 타일 레이어 ID와 셀 유형 테두리를 토글한다. 둘 다 기본값은 꺼짐이다.
+타일 렌더링 검증은 `./gradlew.bat clean core:test lwjgl3:build` 후 `./gradlew.bat lwjgl3:run`으로 실행한다.
+수정 후 실제 창 캡처는 `docs/images/map_black_voids_fixed.png`, `docs/images/map_black_voids_fixed_north.png`에 있다.
+
 ## 문서
 - [AGENTS.md](AGENTS.md) — AI 작업 규칙
 - [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md) — 기획

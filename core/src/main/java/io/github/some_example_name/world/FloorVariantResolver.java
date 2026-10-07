@@ -4,8 +4,11 @@ import java.util.Random;
 
 /**
  * 바닥 변형을 고정 seed로 1회 결정한다(실행마다 동일). 구역별로 분포를 다르게 주되
- * 같은 바닥 ID가 가로·세로로 3개 이상 연속되지 않게 한다. 결과는 통과 가능 셀의 바닥 ID,
- * 벽 셀은 null. 선택 ID는 모두 V2 바닥 아틀라스의 실제 타일이다.
+ * 같은 바닥 ID가 가로·세로로 3개 이상 연속되지 않게 한다. 선택 ID는 모두 V2 바닥 아틀라스의 실제 타일이다.
+ *
+ * <b>모든 셀에 바닥을 깐다(벽·문 포함).</b> 벽/문/오버레이는 바닥을 교체하지 않고 그 위에 그리는
+ * 별도 레이어이므로, 벽 타일의 투명 영역(가로벽은 절반 이상 투명) 아래로 반드시 바닥이 보여야
+ * 검은 배경이 비치지 않는다. 벽 셀 아래에는 장식 없는 깨끗한 바닥만 둔다.
  *
  * 권장 분포(README): 기본 A/B/C 65~75%, 약한 마모·얼룩 15~20%, 균열·보수·배수 5~10%,
  * 강한 파손/노출 5% 이하.
@@ -26,11 +29,16 @@ public final class FloorVariantResolver {
         Random rnd = new Random(seed);
         for (int ty = 0; ty < h; ty++) {
             for (int tx = 0; tx < w; tx++) {
-                if (logical[ty][tx] == TileType.WALL) { floor[ty][tx] = null; continue; }
-                String pick = pickFor(zones[ty][tx], rnd);
-                // 같은 ID 가로/세로 3연속 방지(이미 배치된 좌/하만 검사하면 충분)
-                if (runLeft(floor, tx, ty, pick) >= 2 || runDown(floor, tx, ty, pick) >= 2) {
-                    pick = pick.equals("floor_clean_a") ? "floor_clean_b" : "floor_clean_a";
+                // 벽 아래에는 장식 없는 깨끗한 바닥, 그 외에는 구역 분포. (모든 셀에 바닥 존재)
+                String pick = logical[ty][tx] == TileType.WALL
+                    ? CLEAN[rnd.nextInt(CLEAN.length)]
+                    : pickFor(zones[ty][tx], rnd);
+                // 같은 ID 가로/세로 3연속 방지. 두 축 모두 안전한 clean 대체를 찾는다
+                // (한 축만 보고 뒤집으면 다른 축에 새 연속이 생길 수 있음).
+                if (makesRun(floor, tx, ty, pick)) {
+                    for (String alt : CLEAN) {
+                        if (!makesRun(floor, tx, ty, alt)) { pick = alt; break; }
+                    }
                 }
                 floor[ty][tx] = pick;
             }
@@ -66,6 +74,11 @@ public final class FloorVariantResolver {
 
     private static String pick(Random rnd, String... options) {
         return options[rnd.nextInt(options.length)];
+    }
+
+    /** 이 ID를 (tx,ty)에 두면 좌 또는 하 방향으로 3연속이 되는가(승순 배치 기준). */
+    private static boolean makesRun(String[][] f, int tx, int ty, String id) {
+        return runLeft(f, tx, ty, id) >= 2 || runDown(f, tx, ty, id) >= 2;
     }
 
     private static int runLeft(String[][] f, int tx, int ty, String id) {

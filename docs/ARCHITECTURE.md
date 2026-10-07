@@ -147,4 +147,7 @@ world/
 └── LaboratoryRoom.java           # 논리 타일 + hazard 질의(+SolidGrid)
 ```
 렌더 레이어(한 배열에 섞지 않음): `WorldRenderer`가 floor→overlay→wall→structure 순으로 전체 맵을 그리고,
-그 뒤 `LaboratoryScreen`이 플레이어→(F1 디버그)를 그린다. 텍스처는 Nearest + ClampToEdge.
+그 뒤 `LaboratoryScreen`이 플레이어→(F1 충돌/F2 타일 디버그)를 그린다. 텍스처는 Nearest + ClampToEdge.
+`floor`는 벽·문을 포함한 20×15 전 셀에서 필수이며, 바닥 렌더 동안 블렌딩을 끄고 투명 오버레이·벽·문 전에
+`SRC_ALPHA/ONE_MINUS_SRC_ALPHA` 블렌딩을 다시 켠다. 벽의 방향과 파손 변형 선택은 `WallAutotiler` 한 곳에서 한다.
+직선 벽만 좌표 기반으로 약 12.5% 파손 변형을 사용하며 모서리·끝·T자·십자·문은 전용 방향 타일을 유지한다.

@@ -5,12 +5,14 @@
 랜덤은 seed/공급자 주입으로 재현 가능하게 한다.
 
 ## 현재 상태
-- 1단계 + 배경 다양화 완료. 단위 테스트 **19개 통과** (`./gradlew.bat core:test`).
+- 1단계 + Laboratory Tileset V2 렌더링 수정까지 단위 테스트 **42개 통과** (`./gradlew.bat core:test`).
   - `movement/RunStartDetectorTest` (4): 달리기 시작 1회성/재시작 2회성.
   - `movement/MovementSystemTest` (3): 이동 거리=speed*delta(프레임 독립), 뛰기>걷기, 벽 비통과.
   - `input/InputStateTest` (2): pressed/held/released 엣지.
   - `world/LaboratoryRoomTest` (3): 테두리/범위밖 고체, 스폰 바닥, 크기.
-  - `world/LaboratoryLayoutTest` (7): 아래 배경 다양화 시나리오.
+  - `world/LaboratoryLayoutTest` (14): 아래 배경 다양화 및 4레이어 시나리오.
+  - `world/LaboratoryTileCatalogV2Test` (8): ID/인덱스, PNG 크기·알파.
+  - `world/WallAutotilerTest` (8): 직선·끝·모서리·T자·십자·문 연결.
 - 전투/보물/팀장 테스트는 해당 단계에서 추가.
 
 ### 배경 다양화 (LaboratoryLayoutTest)
@@ -65,9 +67,15 @@
 - ID↔인덱스/행열 매핑, 충돌(열린 문=통과, breach=조건부), 태그(toxic/shock/electric/decor)
 
 맵(`LaboratoryLayoutTest`): 20×15, 스폰 통과·3×3 위험 없음, 외벽 충돌(출입구 제외), 문 방향·구조물 타일·문 미덮어쓰기,
-정비 도달/오염 밀폐(BFS), 벽 셀=벽타일·비벽=바닥, 오버레이 벽 위 금지, 바닥 3연속 금지, 경고선 경계, hazard(TOXIC/SHOCK) 존재, 재현성.
+정비 도달/오염 밀폐(BFS), 모든 셀(벽·문 포함)=바닥, 벽/구조물/오버레이 별도 레이어, 열린 문 void 없음,
+오버레이 벽 위 금지, 바닥 3연속 금지, 경고선 경계, hazard(TOXIC/SHOCK) 존재, 재현성.
 
-벽 오토타일(`WallAutotilerTest`): 직선·바깥 모서리·끝단·T자(접합)·안쪽 모서리 매핑, 문 미덮어쓰기.
+벽 오토타일(`WallAutotilerTest`): 직선·바깥 모서리·네 방향 끝단·네 방향 T자·네 방향 안쪽 모서리·십자,
+문 미덮어쓰기, 직선 파손 변형 약 10~15%와 콘솔 미사용.
+
+PNG 알파(`LaboratoryTileCatalogV2Test`): 벽/구조물/오버레이의 알파 채널·좌상단 alpha=0·투명/불투명 픽셀,
+불투명 바닥 아틀라스 전체 픽셀 검사(ImageIO, GL 불필요).
 
 회귀: 이동/달리기 시작/충돌/카메라/애니메이션 로딩 테스트 그대로 통과.
 검증 명령: `./gradlew.bat clean core:test lwjgl3:build` 후 `./gradlew.bat lwjgl3:run`.
+2026-10-07 기준 core 테스트 42개 통과. 실제 창 캡처는 `docs/images/map_black_voids_fixed*.png`.

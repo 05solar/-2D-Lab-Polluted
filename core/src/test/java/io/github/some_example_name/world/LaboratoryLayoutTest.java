@@ -111,18 +111,58 @@ public class LaboratoryLayoutTest {
     }
 
     @Test
-    public void wallCellsHaveWallTileAndFloorElsewhere() {
+    public void everyCellHasFloorIncludingWallsAndDoors() {
+        // 모든 셀(벽·문 포함)에 바닥이 먼저 존재해야 투명 벽/문 아래로 검은 배경이 비치지 않는다.
         int w = room.widthInTiles(), h = room.heightInTiles();
         for (int ty = 0; ty < h; ty++) {
             for (int tx = 0; tx < w; tx++) {
+                assertNotNull("모든 셀에 바닥 " + tx + "," + ty, visuals.floorAt(tx, ty));
                 if (room.tileAt(tx, ty) == TileType.WALL) {
-                    assertNotNull("벽 셀은 벽 타일", visuals.wallAt(tx, ty));
-                    assertNull("벽 셀엔 바닥 없음", visuals.floorAt(tx, ty));
-                } else {
-                    assertNotNull("비벽 셀은 바닥", visuals.floorAt(tx, ty));
+                    assertNotNull("벽 셀은 벽 타일도 가짐", visuals.wallAt(tx, ty));
                 }
             }
         }
+    }
+
+    @Test
+    public void wallTileIsSeparateLayerFromFloor() {
+        // 벽은 floor를 교체하지 않고 별도 레이어에 저장된다(벽 셀도 floor != wall).
+        assertNotNull(visuals.floorAt(0, 0));          // 외곽 벽 셀
+        assertNotNull(visuals.wallAt(0, 0));
+        assertTrue("바닥 ID는 바닥 계열", visuals.floorAt(0, 0).startsWith("floor_"));
+        assertTrue("벽 ID는 벽 계열", visuals.wallAt(0, 0).startsWith("wall_"));
+    }
+
+    @Test
+    public void openDoorHasFloorAndNoVoidTile() {
+        // 열린 문 셀: 바닥 존재 + 구조물은 열린 문(검은 void 아님).
+        assertNotNull(visuals.floorAt(3, 0));
+        assertEquals("horizontal_door_open", visuals.structureAt(3, 0));
+        assertNotNull(visuals.floorAt(12, 3));
+        assertEquals("vertical_door_open", visuals.structureAt(12, 3));
+        // 어떤 레이어에도 void/black/empty 같은 ID가 없다.
+        int w = visuals.widthInTiles(), h = visuals.heightInTiles();
+        for (int ty = 0; ty < h; ty++) {
+            for (int tx = 0; tx < w; tx++) {
+                for (String id : new String[]{visuals.floorAt(tx, ty), visuals.overlayAt(tx, ty),
+                        visuals.wallAt(tx, ty), visuals.structureAt(tx, ty)}) {
+                    if (id == null) continue;
+                    String lo = id.toLowerCase();
+                    assertFalse("void/black 타일 금지: " + id,
+                        lo.contains("void") || lo.contains("black") || lo.contains("empty"));
+                }
+            }
+        }
+    }
+
+    @Test
+    public void overlayDoesNotReplaceFloor() {
+        // 오버레이가 있는 셀도 바닥이 그대로 존재한다(교체 아님).
+        int w = visuals.widthInTiles(), h = visuals.heightInTiles();
+        for (int ty = 0; ty < h; ty++)
+            for (int tx = 0; tx < w; tx++)
+                if (visuals.overlayAt(tx, ty) != null)
+                    assertNotNull("오버레이 아래 바닥 유지 " + tx + "," + ty, visuals.floorAt(tx, ty));
     }
 
     @Test

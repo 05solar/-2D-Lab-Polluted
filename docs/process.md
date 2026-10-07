@@ -181,3 +181,63 @@ visuals(RoomVisuals)의 출처:
 ## 8. 남은 문제
 - 가구·소품(실험대/서버랙/발전기 등)은 V2에도 전용 스프라이트가 없어 미배치(Y-sort 렌더 레이어 자리만 준비). 에셋 확보 시 2차.
 - `wall_breach_*` 지름길 충돌 토글, 문 개폐 상호작용, hazard 실제 피해는 이후 단계.
+
+---
+
+# 벽 주변 검은 사각형/검은 통로 수정 (2026-10-07)
+
+브랜치: `fix-black-voids` (main 605e3a3에서 분기).
+
+## 검은 배경이 발생한 실제 원인 (확정)
+- `FloorVariantResolver`가 WALL 셀에 `floor=null`을 넣었고 `WorldRenderer`는 null 바닥을 건너뛰어,
+  **벽 셀 아래에 바닥이 전혀 깔리지 않았다.** V2 벽 타일은 투명 배경 RGBA(가로벽 `wall_horizontal`은
+  4096px 중 **2168px(≈53%)가 투명**)라, 바닥 없는 벽의 투명 영역으로 어두운 clear 색(0.05,0.05,0.06)이
+  비쳐 검은 띠·검은 사각형으로 보였다. 중앙 가로 띠=내부 가로벽, 우측 세로 띠=내부 세로벽, 북쪽 방
+  둘레 검정=오염실 벽. 이전 덤프 재구성은 캔버스가 거의 검정이라 이 버그가 가려졌었다(사용자 지적이 정확).
+- 교차검증: PNG 알파 정상(wall/structure/overlay 모두 RGBA, 좌상단 alpha=0, 투명·불투명 공존),
+  floor는 RGB 불투명. 즉 알파/블렌딩/포맷 문제가 아니라 **바닥 미렌더**가 원인.
+
+## 수정 내용
+1. `FloorVariantResolver`: **모든 셀(벽·문 포함)에 바닥**을 깐다. 벽 아래는 장식 없는 깨끗한 바닥
+   (floor_clean_a/b/c). 3연속 방지 로직도 수정 — 한 축만 보고 뒤집다 다른 축에 연속을 만들던 버그를
+   고쳐 좌·하 두 축 모두 안전한 clean 대체를 고르게 함(`makesRun`).
+2. `WorldRenderer`: 레이어 순서 유지(floor→overlay→wall→structure) + 블렌딩 관리 추가.
+   불투명 바닥은 `disableBlending`으로 그리고, 투명 레이어 전에 `enableBlending`+SRC_ALPHA 블렌드 복구.
+   바닥이 모든 셀에 있으므로 벽/문 투명부 아래로 항상 바닥이 보인다(검은 배경 없음).
+3. `TileDebugRenderer`(신규) + `LaboratoryScreen` F2 토글(기본 off): 타입별 셀 테두리 색
+   (바닥 회색/벽 빨강/닫힌문 주황/열린문 초록/위험 보라) + 각 셀 레이어 ID(F/O/W/S) 표시.
+4. 테스트:
+   - `LaboratoryLayoutTest`: "벽 셀엔 바닥 없음" → **"모든 셀에 바닥 존재(벽·문 포함)"**로 뒤집고,
+     벽=별도 레이어, 열린 문 바닥+void 타일 없음, 오버레이가 바닥 미교체 테스트 추가.
+   - `LaboratoryTileCatalogV2Test`: 벽/구조물/오버레이 **알파 채널·좌상단 투명·투명·불투명 공존**
+     (ImageIO), 바닥 불투명 테스트 추가.
+5. `WallAutotiler`: 기존 아틀라스의 파손 직선 벽을 좌표 기반으로 약 12.5%만 선택한다.
+   `wall_console`은 일반 직선에 쓰지 않으며 모서리·끝·T자·십자는 각 방향 전용 타일을 유지한다.
+6. F2 글자는 BitmapFont의 정수 월드 좌표 반올림을 끄고 셀 안에 들어가도록 크기를 줄였다.
+
+## 테스트·실행 결과
+- `./gradlew.bat clean core:test lwjgl3:build` = **42/42 통과, 데스크톱 빌드 성공**.
+- `./gradlew.bat lwjgl3:run` = 4개 아틀라스 정상 로드, 실행 오류 없음.
+- 실제 실행 창에서 남쪽 시작 화면 `docs/images/map_black_voids_fixed.png`, 북동쪽 격리실·중앙 통로·정비실
+  `docs/images/map_black_voids_fixed_north.png` 캡처. 벽·문 투명부 아래 바닥이 보이고 중앙 가로 띠/오른쪽 세로 띠/
+  북쪽 방 둘레의 큰 검은 빈 영역이 없다. 실제 지도 바깥은 어두운 clear 색으로 남는다.
+- F2 셀 테두리와 F/O/W/S ID 표시를 실제 실행 창에서 확인했다.
+- 열린 문 통과·닫힌 문/벽 비통과는 레이아웃/이동 테스트로 확인했다. 키보드 수동 플레이 전 구간 검증은 수행하지 않았다.
+
+## 남은 사항
+- 벽 타일 자체의 청록 표시등과 셀 내부 여백은 기존 아틀라스 그림이다. 에셋을 변경하지 않는 요청 범위에서
+  방향·레이어·파손 변형 선택만 수정했다.
+- 가구·소품, 문 개폐 상호작용, 위험 타일 피해는 후속 작업이다.
+
+## 수정한 파일 목록
+- core/.../world/FloorVariantResolver.java
+- core/.../world/WallAutotiler.java
+- core/.../world/RoomVisuals.java
+- core/.../render/WorldRenderer.java
+- core/.../render/TileDebugRenderer.java (신규)
+- core/.../screen/LaboratoryScreen.java (F2)
+- core/.../test/.../world/LaboratoryLayoutTest.java
+- core/.../test/.../world/LaboratoryTileCatalogV2Test.java
+- core/.../test/.../world/WallAutotilerTest.java
+- README.md, docs/ARCHITECTURE.md, docs/TEST_PLAN.md, docs/ROADMAP.md, docs/CHANGELOG.md
+- docs/images/map_black_voids_fixed.png, docs/images/map_black_voids_fixed_north.png

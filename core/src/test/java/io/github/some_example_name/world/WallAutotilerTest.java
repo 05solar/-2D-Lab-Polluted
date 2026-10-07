@@ -2,6 +2,7 @@ package io.github.some_example_name.world;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import com.badlogic.gdx.math.Vector2;
 import org.junit.Test;
@@ -52,8 +53,9 @@ public class WallAutotilerTest {
         assertEquals("wall_t_open_north", v.wallAt(2, 4));
         assertEquals(WallAutotiler.Shape.T_OPEN_SOUTH, autotiler.classify(r, 2, 0));
         assertEquals("wall_t_open_south", v.wallAt(2, 0));
-        // 세로 분리벽 가운데는 수직 벽
-        assertEquals("wall_vertical", v.wallAt(2, 2));
+        // 세로 분리벽 가운데는 수직 벽(고정 좌표 변형으로 파손형).
+        assertEquals(WallAutotiler.Shape.VERTICAL, autotiler.classify(r, 2, 2));
+        assertEquals("wall_vertical_damaged", v.wallAt(2, 2));
     }
 
     @Test
@@ -101,5 +103,55 @@ public class WallAutotilerTest {
         LaboratoryRoom r = new LaboratoryRoom(t, new Vector2(2.5f, 2.5f));
         assertEquals(WallAutotiler.Shape.INNER_NE, autotiler.classify(r, 1, 1));
         assertEquals("wall_inner_ne", autotiler.tileId(r, 1, 1));
+    }
+
+    @Test
+    public void allEndCapsAndTJunctionsHaveDirectionalTiles() {
+        TileType W = TileType.WALL, F = TileType.FLOOR;
+        int[][] arms = {{1, 2}, {2, 1}, {1, 0}, {0, 1}}; // N E S W
+        WallAutotiler.Shape[] ends = {WallAutotiler.Shape.END_BOTTOM, WallAutotiler.Shape.END_LEFT,
+            WallAutotiler.Shape.END_TOP, WallAutotiler.Shape.END_RIGHT};
+        WallAutotiler.Shape[] tees = {WallAutotiler.Shape.T_OPEN_NORTH, WallAutotiler.Shape.T_OPEN_EAST,
+            WallAutotiler.Shape.T_OPEN_SOUTH, WallAutotiler.Shape.T_OPEN_WEST};
+        for (int omit = 0; omit < 4; omit++) {
+            TileType[][] end = {{F, F, F}, {F, W, F}, {F, F, F}};
+            end[arms[omit][1]][arms[omit][0]] = W;
+            assertEquals(ends[omit], autotiler.classify(new LaboratoryRoom(end, new Vector2()), 1, 1));
+
+            TileType[][] tee = {{F, W, F}, {W, W, W}, {F, W, F}};
+            tee[arms[omit][1]][arms[omit][0]] = F;
+            assertEquals(tees[omit], autotiler.classify(new LaboratoryRoom(tee, new Vector2()), 1, 1));
+        }
+    }
+
+    @Test
+    public void allInnerCornersAndCrossHaveDirectionalTiles() {
+        TileType W = TileType.WALL, F = TileType.FLOOR;
+        int[][] diagonals = {{0, 2}, {2, 2}, {0, 0}, {2, 0}}; // NW NE SW SE
+        WallAutotiler.Shape[] corners = {WallAutotiler.Shape.INNER_NW, WallAutotiler.Shape.INNER_NE,
+            WallAutotiler.Shape.INNER_SW, WallAutotiler.Shape.INNER_SE};
+        for (int i = 0; i < diagonals.length; i++) {
+            TileType[][] tiles = {{W, W, W}, {W, W, W}, {W, W, W}};
+            tiles[diagonals[i][1]][diagonals[i][0]] = F;
+            assertEquals(corners[i], autotiler.classify(new LaboratoryRoom(tiles, new Vector2()), 1, 1));
+        }
+        TileType[][] full = {{W, W, W}, {W, W, W}, {W, W, W}};
+        assertEquals(WallAutotiler.Shape.CROSS,
+            autotiler.classify(new LaboratoryRoom(full, new Vector2()), 1, 1));
+    }
+
+    @Test
+    public void straightWallDamageIsSparseAndNoConsoleIsUsed() {
+        TileType[][] tiles = new TileType[3][82];
+        for (TileType[] row : tiles) java.util.Arrays.fill(row, TileType.FLOOR);
+        for (int x = 1; x <= 80; x++) tiles[1][x] = TileType.WALL;
+        LaboratoryRoom longWall = new LaboratoryRoom(tiles, new Vector2());
+        int damaged = 0;
+        for (int x = 2; x < 80; x++) {
+            String id = autotiler.tileId(longWall, x, 1);
+            if (id.equals("wall_horizontal_damaged")) damaged++;
+            else assertEquals("wall_horizontal", id);
+        }
+        assertTrue("직선 벽 파손 변형은 약 10~15%", damaged >= 8 && damaged <= 12);
     }
 }

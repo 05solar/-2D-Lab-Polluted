@@ -28,7 +28,14 @@ public class WallAutotiler {
     }
 
     public String tileId(LaboratoryRoom room, int tx, int ty) {
-        return idFor(classify(room, tx, ty));
+        Shape shape = classify(room, tx, ty);
+        // 직선에서만 약 1/8을 파손 변형으로 쓴다. 좌표 기반이라 실행마다 동일하며
+        // 끝·모서리·접합부·문은 방향별 전용 타일을 유지한다.
+        if ((shape == Shape.HORIZONTAL || shape == Shape.VERTICAL)
+                && Math.floorMod(tx * 17 + ty * 31, 8) == 0) {
+            return shape == Shape.HORIZONTAL ? "wall_horizontal_damaged" : "wall_vertical_damaged";
+        }
+        return idFor(shape);
     }
 
     public Shape classify(LaboratoryRoom room, int tx, int ty) {
