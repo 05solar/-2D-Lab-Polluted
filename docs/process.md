@@ -217,7 +217,8 @@ visuals(RoomVisuals)의 출처:
 
 ## 테스트·실행 결과
 - `./gradlew.bat clean core:test lwjgl3:build` = **42/42 통과, 데스크톱 빌드 성공**.
-- `./gradlew.bat lwjgl3:run` = 4개 아틀라스 정상 로드, 실행 오류 없음.
+- `./gradlew.bat lwjgl3:run` = 4개 아틀라스 정상 로드, 실행 중 예외 없음. 캡처 후 게임 프로세스를
+  `Stop-Process`로 종료했으므로 Gradle의 `:lwjgl3:run` 작업은 종료 코드 -1로 기록됐다.
 - 실제 실행 창에서 남쪽 시작 화면 `docs/images/map_black_voids_fixed.png`, 북동쪽 격리실·중앙 통로·정비실
   `docs/images/map_black_voids_fixed_north.png` 캡처. 벽·문 투명부 아래 바닥이 보이고 중앙 가로 띠/오른쪽 세로 띠/
   북쪽 방 둘레의 큰 검은 빈 영역이 없다. 실제 지도 바깥은 어두운 clear 색으로 남는다.
