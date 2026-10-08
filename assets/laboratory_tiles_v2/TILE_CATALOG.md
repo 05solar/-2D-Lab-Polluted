@@ -116,3 +116,11 @@
 - 강한 오염·노출 배선·경고선: 5% 이하
 
 장식 변형은 고정 seed로 선택하고 같은 타일이 가로 또는 세로로 3회 이상 반복되지 않게 배치합니다.
+
+## Connected atlas derivation
+
+The catalog now loads `lab_wall_connected_v3_64.png`, `lab_structure_connected_v3_64.png`, and `lab_vertical_jambs_v3_64.png`. The original V2 wall/structure PNGs remain source art. Regenerate the derived files using the Java 8/ImageIO tool in `tools/WallSeamAtlasGenerator.java` as documented in the root README. Every atlas cell remains 64x64 RGBA with no trimming or runtime rotation. Connector masks use north=y+1, east=x+1, south=y-1, west=x-1; source atlas rows start at the top.
+
+## Side door render override
+
+`lab_side_doors_2x2_64.png` is a standalone 128×128 RGBA sheet split into four 64×64 cells. Runtime uses source row 0, column 0 for `vertical_door_closed` and row 0, column 1 for `vertical_door_open`. `GameAssets` replaces only those IDs' render regions; catalog collision and door state metadata remain authoritative. Horizontal doors continue to use the structure atlas.

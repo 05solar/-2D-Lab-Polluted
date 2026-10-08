@@ -14,6 +14,7 @@ public class LaboratoryRoom implements SolidGrid {
 
     private final TileType[][] tiles;   // [ty][tx], 논리 타일
     private final Hazard[][] hazards;   // [ty][tx], 위험 데이터(오버레이에서 유도)
+    private final Door[][] doors;        // 위치·방향 고정, 상태로 충돌 판정
     private final int widthInTiles;
     private final int heightInTiles;
     private final Vector2 spawnPoint;
@@ -23,18 +24,30 @@ public class LaboratoryRoom implements SolidGrid {
     }
 
     public LaboratoryRoom(TileType[][] tiles, Vector2 spawnPoint, Hazard[][] hazards) {
+        this(tiles, spawnPoint, hazards, null);
+    }
+
+    public LaboratoryRoom(TileType[][] tiles, Vector2 spawnPoint, Hazard[][] hazards, Door[][] doors) {
         this.tiles = tiles;
         this.heightInTiles = tiles.length;
         this.widthInTiles = tiles[0].length;
         this.spawnPoint = spawnPoint;
         this.hazards = hazards;
+        this.doors = doors;
     }
 
     public TileType tileAt(int tileX, int tileY) {
         if (tileX < 0 || tileY < 0 || tileX >= widthInTiles || tileY >= heightInTiles) {
             return TileType.WALL; // 범위 밖은 벽으로 취급(충돌 기준)
         }
-        return tiles[tileY][tileX];
+        Door door = doorAt(tileX, tileY);
+        return door == null ? tiles[tileY][tileX] : door.tileType();
+    }
+
+    public Door doorAt(int tileX, int tileY) {
+        if (doors == null || tileX < 0 || tileY < 0 ||
+            tileX >= widthInTiles || tileY >= heightInTiles) return null;
+        return doors[tileY][tileX];
     }
 
     @Override

@@ -1,10 +1,17 @@
 package io.github.some_example_name.input;
 
+import io.github.some_example_name.entity.player.Player;
+
 /**
  * InputState를 읽어 플레이어 의도(PlayerIntent)로 변환한다. 순수 매핑이라 테스트 가능.
  * 실제 이동/공격 적용은 각 시스템이 담당한다(여기서는 규칙을 바꾸지 않는다).
  */
 public class PlayerController {
+
+    public PlayerIntent intentFrom(Player player, InputState input) {
+        if (player.isDead()) return new PlayerIntent(0f, 0f, false, false, false);
+        return intentFrom(input);
+    }
 
     public PlayerIntent intentFrom(InputState input) {
         float moveX = 0f;

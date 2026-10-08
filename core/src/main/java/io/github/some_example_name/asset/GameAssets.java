@@ -2,6 +2,7 @@ package io.github.some_example_name.asset;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
@@ -13,6 +14,8 @@ import io.github.some_example_name.entity.Direction;
 import io.github.some_example_name.render.AnimationSet;
 import io.github.some_example_name.world.LaboratoryTileCatalogV2;
 import io.github.some_example_name.world.LaboratoryTileSetV2;
+import io.github.some_example_name.combat.MonsterType;
+import io.github.some_example_name.render.MonsterAnimationSet;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,9 +32,15 @@ public class GameAssets implements Disposable {
 
     private final Map<String, Texture> atlasTextures = new HashMap<>();
     private final LaboratoryTileSetV2 tileSet;
+    private final Texture sideDoorTexture;
+    private final HeadquartersAssets headquartersAssets;
+    private final Texture fadePixel;
 
     private final Texture playerTexture;
+    private final Texture playerDeathTexture;
     private final AnimationSet playerAnimations;
+    private final Map<MonsterType, Texture> monsterTextures = new HashMap<>();
+    private final Map<MonsterType, MonsterAnimationSet> monsterAnimations = new HashMap<>();
 
     public GameAssets() {
         LaboratoryTileCatalogV2 catalog = LaboratoryTileCatalogV2.fromJson(
@@ -44,14 +53,29 @@ public class GameAssets implements Disposable {
                 + " grid=" + atlas.columns + "x" + atlas.rows + " tiles=" + atlas.ids.size());
         }
         tileSet = new LaboratoryTileSetV2(catalog, atlasTextures);
+        sideDoorTexture = loadTile(AssetPaths.LAB_SIDE_DOORS);
+        TextureRegion[][] sideDoors = TextureRegion.split(sideDoorTexture, 64, 64);
+        // Sheet row 0: left frame is closed, right frame is open. Keep logical door IDs.
+        tileSet.replaceRegion("vertical_door_closed", sideDoors[0][0]);
+        tileSet.replaceRegion("vertical_door_open", sideDoors[0][1]);
         Gdx.app.log("GameAssets", "tileSet regions=" + tileSet.regionCount());
+
+        headquartersAssets = new HeadquartersAssets();
+        Pixmap pixel = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixel.setColor(1f, 1f, 1f, 1f);
+        pixel.fill();
+        fadePixel = new Texture(pixel);
+        pixel.dispose();
 
         playerTexture = loadTile(AssetPaths.PLAYER_SHEET);
         playerAnimations = loadPlayerAnimations(playerTexture);
+        playerDeathTexture = loadTile(AssetPaths.PLAYER_DEATH_SHEET);
+        loadPlayerDeathAnimations(playerDeathTexture, playerAnimations);
+        loadMonsterAssets();
     }
 
     /** Nearest 필터 + ClampToEdge(타일 경계 번짐/보라선 방지). */
-    private static Texture loadTile(String path) {
+    static Texture loadTile(String path) {
         Texture texture = new Texture(Gdx.files.internal(path));
         texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         texture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
@@ -74,8 +98,9 @@ public class GameAssets implements Disposable {
 
             Array<TextureRegion> regions = new Array<>();
             for (int fi : frameIndices) regions.add(frames[row][fi]);
-            Animation<TextureRegion> animation = new Animation<>(frameDuration, regions,
-                loop ? Animation.PlayMode.LOOP : Animation.PlayMode.NORMAL);
+            Animation<TextureRegion> animation = new Animation<>(frameDuration,
+                regions.toArray(TextureRegion.class));
+            animation.setPlayMode(loop ? Animation.PlayMode.LOOP : Animation.PlayMode.NORMAL);
             set.putAnimation(name, animation);
 
             if (a.has("hitFrames")) set.putHitFrames(name, a.get("hitFrames").asIntArray());
@@ -91,13 +116,75 @@ public class GameAssets implements Disposable {
         return set;
     }
 
+    private static void loadPlayerDeathAnimations(Texture sheet, AnimationSet set) {
+        JsonValue root = new JsonReader().parse(
+            Gdx.files.internal(AssetPaths.PLAYER_DEATH_ANIMATION_DATA));
+        int frameW = root.getInt("frameWidth"), frameH = root.getInt("frameHeight");
+        if (frameW != 64 || frameH != 64 || sheet.getWidth() != 512 || sheet.getHeight() != 256)
+            throw new IllegalStateException("unexpected player death sheet dimensions");
+        TextureRegion[][] grid = TextureRegion.split(sheet, frameW, frameH);
+        for (JsonValue a = root.get("animations").child; a != null; a = a.next) {
+            int row = a.getInt("row");
+            int[] indices = a.get("frames").asIntArray();
+            Array<TextureRegion> frames = new Array<>();
+            for (int index : indices) frames.add(grid[row][index]);
+            Animation<TextureRegion> animation = new Animation<>(a.getFloat("frameDuration"),
+                frames.toArray(TextureRegion.class));
+            animation.setPlayMode(a.getBoolean("loop", false)
+                ? Animation.PlayMode.LOOP : Animation.PlayMode.NORMAL);
+            set.putAnimation(a.name(), animation);
+        }
+    }
+
+    private void loadMonsterAssets() {
+        loadMonster(MonsterType.SLIME, "slime");
+        loadMonster(MonsterType.RESEARCHER, "researcher");
+        loadMonster(MonsterType.GUARD, "guard");
+        loadMonster(MonsterType.TEAM_LEADER, "team_leader");
+    }
+
+    private void loadMonster(MonsterType type, String key) {
+        String base = AssetPaths.MONSTER_DIR + key;
+        com.badlogic.gdx.utils.JsonValue root = new JsonReader().parse(
+            Gdx.files.internal(base + "_animations.json"));
+        Texture texture = loadTile(AssetPaths.MONSTER_DIR + root.getString("image"));
+        monsterTextures.put(type, texture);
+        int frameW = root.getInt("frameWidth"), frameH = root.getInt("frameHeight");
+        TextureRegion[][] grid = TextureRegion.split(texture, frameW, frameH);
+        MonsterAnimationSet set = new MonsterAnimationSet();
+        for (com.badlogic.gdx.utils.JsonValue a = root.get("animations").child;
+             a != null; a = a.next) {
+            int row = a.getInt("row");
+            int[] indices = a.get("frames").asIntArray();
+            float duration = a.getFloat("frameDuration");
+            com.badlogic.gdx.utils.Array<TextureRegion> frames = new com.badlogic.gdx.utils.Array<>();
+            for (int index : indices) frames.add(grid[row][index]);
+            boolean loop = a.getBoolean("loop", false);
+            Animation<TextureRegion> animation = new Animation<>(duration,
+                frames.toArray(TextureRegion.class));
+            animation.setPlayMode(loop ? Animation.PlayMode.LOOP : Animation.PlayMode.NORMAL);
+            int[] hit = a.has("hitFrames") ? a.get("hitFrames").asIntArray() : null;
+            set.put(a.name(), animation, hit);
+        }
+        monsterAnimations.put(type, set);
+    }
+
     public LaboratoryTileSetV2 tileSet() { return tileSet; }
+    public HeadquartersAssets headquarters() { return headquartersAssets; }
+    public Texture fadePixel() { return fadePixel; }
 
     public AnimationSet playerAnimations() { return playerAnimations; }
+    public MonsterAnimationSet monsterAnimations(MonsterType type) { return monsterAnimations.get(type); }
+    public Map<MonsterType, MonsterAnimationSet> monsterAnimations() { return monsterAnimations; }
 
     @Override
     public void dispose() {
         for (Texture tex : atlasTextures.values()) tex.dispose();
+        sideDoorTexture.dispose();
+        headquartersAssets.dispose();
+        fadePixel.dispose();
         playerTexture.dispose();
+        playerDeathTexture.dispose();
+        for (Texture texture : monsterTextures.values()) texture.dispose();
     }
 }

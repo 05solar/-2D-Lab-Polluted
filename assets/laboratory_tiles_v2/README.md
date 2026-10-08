@@ -34,3 +34,7 @@
 - LibGDX 필터는 `TextureFilter.Nearest`, 래핑은 `ClampToEdge`를 사용합니다.
 
 전체 타일 설명은 `TILE_CATALOG.md`, 프로그램용 데이터는 `laboratory_tiles_v2.json`을 참고하세요.
+
+## Connected atlas derivation
+
+The catalog now loads `lab_wall_connected_v3_64.png`, `lab_structure_connected_v3_64.png`, and `lab_vertical_jambs_v3_64.png`. The original V2 wall/structure PNGs remain source art. Regenerate the derived files using the Java 8/ImageIO tool in `tools/WallSeamAtlasGenerator.java` as documented in the root README. Every atlas cell remains 64x64 RGBA with no trimming or runtime rotation. Connector masks use north=y+1, east=x+1, south=y-1, west=x-1; source atlas rows start at the top.

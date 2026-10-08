@@ -41,7 +41,12 @@
 - 경비원 순찰·추격, 연구원 거리 유지 공격, 몬스터별 데이터 분리
 
 ## 6단계: 본부와 성장 — TODO
-- 체력 회복, 능력 강화(공격력·체력·운반), 저장/불러오기
+- 체력 회복, 능력 강화(공격력·체력·운반), 저장/불러오기, 자판기 구매 UI
+
+### 본부 기본 맵과 연구소 진입 — DONE
+- 독립된 20×15 안전 천막, 구역별 가구, 지면 충돌, 남쪽 출구를 구현했다.
+- 0.35초 페이드 전환과 입력 잠금, 공유 플레이어 상태 유지를 구현했다.
+- 자판기 접근 강조와 F1 본부 충돌·출구 디버그를 구현했다. 구매·회복 기능은 6단계에 남는다.
 
 ## 7단계: 콘텐츠·완성도 — TODO
 - 추가 구역, 사운드, 애니메이션, UI, 클리어 조건, Android 조작·성능(선택)
@@ -56,3 +61,26 @@
 - 벽·문 셀을 포함한 모든 셀에 바닥을 그리고 투명 레이어의 알파 블렌딩을 보장한다.
 - 직선 벽의 파손 변형을 드물게 배치하고 F2 타일 레이어 디버그를 제공한다.
 - core 테스트 42개 통과, 데스크톱 빌드 성공. 실제 실행 창에서 남쪽·북동쪽 화면을 캡처해 검은 빈 공간 제거를 확인했다.
+
+### 1단계 보강 3: 벽 연결 및 문 조립 — DONE
+
+- 원본 V2 PNG를 보존하고 셀 경계까지 금속 본체가 닿는 파생 벽·문·문틀 아틀라스를 적용했다.
+- 9×9 시각 갤러리와 문 조립 맵, 실제 20×15 맵 화면에서 수평·수직 연결을 확인했다.
+- 오토타일 마스크, 문 방향/문틀, 상호 연결 검증, F2 연결점 표시, 이미지 연결 테스트를 추가했다.
+- 무작위 바닥 seam이 단독 벽처럼 보이던 배치를 제거했다.
+## First combat pass (2026-10-07)
+
+- [x] Four monster types, seeded laboratory placement, basic wander/chase/attack, health and death handling.
+- [x] Player melee attacks on configured hit frames, damage/invulnerability, player and monster HP bars, team leader run-noise enrage.
+- [ ] Follow-up: game-over flow, dedicated hit/death animations, richer attack effects, and broader manual balance playtesting.
+# Player death presentation
+
+- [x] Load the supplied directional death sheet and play it once on lethal damage, holding the final frame.
+- [x] Block player actions and cancel active attacks after death.
+- [ ] Add a game-over or revival flow (out of scope for the death animation pass).
+
+## Compact headquarters shop
+
+- [x] Reduce headquarters to a 14x10 furnished safe map with a fixed full-map camera.
+- [x] Add the supplied three-state SPACE keycap prompt and one-shot vending interaction feedback.
+- [ ] Implement the real shop and purchase flow.

@@ -1,6 +1,8 @@
 package io.github.some_example_name.screen;
 
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import io.github.some_example_name.LaboratoryGame;
 import io.github.some_example_name.asset.GameAssets;
 
@@ -16,5 +18,10 @@ public abstract class BaseScreen extends ScreenAdapter {
     protected BaseScreen(LaboratoryGame game, GameAssets assets) {
         this.game = game;
         this.assets = assets;
+    }
+
+    protected void renderFade(SpriteBatch batch, Viewport viewport) {
+        game.fadeRenderer().render(batch, assets.fadePixel(), game.transition().alpha());
+        viewport.apply();
     }
 }

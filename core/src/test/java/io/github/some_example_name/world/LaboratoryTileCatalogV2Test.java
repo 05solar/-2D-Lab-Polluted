@@ -46,8 +46,9 @@ public class LaboratoryTileCatalogV2Test {
         assertEquals(24, catalog.atlas("floor").ids.size());
         assertEquals(16, catalog.atlas("wall").ids.size());
         assertEquals(16, catalog.atlas("structure").ids.size());
+        assertEquals(2, catalog.atlas("vertical_jamb").ids.size());
         assertEquals(24, catalog.atlas("overlay").ids.size());
-        for (String name : new String[]{"floor", "wall", "structure", "overlay"}) {
+        for (String name : new String[]{"floor", "wall", "structure", "vertical_jamb", "overlay"}) {
             assertTrue(name + " 타일 수 = 열×행", catalog.atlasCountMatchesGrid(name));
         }
     }
@@ -57,6 +58,7 @@ public class LaboratoryTileCatalogV2Test {
         assertSize("floor", 384, 256, 6, 4);
         assertSize("wall", 256, 256, 4, 4);
         assertSize("structure", 256, 256, 4, 4);
+        assertSize("vertical_jamb", 128, 64, 2, 1);
         assertSize("overlay", 384, 256, 6, 4);
     }
 
@@ -86,6 +88,7 @@ public class LaboratoryTileCatalogV2Test {
         assertTile("wall_horizontal", "wall", 0, 0, 0);
         assertTile("wall_inner_se", "wall", 15, 3, 3);
         assertTile("vertical_door_open", "structure", 11, 3, 2);
+        assertTile("vertical_door_jamb_top", "vertical_jamb", 0, 0, 0);
         assertTile("electric_sparks", "overlay", 19, 1, 3);
     }
 
@@ -125,8 +128,9 @@ public class LaboratoryTileCatalogV2Test {
     @Test
     public void transparentAtlasesHaveAlphaChannel() throws IOException {
         // 벽/구조물/오버레이는 투명 배경 RGBA여야 한다(바닥 아래가 비치도록).
-        for (String file : new String[]{"lab_wall_autotiles_v2_64.png",
-                "lab_structure_doors_v2_64.png", "lab_overlay_decals_v2_64.png"}) {
+        for (String file : new String[]{"lab_wall_connected_v3_64.png",
+                "lab_structure_connected_v3_64.png", "lab_vertical_jambs_v3_64.png",
+                "lab_overlay_decals_v2_64.png"}) {
             java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(new File(assetDir, file));
             assertNotNull(file, img);
             assertTrue(file + " 알파 채널 존재", img.getColorModel().hasAlpha());

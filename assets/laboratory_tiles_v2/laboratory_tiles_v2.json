@@ -17,7 +17,7 @@
       ]
     },
     "wall": {
-      "file": "lab_wall_autotiles_v2_64.png",
+      "file": "lab_wall_connected_v3_64.png",
       "size": [256, 256], "columns": 4, "rows": 4,
       "solid": true,
       "items": [
@@ -28,7 +28,7 @@
       ]
     },
     "structure": {
-      "file": "lab_structure_doors_v2_64.png",
+      "file": "lab_structure_connected_v3_64.png",
       "size": [256, 256], "columns": 4, "rows": 4,
       "items": [
         {"id":"wall_t_open_north","solid":true}, {"id":"wall_t_open_south","solid":true}, {"id":"wall_t_open_east","solid":true}, {"id":"wall_t_open_west","solid":true},
@@ -36,6 +36,12 @@
         {"id":"horizontal_door_closed","solid":true}, {"id":"horizontal_door_open","solid":false}, {"id":"vertical_door_closed","solid":true}, {"id":"vertical_door_open","solid":false},
         {"id":"door_jamb_left","solid":true}, {"id":"door_jamb_right","solid":true}, {"id":"wall_breach_horizontal","solid":"configurable"}, {"id":"wall_breach_vertical","solid":"configurable"}
       ]
+    },
+    "vertical_jamb": {
+      "file": "lab_vertical_jambs_v3_64.png",
+      "size": [128, 64], "columns": 2, "rows": 1,
+      "solid": true,
+      "items": ["vertical_door_jamb_top", "vertical_door_jamb_bottom"]
     },
     "overlay": {
       "file": "lab_overlay_decals_v2_64.png",

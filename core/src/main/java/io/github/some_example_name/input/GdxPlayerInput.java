@@ -1,6 +1,7 @@
 package io.github.some_example_name.input;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 
 import java.util.EnumSet;
 
@@ -27,6 +28,7 @@ public class GdxPlayerInput {
                 }
             }
         }
+        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) nowHeld.add(GameAction.ATTACK);
         state.update(nowHeld);
     }
 }

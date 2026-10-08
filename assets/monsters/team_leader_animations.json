@@ -1,0 +1,19 @@
+{
+  "image": "team_leader_sheet_64.png",
+  "frameWidth": 64,
+  "frameHeight": 64,
+  "columns": 8,
+  "rows": 8,
+  "origin": "top-left",
+  "animations": {
+    "seated_idle": { "row": 0, "frames": [0,1,2,3,4,5,6,7], "frameDuration": 0.16, "loop": true },
+    "enrage": { "row": 1, "frames": [0,1,2,3,4,5,6,7], "frameDuration": 0.11, "loop": false, "eventFrames": { "warning": 2, "stand": 5, "enraged": 7 } },
+    "chase_down": { "row": 2, "frames": [0,1,2,3,4,5,6,7], "frameDuration": 0.11, "loop": true },
+    "chase_left": { "row": 3, "frames": [0,1,2,3,4,5,6,7], "frameDuration": 0.11, "loop": true },
+    "chase_right": { "row": 4, "frames": [0,1,2,3,4,5,6,7], "frameDuration": 0.11, "loop": true },
+    "chase_up": { "row": 5, "frames": [0,1,2,3,4,5,6,7], "frameDuration": 0.11, "loop": true },
+    "radial_slam": { "row": 6, "frames": [0,1,2,3,4,5,6,7], "frameDuration": 0.09, "loop": false, "hitFrames": [3,4], "damage": 35 },
+    "hit_stagger": { "row": 7, "frames": [0,1,2,3,4,5,6,7], "frameDuration": 0.08, "loop": false }
+  },
+  "rendering": { "textureFilter": "Nearest", "anchor": "bottom-center" }
+}

@@ -19,6 +19,7 @@ public class Player {
     private Direction facing = Direction.DOWN;
     private MovementMode mode = MovementMode.WALKING;
     private boolean moving = false;
+    private PlayerState state = PlayerState.ALIVE;
 
     public Player(float feetX, float feetY, float width, float height, int maxHp) {
         this.bounds = new Rectangle(feetX - width / 2f, feetY, width, height);
@@ -45,6 +46,25 @@ public class Player {
     public int maxHp() {
         return maxHp;
     }
+
+    /** Restores a living player to maximum health without reviving a dead player. */
+    public void healToFullHealth() {
+        if (state != PlayerState.DEAD) hp = maxHp;
+    }
+
+    public void takeDamage(int amount) {
+        if (amount < 0) throw new IllegalArgumentException("damage");
+        if (state == PlayerState.DEAD) return;
+        hp = Math.max(0, hp - amount);
+        if (hp == 0) {
+            state = PlayerState.DEAD;
+            moving = false;
+            mode = MovementMode.WALKING;
+        }
+    }
+
+    public PlayerState state() { return state; }
+    public boolean isDead() { return state == PlayerState.DEAD; }
 
     public Direction facing() {
         return facing;

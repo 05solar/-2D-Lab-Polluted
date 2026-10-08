@@ -6,9 +6,11 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import io.github.some_example_name.world.Hazard;
+import io.github.some_example_name.world.Door;
 import io.github.some_example_name.world.LaboratoryRoom;
 import io.github.some_example_name.world.RoomVisuals;
 import io.github.some_example_name.world.TileType;
+import io.github.some_example_name.world.WallAutotiler;
 
 /**
  * F2 타일 시각 디버그(기본 off, 실제 렌더와 분리).
@@ -38,6 +40,39 @@ public class TileDebugRenderer {
             for (int tx = 0; tx < w; tx++) {
                 shapes.setColor(borderColor(room, tx, ty));
                 shapes.rect(tx, ty, 1f, 1f);
+                if (room.isSolid(tx, ty)) {
+                    shapes.setColor(Color.CYAN);
+                    shapes.rect(tx + 0.08f, ty + 0.08f, 0.84f, 0.84f);
+                }
+            }
+        }
+        shapes.end();
+
+        shapes.begin(ShapeRenderer.ShapeType.Filled);
+        for (int ty = 0; ty < h; ty++) {
+            for (int tx = 0; tx < w; tx++) {
+                String id = visualId(visuals, tx, ty);
+                if (id == null) continue;
+                int mask = WallAutotiler.connectors(id);
+                if (mask == 0) {
+                    shapes.setColor(Color.PURPLE);
+                    shapes.circle(tx + 0.5f, ty + 0.5f, 0.07f, 8);
+                    continue;
+                }
+                connectionPoint(shapes, visuals, tx, ty, mask, WallAutotiler.NORTH, 0, 1, 0.5f, 0.95f);
+                connectionPoint(shapes, visuals, tx, ty, mask, WallAutotiler.EAST, 1, 0, 0.95f, 0.5f);
+                connectionPoint(shapes, visuals, tx, ty, mask, WallAutotiler.SOUTH, 0, -1, 0.5f, 0.05f);
+                connectionPoint(shapes, visuals, tx, ty, mask, WallAutotiler.WEST, -1, 0, 0.05f, 0.5f);
+                Door door = room.doorAt(tx, ty);
+                if (door != null) {
+                    int expected = door.orientation() == Door.Orientation.HORIZONTAL
+                        ? WallAutotiler.EAST | WallAutotiler.WEST
+                        : WallAutotiler.NORTH | WallAutotiler.SOUTH;
+                    if (mask != expected) {
+                        shapes.setColor(Color.YELLOW);
+                        shapes.circle(tx + 0.5f, ty + 0.5f, 0.10f, 8);
+                    }
+                }
             }
         }
         shapes.end();
@@ -51,6 +86,15 @@ public class TileDebugRenderer {
                 line(batch, "O:" + shortId(visuals.overlayAt(tx, ty)), tx, yTop - 0.20f);
                 line(batch, "W:" + shortId(visuals.wallAt(tx, ty)), tx, yTop - 0.40f);
                 line(batch, "S:" + shortId(visuals.structureAt(tx, ty)), tx, yTop - 0.60f);
+                String id = visualId(visuals, tx, ty);
+                if (id != null) {
+                    Door door = room.doorAt(tx, ty);
+                    String state = door == null ? "" : "/" +
+                        (door.orientation() == Door.Orientation.HORIZONTAL ? "H" : "V") +
+                        "/" + door.state().name();
+                    line(batch, "M:" + WallAutotiler.connectors(id) + state,
+                        tx, yTop - 0.80f);
+                }
             }
         }
         batch.end();
@@ -58,6 +102,25 @@ public class TileDebugRenderer {
 
     private void line(SpriteBatch batch, String s, float tx, float y) {
         font.draw(batch, s, tx + 0.04f, y);
+    }
+
+    private static String visualId(RoomVisuals visuals, int x, int y) {
+        String structure = visuals.structureAt(x, y);
+        return structure != null ? structure : visuals.wallAt(x, y);
+    }
+
+    private static void connectionPoint(ShapeRenderer shapes, RoomVisuals visuals,
+            int x, int y, int mask, int direction, int dx, int dy, float offsetX, float offsetY) {
+        if ((mask & direction) == 0) return;
+        int nx = x + dx, ny = y + dy;
+        String neighbor = nx < 0 || ny < 0 || nx >= visuals.widthInTiles() ||
+            ny >= visuals.heightInTiles() ? null : visualId(visuals, nx, ny);
+        int opposite = direction == WallAutotiler.NORTH ? WallAutotiler.SOUTH
+            : direction == WallAutotiler.EAST ? WallAutotiler.WEST
+            : direction == WallAutotiler.SOUTH ? WallAutotiler.NORTH : WallAutotiler.EAST;
+        shapes.setColor(neighbor != null && (WallAutotiler.connectors(neighbor) & opposite) != 0
+            ? Color.GREEN : Color.RED);
+        shapes.circle(x + offsetX, y + offsetY, 0.055f, 8);
     }
 
     private Color borderColor(LaboratoryRoom room, int tx, int ty) {

@@ -1,15 +1,8 @@
 package io.github.some_example_name.world;
 
 /**
- * 방의 셀별 "시각" 배치를 레이어별 타일 ID로 보관한다. 한 번 계산되면 실행 중 변하지 않는다
- * (프레임마다 재선택/랜덤 없음). 렌더러는 이 결과를 레이어 순서대로 그리기만 한다.
- * 내부 배열은 [ty][tx], ty=0 이 맨 아래 줄(월드 y는 위로 증가).
- *
- * 레이어(없으면 null):
- *   floor      — 모든 셀(벽·문 포함)의 기본/변형 바닥. 항상 존재한다.
- *   overlay    — 바닥 위 데칼(오염/전선/장식). 바닥 리전을 교체하지 않는다.
- *   wall       — 벽 셀의 오토타일 결과(wall_*, T자/십자 포함)
- *   structure  — 문/구조물(바닥·벽과 별도 레이어)
+ * Four visual tile ID layers indexed by [y][x]. Floor is always present; overlay,
+ * wall, and structure are optional. Door structure IDs follow the shared Door state.
  */
 public class RoomVisuals {
 
@@ -17,14 +10,21 @@ public class RoomVisuals {
     private final String[][] overlay;
     private final String[][] wall;
     private final String[][] structure;
+    private final Door[][] doors;
     private final int width;
     private final int height;
 
     public RoomVisuals(String[][] floor, String[][] overlay, String[][] wall, String[][] structure) {
+        this(floor, overlay, wall, structure, null);
+    }
+
+    public RoomVisuals(String[][] floor, String[][] overlay, String[][] wall, String[][] structure,
+                       Door[][] doors) {
         this.floor = floor;
         this.overlay = overlay;
         this.wall = wall;
         this.structure = structure;
+        this.doors = doors;
         this.height = floor.length;
         this.width = floor[0].length;
     }
@@ -32,13 +32,23 @@ public class RoomVisuals {
     public String floorAt(int tx, int ty)     { return floor[ty][tx]; }
     public String overlayAt(int tx, int ty)   { return overlay[ty][tx]; }
     public String wallAt(int tx, int ty)      { return wall[ty][tx]; }
-    public String structureAt(int tx, int ty) { return structure[ty][tx]; }
+    public String structureAt(int tx, int ty) {
+        Door door = doors == null ? null : doors[ty][tx];
+        return door == null ? structure[ty][tx] : door.visualId();
+    }
 
     public int widthInTiles()  { return width; }
     public int heightInTiles() { return height; }
 
     /** 특정 레이어에서 해당 타일 ID가 몇 번 쓰였는지(진단/검증용). */
     public int count(String layer, String id) {
+        if ("structure".equals(layer)) {
+            int result = 0;
+            for (int y = 0; y < height; y++)
+                for (int x = 0; x < width; x++)
+                    if (id.equals(structureAt(x, y))) result++;
+            return result;
+        }
         String[][] a = layerArray(layer);
         int n = 0;
         for (String[] row : a) {

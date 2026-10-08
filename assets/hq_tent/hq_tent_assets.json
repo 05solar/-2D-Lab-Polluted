@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "theme": "temporary_headquarters_tent",
+  "origin": "top-left",
+  "atlases": {
+    "tiles": {
+      "file": "hq_tent_tiles_64.png",
+      "size": [256, 256],
+      "cell": [64, 64],
+      "columns": 4,
+      "rows": 4,
+      "items": [
+        "canvas_floor", "canvas_floor_seam", "canvas_floor_patch", "rubber_entrance_mat",
+        "north_tent_wall", "north_wall_support", "reinforced_fabric_wall", "utility_pocket_wall",
+        "west_tent_wall", "east_tent_wall", "outer_corner_wall", "inner_corner_wall",
+        "closed_tent_flap", "open_tent_flap", "sandbag_barrier", "utility_cable_lantern"
+      ]
+    },
+    "furniture": {
+      "file": "hq_furniture_128x96.png",
+      "size": [512, 288],
+      "cell": [128, 96],
+      "columns": 4,
+      "rows": 3,
+      "anchor": "bottom-center",
+      "safeMargin": [8, 8],
+      "items": [
+        "command_table", "terminal_desk", "supply_shelving", "reinforced_lockers",
+        "field_medical_cot", "medical_trolley", "folding_workbench", "portable_generator",
+        "stacked_supply_crates", "water_dispenser", "notice_board", "communications_console"
+      ]
+    },
+    "vendingMachine": {
+      "file": "hq_vending_machine_front_96x128.png",
+      "size": [576, 128],
+      "frame": [96, 128],
+      "columns": 6,
+      "rows": 1,
+      "anchor": "bottom-center",
+      "safeMargin": [8, 8],
+      "frames": [
+        "idle_dim", "idle_pulse", "interact_highlight",
+        "purchase_accepted", "dispensing", "hatch_closing"
+      ],
+      "animations": {
+        "idle": { "frames": [0, 1], "frameDuration": 0.45, "loop": true },
+        "interact": { "frames": [2, 3], "frameDuration": 0.12, "loop": false },
+        "dispense": { "frames": [4, 5], "frameDuration": 0.18, "loop": false }
+      },
+      "suggestedCollision": { "offset": [20, 8], "size": [56, 34] },
+      "interactionRadiusTiles": 1.25
+    }
+  }
+}

@@ -151,3 +151,37 @@ world/
 `floor`는 벽·문을 포함한 20×15 전 셀에서 필수이며, 바닥 렌더 동안 블렌딩을 끄고 투명 오버레이·벽·문 전에
 `SRC_ALPHA/ONE_MINUS_SRC_ALPHA` 블렌딩을 다시 켠다. 벽의 방향과 파손 변형 선택은 `WallAutotiler` 한 곳에서 한다.
 직선 벽만 좌표 기반으로 약 12.5% 파손 변형을 사용하며 모서리·끝·T자·십자·문은 전용 방향 타일을 유지한다.
+
+## Connected wall and door pipeline (2026-10-07)
+
+`LAB_WALL_TEST=1` renders a 9x9 atlas-shape gallery; `LAB_WALL_TEST=2` renders a 9x9 room with assembled horizontal and vertical doors. Production uses the 20x15 layout. Coordinates are world y-up (`north = y + 1`); JSON atlas rows start at the PNG top, and TextureRegion is not flipped.
+
+`WallSeamAtlasGenerator` derives 64x64 RGBA connected atlases from the preserved V2 source art. Straight metal bodies reach the exact cell edge; end caps appear only on end or jamb tiles. Floor seam variants are excluded from random placement because their isolated rails looked like stray walls.
+
+`DoorPlacementResolver` infers orientation from a five-cell straight run and reserves adjacent wall cells for jambs. `Door` owns fixed tile coordinates and orientation plus its state; `LaboratoryRoom` derives collision and `RoomVisuals` derives the current structure ID from the same object. `WallAutotiler` owns cardinal masks and visual connector metadata. `WallTopologyValidator` checks masks, jambs, collision and reciprocal visual connections once after layout creation. `WorldRenderer` still draws floor, overlay, wall, then structure at one cell anchor with no per-tile offsets.
+
+## Independent headquarters map and transition (2026-10-07)
+
+`LaboratoryGame` owns one `GameAssets`, `PlayerSessionState`, both layouts, and `MapTransitionController`. The default first screen is `HeadquartersScreen`; `LaboratoryScreen` receives the same player on transition. `MapId` distinguishes the maps. `HeadquartersLayout` builds a fixed 20×15 tent independently from `LaboratoryLayout`; `HeadquartersRoom` owns logical collision, prop foot rectangles, interaction locations, and the one-shot south exit. `HeadquartersVisuals` owns floor/decor/wall/prop IDs. No HQ monsters are created.
+
+`GameAssets` owns `HeadquartersAssets`, which reads the supplied `hq_tent_assets.json` and original individual PNGs, plus a white pixel used by `FadeOverlayRenderer`. HQ tiles draw at 64px logical size, furniture at their source 128×96 proportions, and vending at 96×128. Source tile PNGs are opaque RGB; furniture and vending PNGs have alpha. The HQ renderer keeps alpha blending on, draws floor/decor/walls, then sorts props with the player by foot Y. Prop collision uses only a ground footprint. Source art remains unrotated and unflipped.
+
+The pure Java transition controller follows `IDLE → FADING_OUT → SWITCHING_MAP → FADING_IN → IDLE`; each fade lasts 0.35 seconds (temporary config value). Screens ignore movement, attack, and interaction input while locked. At full black, the root replaces the screen and moves the shared player to the laboratory safe spawn. The fade uses full window pixel coordinates, independent of the world camera. Session HP, money, inventory, and progress are retained. HQ F1 draws collision, trigger, vending range, and spawn separately.
+
+The laboratory's vertical side doors use the supplied `lab_side_doors_2x2_64.png`. `GameAssets` loads it as a 64px grid and replaces the render regions for the existing `vertical_door_closed/open` IDs; the JSON logical solidity and door state stay unchanged. Source row 0 column 0 is closed, column 1 is open. Arrival spawn is the floor cell directly north of the south entrance.
+
+## Player death animation
+
+`Player.takeDamage` clamps HP to zero and changes `PlayerState` from `ALIVE` to `DEAD` only once. The renderer's `AnimationController` owns a delta-driven `PlayerDeathAnimation` timeline and selects `death_down/left/right/up` from the last facing direction. The timeline is non-looping and clamps at frame 7. `GameAssets` loads the separate 512x256 RGBA sheet at Nearest filtering and disposes it with the other shared textures. Dead-player intent, movement, attack, combat, and HQ exit interactions are rejected by their existing controller/system entry points; Esc and debug toggles remain available.
+
+## Compact headquarters shop (2026-10-08)
+
+`HeadquartersLayout` is a separate fixed 14x10 tent with one south exit and clustered wall-side props. The terminal desk art includes its monitor and is centered on the north side; the vending machine occupies the northeast wall. `HeadquartersScreen` uses a centered `FitViewport` sized to the full map plus margin, so it never tracks the player or crops the room at different window ratios. Vending and water prompts become visible within a 2.5-tile proximity radius, independent of facing. `HeadquartersRoom` separately checks the vending front approach and unobstructed interaction range; the water dispenser accepts a clear approach within 2 tiles. A SPACE edge at the dispenser restores a living player's HP to maximum; the dead state is not cleared. Separate one-shot feedback trackers drive the selected target prompt. `HeadquartersAssets` owns the supplied three-frame keycap sheet and separately rasterized Korean vending/health labels. The water prompt is centered on the dispenser. The vending event is emitted without opening a placeholder shop UI.
+## First combat implementation (2026-10-07)
+
+- `BalanceConfig` owns initial combat values; `HealthComponent`, attack state, `CombatSystem`, `MonsterAiSystem`, and `MonsterSpawnSystem` hold gameplay rules independently of renderers.
+- `GameAssets` owns the player and four monster sprite sheets. Animation frame arrays are materialized as typed `TextureRegion[]` arrays before constructing LibGDX `Animation` objects. Hit frame metadata is retained from JSON.
+- `LaboratoryScreen` coordinates input, movement and collision, active attack frames, monster AI, damage, renderers, HUD and map fade. `HeadquartersScreen` does not create or update monsters.
+- Monsters use existing axis-separated `CollisionSystem` resolution through `CombatCollisionGrid`. Dead monsters are removed after the update pass.
+- Laboratory monster placement is seeded and bounded. The default seed changes per game; tests can inject a fixed seed.
+- Frame order: input/intent, player movement and run-start event, player attack hit frames, monster AI/movement/attack, damage and death cleanup, camera, world, combat bars/effects, HUD, transition overlay.

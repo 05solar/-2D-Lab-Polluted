@@ -1,0 +1,55 @@
+{
+  "image": "player_scout_death_sheet_64.png",
+  "frameWidth": 64,
+  "frameHeight": 64,
+  "columns": 8,
+  "rows": 4,
+  "origin": "top-left",
+  "animations": {
+    "death_down": {
+      "row": 0,
+      "frames": [0, 1, 2, 3, 4, 5, 6, 7],
+      "frameDuration": 0.1,
+      "loop": false,
+      "holdLastFrame": true,
+      "liquidFrames": [6, 7]
+    },
+    "death_left": {
+      "row": 1,
+      "frames": [0, 1, 2, 3, 4, 5, 6, 7],
+      "frameDuration": 0.1,
+      "loop": false,
+      "holdLastFrame": true,
+      "liquidFrames": [6, 7]
+    },
+    "death_right": {
+      "row": 2,
+      "frames": [0, 1, 2, 3, 4, 5, 6, 7],
+      "frameDuration": 0.1,
+      "loop": false,
+      "holdLastFrame": true,
+      "liquidFrames": [6, 7]
+    },
+    "death_up": {
+      "row": 3,
+      "frames": [0, 1, 2, 3, 4, 5, 6, 7],
+      "frameDuration": 0.1,
+      "loop": false,
+      "holdLastFrame": true,
+      "liquidFrames": [6, 7]
+    }
+  },
+  "rendering": {
+    "textureFilter": "Nearest",
+    "recommendedWorldSize": { "width": 1.0, "height": 1.0 },
+    "anchor": "bottom-center"
+  },
+  "gameplay": {
+    "trigger": "playerHp <= 0",
+    "lockInput": true,
+    "disableAttack": true,
+    "disableMovement": true,
+    "disableCollisionAfterFrame": 4,
+    "finalFrame": 7
+  }
+}

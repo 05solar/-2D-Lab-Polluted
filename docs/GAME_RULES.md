@@ -78,3 +78,39 @@
   문 타일은 벽 오토타일보다 우선(벽이 문을 덮어쓰지 않음). 열린 문에는 검은 void 대신 문턱/바닥이 보인다.
 - 바닥 변형은 고정 seed(`FloorVariantResolver.DEFAULT_SEED=20261007`)로 결정 → 실행마다 동일.
   같은 바닥 타일이 가로·세로 3개 이상 연속되지 않는다. 경고선은 장비 앞/격리 경계/문 주변에만, 사각형 반복 금지.
+
+## Door assembly and collision (2026-10-07)
+
+A door needs a straight wall run of at least five cells. Its center occupies one cell and its two neighboring wall cells become jambs. A corner, junction, adjacent door, or missing jamb space rejects the placement. The surrounding wall topology determines horizontal or vertical direction; the map character only chooses initial open or closed state. `CLOSED`, `OPENING`, and `CLOSING` block movement; only `OPEN` is passable. State changes keep the same cell and direction, and visual art follows collision from the same door object. The opening shows the underlying floor and threshold.
+
+## 임시 본부 천막 [기본 맵 구현 / 임시 전환 시간]
+
+- 본부는 연구소와 분리된 안전 구역이며 몬스터를 생성하지 않는다. 외벽, 모래주머니, 큰 가구의 바닥 접촉부는 충돌한다. 열린 남쪽 천막 출입구와 매트는 통과할 수 있다.
+- 남쪽 중앙의 문을 지나 바깥 출구 1칸으로 **남쪽 이동 중 발 충돌 상자가 완전히 넘어가는 순간** 연구소 이동을 1회 요청한다. 접근이나 트리거 내부 대기는 발동하지 않는다. 스폰은 문보다 두 칸 이상 안쪽이다.
+- 전환은 입력을 잠그고 페이드아웃 0.35초(임시값) 후 안전한 연구소 입구에 배치한 뒤 페이드인 0.35초(임시값) 후 해제한다. HP, 금액, 인벤토리, 진행 플래그를 유지한다.
+- 자판기 앞 1.25타일 이내에서만 상호작용 가능 상태를 강조한다. `E` 구매 동작과 UI는 후속 구현이며, 현재 재화를 차감하지 않는다. 의료·정비 가구의 상호작용 위치만 예약했다.
+## First combat pass (2026-10-07)
+
+- Player: 100 HP, 15 damage, four-direction melee; attack cooldown 0.45 seconds, monster-hit invulnerability 0.6 seconds. SPACE (existing binding) or left mouse starts one attack per press.
+- Initial monster values are configured in `BalanceConfig`: slime 20 HP/10 damage, researcher 40/15, guard 60/20, team leader 70/35. Player damage therefore defeats them in 2, 3, 4 and 5 hits respectively.
+- The first laboratory spawn is 3 slimes, 2 researchers, 1 guard and 1 leader. Candidate locations require a safe 3x3 floor area, avoid hazards and the player spawn radius, and are limited by a maximum attempt count.
+- Slime follows slowly; researchers and guards wander and pursue after detection; guards detect farther. Monsters use telegraphed attacks and per-attack hit gating. Player damage has brief invulnerability and collision-resolved knockback.
+- The seated team leader ignores walking and becomes enraged after two distinct nearby run-start events within four tiles. Enrage persists through that encounter.
+- HP cannot fall below zero. A dead player is input-locked; a dead monster is removed after the update iteration. A game-over screen and loot rewards are outside this pass.
+- Tuning values other than the specified HP/damage and leader threshold are first-pass defaults and may be adjusted in `BalanceConfig`.
+
+## Player death animation
+
+- Player HP is clamped to `[0, 100]`; reaching zero enters `DEAD` once and preserves the last facing direction and world position.
+- `DEAD` blocks movement, running/noise, attacks, damage, interactions, and the HQ exit. Pause and debug controls remain available.
+- The direction-specific death clip advances at 0.1 seconds per frame, does not loop, and holds frame 7. Paused or transition-locked screens pass zero animation delta.
+- A game-over screen and revival are not implemented in this pass.
+
+## Headquarters vending interaction
+
+- The safe headquarters is a 14x10 map, fixed in view with a centered camera. Its only exit remains the south tent opening.
+- The vending SPACE prompt appears within 2.5 tiles of the machine for a living, unpaused player, regardless of facing. The vending action itself still requires its front approach and a clear path.
+- A new SPACE press emits one vending interaction event, flashes the pressed keycap for about 0.13 seconds, and shows the accepted vending frame for about 0.24 seconds. Holding SPACE does not repeat the event.
+- The shop purchase interface is not implemented; no placeholder product screen is opened.
+- The water SPACE prompt appears within 2.5 tiles of the dispenser for a living, unpaused player, regardless of facing or obstruction. It is centered over the dispenser; the dispenser action requires being within 2 tiles and a clear approach.
+- Pressing SPACE once at the dispenser restores the living player's HP to maximum. Holding SPACE does not repeat the interaction, and healing cannot revive a dead player.

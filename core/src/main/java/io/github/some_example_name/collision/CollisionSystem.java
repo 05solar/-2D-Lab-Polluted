@@ -44,6 +44,14 @@ public class CollisionSystem {
                     hitX = true;
                 }
             }
+            if (grid instanceof ObstacleGrid) {
+                for (Rectangle obstacle : ((ObstacleGrid) grid).obstacles()) {
+                    if (overlaps(x, y, w, h, obstacle)) {
+                        x = dx > 0f ? obstacle.x - w : obstacle.x + obstacle.width;
+                        hitX = true;
+                    }
+                }
+            }
         }
 
         // --- Y축 (보정된 x 기준) ---
@@ -64,9 +72,22 @@ public class CollisionSystem {
                     hitY = true;
                 }
             }
+            if (grid instanceof ObstacleGrid) {
+                for (Rectangle obstacle : ((ObstacleGrid) grid).obstacles()) {
+                    if (overlaps(x, y, w, h, obstacle)) {
+                        y = dy > 0f ? obstacle.y - h : obstacle.y + obstacle.height;
+                        hitY = true;
+                    }
+                }
+            }
         }
 
         return new CollisionResult(x, y, hitX, hitY);
+    }
+
+    private static boolean overlaps(float x, float y, float w, float h, Rectangle b) {
+        return x < b.x + b.width - EPS && x + w > b.x + EPS
+            && y < b.y + b.height - EPS && y + h > b.y + EPS;
     }
 
     private boolean columnHasSolid(SolidGrid grid, int tileX, int minTy, int maxTy) {

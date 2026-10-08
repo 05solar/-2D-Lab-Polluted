@@ -118,7 +118,8 @@ public class LaboratoryLayoutTest {
             for (int tx = 0; tx < w; tx++) {
                 assertNotNull("모든 셀에 바닥 " + tx + "," + ty, visuals.floorAt(tx, ty));
                 if (room.tileAt(tx, ty) == TileType.WALL) {
-                    assertNotNull("벽 셀은 벽 타일도 가짐", visuals.wallAt(tx, ty));
+                    assertTrue("벽 셀은 벽 또는 문틀 타일을 가짐",
+                        visuals.wallAt(tx, ty) != null || visuals.structureAt(tx, ty) != null);
                 }
             }
         }

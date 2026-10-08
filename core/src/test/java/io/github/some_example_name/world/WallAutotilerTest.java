@@ -76,29 +76,34 @@ public class WallAutotilerTest {
     @Test
     public void doorNotOverwrittenAndMatchesDirection() {
         String[] rows = {
-            "#####",
-            "#.#.#",
-            "#.d.#",   // 세로 닫힌 문
-            "#.#.#",
-            "#####"};
+            ".......",
+            "...#...",
+            "...#...",
+            "...d...",
+            "...#...",
+            "...#...",
+            "......."};
         RoomVisuals v = visuals(rows);
         LaboratoryRoom r = room(rows);
-        assertNull("문 셀엔 벽 타일 없음", v.wallAt(2, 2));
-        assertEquals("vertical_door_closed", v.structureAt(2, 2));
-        assertEquals(TileType.DOOR_CLOSED, r.tileAt(2, 2));
-        // 문 위/아래 벽은 세로벽으로 이어진다
-        assertEquals("wall_vertical", v.wallAt(2, 3));
-        assertEquals("wall_vertical", v.wallAt(2, 1));
+        assertNull("문 셀엔 벽 타일 없음", v.wallAt(3, 3));
+        assertEquals("vertical_door_closed", v.structureAt(3, 3));
+        assertEquals(TileType.DOOR_CLOSED, r.tileAt(3, 3));
+        assertEquals("vertical_door_jamb_top", v.structureAt(3, 4));
+        assertEquals("vertical_door_jamb_bottom", v.structureAt(3, 2));
+        assertNull(v.wallAt(3, 4));
+        assertNull(v.wallAt(3, 2));
+        assertEquals("wall_end_top", v.wallAt(3, 5));
+        assertEquals("wall_end_bottom", v.wallAt(3, 1));
     }
 
     @Test
-    public void innerCornerFromDiagonalOpening() {
-        // 가운데 벽 셀: N,S,E,W 모두 벽, NE 대각만 바닥 → 안쪽 모서리 NE
+    public void innerCornerFromFilledDiagonal() {
+        // S+W 팔과 SW 대각이 차면 안쪽 NE 모서리. 네 팔이면 항상 십자다.
         TileType W = TileType.WALL, F = TileType.FLOOR;
         TileType[][] t = {
-            {W, W, W},  // ty0
-            {W, W, W},  // ty1 (center row)
-            {W, W, F},  // ty2: NE diagonal of (1,1) = (2,2) = FLOOR
+            {W, W, F},
+            {W, W, F},
+            {F, F, F},
         };
         LaboratoryRoom r = new LaboratoryRoom(t, new Vector2(2.5f, 2.5f));
         assertEquals(WallAutotiler.Shape.INNER_NE, autotiler.classify(r, 1, 1));
@@ -127,16 +132,23 @@ public class WallAutotilerTest {
     @Test
     public void allInnerCornersAndCrossHaveDirectionalTiles() {
         TileType W = TileType.WALL, F = TileType.FLOOR;
-        int[][] diagonals = {{0, 2}, {2, 2}, {0, 0}, {2, 0}}; // NW NE SW SE
+        int[][] armsA = {{1, 0}, {1, 0}, {1, 2}, {1, 2}}; // NW,NE: S / SW,SE: N
+        int[][] armsB = {{2, 1}, {0, 1}, {2, 1}, {0, 1}}; // E,W,E,W
+        int[][] diagonals = {{2, 0}, {0, 0}, {2, 2}, {0, 2}};
         WallAutotiler.Shape[] corners = {WallAutotiler.Shape.INNER_NW, WallAutotiler.Shape.INNER_NE,
             WallAutotiler.Shape.INNER_SW, WallAutotiler.Shape.INNER_SE};
         for (int i = 0; i < diagonals.length; i++) {
-            TileType[][] tiles = {{W, W, W}, {W, W, W}, {W, W, W}};
-            tiles[diagonals[i][1]][diagonals[i][0]] = F;
+            TileType[][] tiles = {{F, F, F}, {F, W, F}, {F, F, F}};
+            tiles[armsA[i][1]][armsA[i][0]] = W;
+            tiles[armsB[i][1]][armsB[i][0]] = W;
+            tiles[diagonals[i][1]][diagonals[i][0]] = W;
             assertEquals(corners[i], autotiler.classify(new LaboratoryRoom(tiles, new Vector2()), 1, 1));
         }
         TileType[][] full = {{W, W, W}, {W, W, W}, {W, W, W}};
         assertEquals(WallAutotiler.Shape.CROSS,
+            autotiler.classify(new LaboratoryRoom(full, new Vector2()), 1, 1));
+        full[2][2] = F;
+        assertEquals("대각이 열려도 네 팔이면 십자", WallAutotiler.Shape.CROSS,
             autotiler.classify(new LaboratoryRoom(full, new Vector2()), 1, 1));
     }
 
@@ -153,5 +165,24 @@ public class WallAutotilerTest {
             else assertEquals("wall_horizontal", id);
         }
         assertTrue("직선 벽 파손 변형은 약 10~15%", damaged >= 8 && damaged <= 12);
+    }
+
+    @Test
+    public void fiveCellLinesUseEndsAndStraightCenters() {
+        LaboratoryRoom horizontal = room(".......", ".#####.", ".......");
+        assertEquals(WallAutotiler.Shape.END_LEFT, autotiler.classify(horizontal, 1, 1));
+        assertEquals(WallAutotiler.Shape.END_RIGHT, autotiler.classify(horizontal, 5, 1));
+        for (int x = 2; x <= 4; x++)
+            assertEquals(WallAutotiler.Shape.HORIZONTAL, autotiler.classify(horizontal, x, 1));
+        LaboratoryRoom vertical = room("...#...", "...#...", "...#...", "...#...", "...#...");
+        assertEquals(WallAutotiler.Shape.END_TOP, autotiler.classify(vertical, 3, 4));
+        assertEquals(WallAutotiler.Shape.END_BOTTOM, autotiler.classify(vertical, 3, 0));
+        for (int y = 1; y <= 3; y++)
+            assertEquals(WallAutotiler.Shape.VERTICAL, autotiler.classify(vertical, 3, y));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void isolatedWallIsRejected() {
+        room("...", ".#.", "...");
     }
 }

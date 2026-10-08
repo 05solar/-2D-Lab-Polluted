@@ -14,7 +14,10 @@ public class BalanceConfig {
     public int playerAttackDamage = 15;           // [확정]
     public float playerWalkSpeed = 3.5f;          // [임시값] 월드 단위(타일)/초
     public float playerRunSpeed = 6.5f;           // [임시값] 월드 단위(타일)/초
-    public float playerAttackCooldownSeconds = 0.4f; // [임시값] 2단계부터 사용
+    public float playerAttackCooldownSeconds = 0.45f;
+    public float playerInvulnerabilitySeconds = 0.6f;
+    public float playerAttackRange = 0.9f;
+    public float playerAttackWidth = 0.8f;
     public float playerBoundsWidth = 0.6f;        // [임시값] 충돌 박스 폭(월드 단위)
     public float playerBoundsHeight = 0.5f;       // [임시값] 충돌 박스 높이(발밑 기준)
 
@@ -25,8 +28,36 @@ public class BalanceConfig {
     public int teamLeaderMaxHp = 70;              // [확정]
     public int teamLeaderAttackDamage = 35;       // [확정]
     public int teamLeaderRunTriggerCount = 2;     // [확정]
-    public float teamLeaderHearingRadius = 4.0f;  // [임시값] 월드 단위
+    public int slimeAttackDamage = 10;
+    public int researcherAttackDamage = 15;
+    public int guardAttackDamage = 20;
+    public float slimeMoveSpeed = 1.1f;
+    public float researcherMoveSpeed = 1.8f;
+    public float guardMoveSpeed = 2.2f;
+    public float teamLeaderMoveSpeed = 2.0f;
+    public float slimeDetectionRadius = 4.0f;
+    public float researcherDetectionRadius = 5.0f;
+    public float guardDetectionRadius = 7.0f;
+    public float teamLeaderHearingRadius = 4.0f;
+    public float monsterAttackRange = 0.75f;
+    public float teamLeaderAttackRange = 1.2f;
+    public float monsterAttackCooldownSeconds = 0.75f;
+    public float monsterWanderSeconds = 1.8f;
+    public float knockbackSeconds = 0.12f;
+    public float playerKnockbackDistance = 0.28f;
+    public float monsterKnockbackDistance = 0.2f;
+    public int slimeSpawnCount = 3;
+    public int researcherSpawnCount = 2;
+    public int guardSpawnCount = 1;
+    public int teamLeaderSpawnCount = 1;
+    public int monsterSpawnAttempts = 500;
+    public long monsterSpawnSeed = System.nanoTime();
+    public float monsterSpawnExclusionRadius = 4f;
+    public float monsterBoundsWidth = 0.62f;
+    public float monsterBoundsHeight = 0.48f;
+    public float monsterSpacing = 1.5f;
 
     // --- 시간 ---
     public float maxFrameDeltaSeconds = 1f / 30f; // delta 상한(저프레임 시 터널링/점프 방지)
+    public float mapFadeSeconds = 0.35f;           // [임시값] 각 페이드 구간
 }

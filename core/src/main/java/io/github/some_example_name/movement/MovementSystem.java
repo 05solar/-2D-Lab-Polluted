@@ -36,6 +36,10 @@ public class MovementSystem {
      * @return 이번 프레임에 달리기가 새로 시작됐으면 true. (소음 이벤트 발행 등에 사용)
      */
     public boolean update(Player player, PlayerIntent intent, SolidGrid grid, float delta) {
+        if (player.isDead()) {
+            stop(player);
+            return false;
+        }
         boolean movingInput = intent.hasMovement();
 
         // 달리기는 "달리기 입력 + 실제 이동 중"일 때만 성립한다.
@@ -64,5 +68,11 @@ public class MovementSystem {
         CollisionResult result = collisionSystem.resolve(player.bounds(), dx, dy, grid);
         player.bounds().setPosition(result.x, result.y);
         return runStarted;
+    }
+
+    public void stop(Player player) {
+        runStartDetector.reset();
+        player.setMoving(false);
+        player.setMode(MovementMode.WALKING);
     }
 }

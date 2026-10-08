@@ -37,6 +37,18 @@ public class AnimationSet {
         return animations.get("attack_" + key(direction));
     }
 
+    public Animation<TextureRegion> animation(String id) { return animations.get(id); }
+
+    public TextureRegion frame(String id, float elapsed) {
+        Animation<TextureRegion> animation = animations.get(id);
+        return animation == null ? null : animation.getKeyFrame(elapsed, false);
+    }
+
+    public int attackFrameCount(Direction direction) {
+        Animation<TextureRegion> animation = attack(direction);
+        return animation == null ? 0 : animation.getKeyFrames().length;
+    }
+
     public TextureRegion idle(Direction direction) {
         return idleFrames.get(direction);
     }

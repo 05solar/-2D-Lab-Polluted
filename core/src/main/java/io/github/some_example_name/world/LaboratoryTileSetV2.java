@@ -54,4 +54,11 @@ public final class LaboratoryTileSetV2 {
     public boolean hasRegion(String id) { return regions.containsKey(id); }
     public int regionCount() { return regions.size(); }
     public LaboratoryTileCatalogV2 catalog() { return catalog; }
+
+    /** Replaces the source region for a known tile while keeping its logical ID and metadata. */
+    public void replaceRegion(String id, TextureRegion replacement) {
+        if (!regions.containsKey(id)) throw new IllegalArgumentException("unknown tile ID: " + id);
+        if (replacement == null) throw new IllegalArgumentException("replacement");
+        regions.put(id, replacement);
+    }
 }

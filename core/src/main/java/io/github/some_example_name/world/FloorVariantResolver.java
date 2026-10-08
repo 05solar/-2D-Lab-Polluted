@@ -68,7 +68,9 @@ public final class FloorVariantResolver {
                 if (r < 0.70) return CLEAN[rnd.nextInt(3)];
                 if (r < 0.86) return pick(rnd, "floor_worn_light", "floor_scratched", "floor_dust_edge");
                 if (r < 0.95) return pick(rnd, "floor_patch_welded", "floor_patch_bolted", "floor_access_hatch");
-                return pick(rnd, "floor_crack_light", "floor_seam_horizontal", "floor_seam_vertical");
+                // Seam tiles contain short metal rails. Random placement makes them look like
+                // disconnected wall fragments; use them only in an explicitly connected layout.
+                return "floor_crack_light";
         }
     }
 

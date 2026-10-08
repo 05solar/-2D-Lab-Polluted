@@ -1,22 +1,13 @@
 package io.github.some_example_name.world;
 
 /**
- * 논리 벽 셀('WALL')의 시각 타일 ID를 이웃을 검사해 결정한다(Laboratory Tileset V2).
- * 충돌(논리)과 무관하게 "어떻게 보일지"만 정한다. 렌더러는 이 ID를 그리기만 한다.
- *
- * 연결(connected) 기준: 이웃이 벽 또는 문(닫힘/열림)일 때. <b>범위 밖은 비연결</b>로 본다
- * (그래야 외곽 벽이 T/십자로 튀지 않고 직선·모서리로 이어진다). y는 위로 증가(ty+1=북).
- *
- * 지원 형태(모두 V2 타일셋에 실제 타일이 있다):
- *   직선 wall_horizontal/vertical, 끝 wall_end_left/right/top/bottom,
- *   바깥 모서리 wall_outer_nw/ne/sw/se, 안쪽 모서리 wall_inner_nw/ne/sw/se,
- *   T자 wall_t_open_north/south/east/west(= 그 방향이 열린 접합), 십자 wall_cross.
- *
- * 문 우선순위: 문('DOOR_CLOSED'/'DOORWAY_OPEN')은 WALL이 아니므로 오토타일 대상이 아니다.
- * 호출부({@link LaboratoryLayout})가 WALL 셀에만 적용하므로 문 타일을 덮어쓰지 않는다.
- * 인접 벽은 문을 "연결"로 보아 문 쪽으로 자연스럽게 이어진다.
+ * Selects one wall tile ID from cardinal wall/door neighbors in world y-up coordinates.
+ * North is y+1. Diagonals distinguish inner from outer corners; connector masks
+ * describe the actual metal body edges in the generated atlas.
  */
 public class WallAutotiler {
+
+    public static final int NORTH = 1, EAST = 2, SOUTH = 4, WEST = 8;
 
     public enum Shape {
         HORIZONTAL, VERTICAL,
@@ -39,19 +30,16 @@ public class WallAutotiler {
     }
 
     public Shape classify(LaboratoryRoom room, int tx, int ty) {
-        boolean n = connected(room, tx, ty + 1);
-        boolean s = connected(room, tx, ty - 1);
-        boolean e = connected(room, tx + 1, ty);
-        boolean w = connected(room, tx - 1, ty);
-        int cnt = (n ? 1 : 0) + (s ? 1 : 0) + (e ? 1 : 0) + (w ? 1 : 0);
+        int mask = mask(room, tx, ty);
+        boolean n = (mask & NORTH) != 0;
+        boolean s = (mask & SOUTH) != 0;
+        boolean e = (mask & EAST) != 0;
+        boolean w = (mask & WEST) != 0;
+        int cnt = Integer.bitCount(mask);
 
         if (cnt == 4) {
-            // 네 방향 벽 + 한 대각이 열림 → 안쪽 모서리(그 대각으로 바닥이 파고듦).
-            if (!connected(room, tx + 1, ty + 1)) return Shape.INNER_NE;
-            if (!connected(room, tx - 1, ty + 1)) return Shape.INNER_NW;
-            if (!connected(room, tx + 1, ty - 1)) return Shape.INNER_SE;
-            if (!connected(room, tx - 1, ty - 1)) return Shape.INNER_SW;
-            return Shape.CROSS; // 완전히 둘러싸임(희귀) — 십자로 대체
+            // 대각이 열려도 직교 연결 4개를 잃으면 안 된다.
+            return Shape.CROSS;
         }
         if (cnt == 3) {
             if (!n) return Shape.T_OPEN_NORTH; // 북쪽만 열림
@@ -62,11 +50,11 @@ public class WallAutotiler {
         if (cnt == 2) {
             if (n && s) return Shape.VERTICAL;
             if (e && w) return Shape.HORIZONTAL;
-            // 인접 두 방향 → 바깥 모서리(팔꿈치는 두 팔의 반대편).
-            if (n && e) return Shape.OUTER_SW;
-            if (n && w) return Shape.OUTER_SE;
-            if (s && e) return Shape.OUTER_NW;
-            return Shape.OUTER_NE;             // s && w
+            // 두 팔 사이의 대각도 벽이면 안쪽 모서리, 비어 있으면 바깥 모서리.
+            if (n && e) return connected(room, tx + 1, ty + 1) ? Shape.INNER_SW : Shape.OUTER_SW;
+            if (n && w) return connected(room, tx - 1, ty + 1) ? Shape.INNER_SE : Shape.OUTER_SE;
+            if (s && e) return connected(room, tx + 1, ty - 1) ? Shape.INNER_NW : Shape.OUTER_NW;
+            return connected(room, tx - 1, ty - 1) ? Shape.INNER_NE : Shape.OUTER_NE;
         }
         if (cnt == 1) {
             if (n) return Shape.END_BOTTOM;    // 벽이 위에서 와서 이 셀 아래에서 끝
@@ -74,7 +62,45 @@ public class WallAutotiler {
             if (e) return Shape.END_LEFT;
             return Shape.END_RIGHT;            // w
         }
-        return Shape.CROSS; // 고립(희귀)
+        throw new IllegalArgumentException("연결 없는 단독 벽 (" + tx + "," + ty + ")");
+    }
+
+    public int mask(LaboratoryRoom room, int tx, int ty) {
+        int mask = 0;
+        if (connected(room, tx, ty + 1)) mask |= NORTH;
+        if (connected(room, tx + 1, ty)) mask |= EAST;
+        if (connected(room, tx, ty - 1)) mask |= SOUTH;
+        if (connected(room, tx - 1, ty)) mask |= WEST;
+        return mask;
+    }
+
+    /** 타일 이미지가 가진 실제 접합 방향. 파생 PNG의 금속 본체가 이 방향의 셀 경계에 닿는다. */
+    public static int connectors(String id) {
+        if (id == null) return 0;
+        switch (id) {
+            case "wall_horizontal": case "wall_horizontal_damaged":
+            case "wall_support_horizontal": case "wall_console": case "wall_breach_horizontal":
+            case "door_jamb_left": case "door_jamb_right":
+            case "horizontal_door_closed": case "horizontal_door_open": return EAST | WEST;
+            case "wall_vertical": case "wall_vertical_damaged":
+            case "wall_support_vertical": case "wall_breach_vertical":
+            case "vertical_door_jamb_top": case "vertical_door_jamb_bottom":
+            case "vertical_door_closed": case "vertical_door_open": return NORTH | SOUTH;
+            case "wall_end_left": return EAST;
+            case "wall_end_right": return WEST;
+            case "wall_end_top": return SOUTH;
+            case "wall_end_bottom": return NORTH;
+            case "wall_outer_nw": case "wall_inner_nw": return EAST | SOUTH;
+            case "wall_outer_ne": case "wall_inner_ne": return WEST | SOUTH;
+            case "wall_outer_sw": case "wall_inner_sw": return EAST | NORTH;
+            case "wall_outer_se": case "wall_inner_se": return WEST | NORTH;
+            case "wall_t_open_north": return EAST | SOUTH | WEST;
+            case "wall_t_open_south": return NORTH | EAST | WEST;
+            case "wall_t_open_east": return NORTH | SOUTH | WEST;
+            case "wall_t_open_west": return NORTH | EAST | SOUTH;
+            case "wall_cross": return NORTH | EAST | SOUTH | WEST;
+            default: throw new IllegalArgumentException("벽 접합 메타데이터 없음: " + id);
+        }
     }
 
     String idFor(Shape shape) {

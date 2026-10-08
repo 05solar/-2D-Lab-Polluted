@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "image": "spacebar_prompt_sheet_128x64.png",
+  "origin": "top-left",
+  "size": [384, 64],
+  "frame": [128, 64],
+  "columns": 3,
+  "rows": 1,
+  "states": {
+    "idle": 0,
+    "interactable": 1,
+    "pressed": 2
+  }
+}

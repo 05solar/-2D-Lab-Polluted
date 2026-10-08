@@ -4,6 +4,7 @@
 
 ## [Unreleased]
 ### Added
+- **독립된 임시 본부 천막:** 원본 `hq_tent` 타일·가구·자판기 에셋으로 안전한 20×15 본부에서 시작한다. 남쪽 열린 출입구, 가구 지면 충돌, 자판기 접근 강조, F1 범위 디버그를 추가했다. 남쪽 바깥 출구를 넘으면 0.35초 페이드로 연구소에 이동하며 HP·재화·인벤토리·진행 상태를 유지한다. 자판기 구매 UI와 회복 기능은 후속 단계다.
 - **Laboratory Tileset V2 적용 (타일 배치 전면 교체):** 전용 64px 타일셋으로 연구소 화면을 다시 그린다.
   - 바닥은 기본 A/B/C + 마모·균열·보수판·배수구·해치가 섞여 반복 격자감이 크게 줄었다.
   - 벽은 직선·끝단·바깥/안쪽 모서리·T자·십자가 이웃에 맞게 연결되고, 외벽이 끊기지 않는다.
@@ -48,3 +49,21 @@
 - F1: 충돌 영역 표시 토글. 기본값은 **꺼짐**(실행 시 빨간 벽·초록 플레이어 테두리가 보이지 않음). 필요할 때 F1로 켠다.
 - F2: 바닥/오버레이/벽/구조물 타일 ID와 셀 테두리(바닥 회색·벽 빨강·닫힌 문 주황·열린 문 초록·위험 보라) 표시 토글. 기본값은 **꺼짐**.
 - 실행 시 각 시각 타일 개수를 `TileVisualCount` 로그로 1회 출력(진단).
+
+### Wall and door connection repair (2026-10-07)
+
+- Derived seamless 64px wall and door atlases from the existing V2 art; preserved the source PNGs.
+- Resolved door orientation from surrounding walls, reserved two jamb cells, and tied visual state to collision state.
+- Corrected four-way wall classification and reciprocal connector validation. Removed randomly placed metal floor seams that resembled stray wall fragments.
+- Added 9x9 visual gallery and assembly rooms (`LAB_WALL_TEST=1/2`) and F2 mask, connector, door state, and collision indicators.
+### First combat pass (2026-10-07)
+
+- Added the four supplied monster sprite sheets and animation JSON, player attacks on animation hit frames, bounded seeded lab spawns, basic monster AI and telegraphed attacks, health/death and knockback, HP displays, and team leader run-start hearing.
+# 2026-10-08
+
+- Applied the supplied 8-frame directional player death animation. The final frame remains visible, HP stays at zero, and player actions are blocked after death.
+- Resized the headquarters to a compact 14x10 shop tent, fixed its camera to show the whole room, and added a contextual SPACE keycap prompt with one-shot vending feedback.
+- Reduced the Korean “상점 열기” label to 12px, centered it over the SPACE keycap, and placed it directly above with a small gap.
+- Added a contextual SPACE prompt at the water dispenser; using it restores the living player's HP to maximum.
+- Added north-side facing/range/obstruction checks and a manual WATER test spawn; `core:test` passes 89 tests and `lwjgl3:build` succeeds (`docs/images/hq_water_prompt.png`).
+- Expanded both interaction prompt visibility radii to 2.5 tiles, independent of facing, and centered the water prompt over the dispenser.

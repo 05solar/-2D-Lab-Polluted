@@ -1,0 +1,25 @@
+{
+  "image": "slime_sheet_64.png",
+  "frameWidth": 64,
+  "frameHeight": 64,
+  "columns": 8,
+  "rows": 8,
+  "origin": "top-left",
+  "animations": {
+    "move_down":    { "row": 0, "frames": [0,1,2,3,4,5,6,7], "frameDuration": 0.12, "loop": true },
+    "move_left":    { "row": 1, "frames": [0,1,2,3,4,5,6,7], "frameDuration": 0.12, "loop": true },
+    "move_right":   { "row": 2, "frames": [0,1,2,3,4,5,6,7], "frameDuration": 0.12, "loop": true },
+    "move_up":      { "row": 3, "frames": [0,1,2,3,4,5,6,7], "frameDuration": 0.12, "loop": true },
+    "attack_down":  { "row": 4, "frames": [0,1,2,3,4,5,6,7], "frameDuration": 0.08, "loop": false, "hitFrames": [2,3,4] },
+    "attack_left":  { "row": 5, "frames": [0,1,2,3,4,5,6,7], "frameDuration": 0.08, "loop": false, "hitFrames": [2,3,4] },
+    "attack_right": { "row": 6, "frames": [0,1,2,3,4,5,6,7], "frameDuration": 0.08, "loop": false, "hitFrames": [2,3,4] },
+    "attack_up":    { "row": 7, "frames": [0,1,2,3,4,5,6,7], "frameDuration": 0.08, "loop": false, "hitFrames": [2,3,4] }
+  },
+  "idleFrames": {
+    "down": { "row": 0, "column": 0 },
+    "left": { "row": 1, "column": 0 },
+    "right": { "row": 2, "column": 0 },
+    "up": { "row": 3, "column": 0 }
+  },
+  "rendering": { "textureFilter": "Nearest", "anchor": "bottom-center" }
+}
