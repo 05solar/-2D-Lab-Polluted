@@ -86,7 +86,8 @@ public final class HeadquartersRenderer {
         if (vending != null && promptFrame >= 0) {
             HeadquartersProp target = waterDispenserNearby ? waterDispenser : vending;
             float promptCenterX = target.anchorX();
-            float promptYOffset = waterDispenserNearby ? 0.4f : 0f;
+            // 물통은 자판기(2.0 높이)보다 낮아(1.5), 프롬프트를 물통 상단 바로 위 중앙에 띄운다.
+            float promptYOffset = waterDispenserNearby ? 0.04f : 0f;
             batch.draw(assets.promptFrame(promptFrame), promptCenterX - 0.95f,
                 target.anchorY() + 1.58f + promptYOffset, 1.9f, 0.95f);
             batch.draw(waterDispenserNearby ? assets.healthPromptLabel() : assets.promptLabel(),
