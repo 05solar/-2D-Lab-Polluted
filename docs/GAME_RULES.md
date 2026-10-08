@@ -114,3 +114,8 @@ A door needs a straight wall run of at least five cells. Its center occupies one
 - The shop purchase interface is not implemented; no placeholder product screen is opened.
 - The water SPACE prompt appears within 2.5 tiles of the dispenser for a living, unpaused player, regardless of facing or obstruction. It is centered over the dispenser; the dispenser action requires being within 2 tiles and a clear approach.
 - Pressing SPACE once at the dispenser restores the living player's HP to maximum. Holding SPACE does not repeat the interaction, and healing cannot revive a dead player.
+
+## HP HUD · 8칸 가방 [확정/임시]
+- 플레이어 최대 HP 100(확정). HUD 채움 폭 = round(240 * clamp(hp,0,100)/100). 색: hp>50 healthy, 25<hp<=50 warning, hp<=25 critical. 숫자는 현재 HP(= /100). HP는 실제 Player.hp()와 즉시 동기화.
+- 가방 8칸, 한 물품 한 칸. 가득 차면(8/8) 추가 회수 거부(물품은 월드에 남김)와 "가방이 가득 찼습니다" 알림. (D 교체·바닥 드롭 규칙은 후속 루트 작업에서 구현)
+- 사망 시 물품 처리 규칙은 미정(임의 적용하지 않음). 본부 인계는 기존 경제 시스템 연결 지점(Backpack.handOver)만 둠.

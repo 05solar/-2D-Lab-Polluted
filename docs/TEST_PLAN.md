@@ -116,3 +116,8 @@ PNG 알파(`LaboratoryTileCatalogV2Test`): 벽/구조물/오버레이의 알파 
 - 2026-10-08 prompt refinement: `./gradlew.bat core:test lwjgl3:build` passed; the 12px label is horizontally centered directly above the SPACE keycap with a small visible gap (`docs/images/hq_prompt_refined.png`).
 - Water dispenser coverage: the prompt appears within 2.5 tiles regardless of facing; interaction requires a clear approach within 2 tiles and fully heals without reviving a dead player. `LAB_HQ_TEST=WATER` starts a damaged player by the dispenser; the running view confirms the prompt is centered above it (`docs/images/hq_water_prompt.png`).
 - 2026-10-08 proximity update: `./gradlew.bat core:test lwjgl3:build` passed (89 tests, 0 failures). Both prompts use 2.5-tile visibility independent of facing; the water SPACE keycap is centered on the dispenser.
+
+## HP HUD · 8칸 가방 테스트
+- `inventory.BackpackTest`: 8개 수집→9번째 거부(개수 불변·물품 보존), 슬롯 순서, handOver 비우기·재사용, 빈 ID 거부.
+- `asset.HudLayoutTest`: ui_layout.json 파싱(maxHp 100, fill 240x18@(134,57), 임계 50/25, 8 슬롯 좌표, 패널 960x600, dim 0.55).
+- 수동(실행 창): HP 100/50/25/0 채움·색·숫자, R 토글, Esc 닫기, G로 8개 수집·9번째 거부·가득참 알림, 본부·연구소 HUD 유지.

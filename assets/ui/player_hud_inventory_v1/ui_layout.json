@@ -1,0 +1,43 @@
+{
+  "pack": "player_hud_inventory_v1",
+  "coordinateOrigin": "top_left",
+  "assets": {
+    "hudFrame": "runtime/hp_hud_frame_512x128.png",
+    "hpFillHealthy": "runtime/hp_fill_healthy_240x18.png",
+    "hpFillWarning": "runtime/hp_fill_warning_240x18.png",
+    "hpFillCritical": "runtime/hp_fill_critical_240x18.png",
+    "backpackShell": "runtime/backpack_shell_960x600.png",
+    "backpackEightSlots": "runtime/backpack_open_empty_8slots_960x600.png",
+    "emptySlot": "runtime/slot_empty_108.png",
+    "hoverSlot": "runtime/slot_hover_108.png",
+    "rPrompt": "runtime/r_backpack_prompt_128x64.png"
+  },
+  "health": {
+    "maxHp": 100,
+    "alwaysVisible": true,
+    "anchor": "top_left",
+    "screenMargin": [16, 16],
+    "frameSize": [512, 128],
+    "fillRectWithinFrame": [134, 57, 240, 18],
+    "valueTextRectWithinFrame": [401, 54, 73, 28],
+    "fillWidthFormula": "round(240 * clamp(hp, 0, 100) / 100)",
+    "renderOrder": ["hudFrame", "hpFill", "hpValueText"],
+    "colorThresholds": {"healthyAbove": 50, "warningAbove": 25, "criticalAtOrBelow": 25}
+  },
+  "backpack": {
+    "toggleKey": "R",
+    "maxItemsPerLaboratoryRun": 8,
+    "grid": {"columns": 4, "rows": 2, "slotCount": 8},
+    "panelSize": [960, 600],
+    "slotSize": [108, 108],
+    "slotTopLeftCoordinates": [[220,214],[356,214],[492,214],[628,214],[220,336],[356,336],[492,336],[628,336]],
+    "itemIconInsetWithinSlot": [18, 18, 72, 72],
+    "capacityTextRectWithinPanel": [715, 480, 135, 42],
+    "capacityTextFormat": "{used} / 8",
+    "anchor": "screen_center",
+    "recommendedMaxViewportFraction": [0.72, 0.72],
+    "backgroundDimAlpha": 0.55,
+    "renderOrder": ["dimBackground", "backpackEightSlots", "itemIcons", "rarityBorders", "capacityText"],
+    "closeAction": ["R", "Esc", "closeButton"]
+  }
+}

@@ -62,30 +62,7 @@ public final class CombatRenderer {
         }
     }
 
-    public void renderHud(SpriteBatch batch, Player player) {
-        int width = Gdx.graphics.getWidth(), height = Gdx.graphics.getHeight();
-        screen.setToOrtho2D(0f, 0f, width, height);
-        shapes.setProjectionMatrix(screen);
-        float x = 18f, y = height - 30f, barW = Math.min(250f, width * 0.28f), barH = 16f;
-        Gdx.gl.glEnable(GL20.GL_BLEND);
-        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        shapes.begin(ShapeRenderer.ShapeType.Filled);
-        shapes.setColor(0.02f, 0.03f, 0.04f, 0.78f);
-        shapes.rect(x - 10f, y - 27f, barW + 20f, 48f);
-        shapes.setColor(0f, 0f, 0f, 1f);
-        shapes.rect(x - 2f, y - 2f, barW + 4f, barH + 4f);
-        shapes.setColor(0.12f, 0.13f, 0.14f, 1f);
-        shapes.rect(x, y, barW, barH);
-        if (player.hp() <= 30) shapes.setColor(0.9f, 0.22f, 0.12f, 1f);
-        else shapes.setColor(0.22f, 0.82f, 0.35f, 1f);
-        shapes.rect(x, y, barW * Math.max(0f, Math.min(1f, player.hp() / (float) player.maxHp())), barH);
-        shapes.end();
-        batch.setProjectionMatrix(screen);
-        batch.begin();
-        font.setColor(Color.WHITE);
-        font.draw(batch, "HP " + player.hp() + " / " + player.maxHp(), x, y + 25f);
-        batch.end();
-    }
+    // 플레이어 HP 화면 표시는 PlayerHudRenderer(에셋 기반 HP HUD)로 대체했다.
 
     public void renderDebug(OrthographicCamera camera, Player player, List<Monster> monsters,
                            PlayerAttackState attack, BalanceConfig config,

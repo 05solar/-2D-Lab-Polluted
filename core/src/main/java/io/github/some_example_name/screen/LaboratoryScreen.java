@@ -31,6 +31,7 @@ import io.github.some_example_name.render.CombatRenderer;
 import io.github.some_example_name.render.DebugRenderer;
 import io.github.some_example_name.render.EntityRenderer;
 import io.github.some_example_name.render.MonsterRenderer;
+import io.github.some_example_name.render.PlayerHudRenderer;
 import io.github.some_example_name.render.TileDebugRenderer;
 import io.github.some_example_name.render.WorldRenderer;
 import io.github.some_example_name.collision.CollisionSystem;
@@ -66,14 +67,18 @@ public class LaboratoryScreen extends BaseScreen {
     private final CombatRenderer combatRenderer = new CombatRenderer();
     private final DebugRenderer debugRenderer = new DebugRenderer();
     private final TileDebugRenderer tileDebugRenderer = new TileDebugRenderer();
+    private final PlayerHudRenderer hud = new PlayerHudRenderer();
+    private final PlayerSessionState session;
     private boolean paused;
     private boolean debugEnabled;
     private boolean tileDebugEnabled;
+    private boolean backpackOpen;
 
     public LaboratoryScreen(LaboratoryGame game, GameAssets assets, LaboratoryLayout layout,
                             PlayerSessionState session, List<Monster> monsters, BalanceConfig config) {
         super(game, assets);
         this.config = config;
+        this.session = session;
         room = layout.room();
         visuals = layout.visuals();
         player = session.player();
@@ -116,13 +121,21 @@ public class LaboratoryScreen extends BaseScreen {
         boolean transitionLocked = game.transition().inputLocked();
         if (transitionLocked) inputState.update(EnumSet.noneOf(GameAction.class));
         else input.poll(inputState);
-        if (!transitionLocked && inputState.isPressed(GameAction.PAUSE)) paused = !paused;
-        if (!transitionLocked && Gdx.input.isKeyJustPressed(Input.Keys.F1)) debugEnabled = !debugEnabled;
-        if (!transitionLocked && Gdx.input.isKeyJustPressed(Input.Keys.F2)) tileDebugEnabled = !tileDebugEnabled;
+        boolean active = !transitionLocked;
+        if (active && Gdx.input.isKeyJustPressed(Input.Keys.R)) backpackOpen = !backpackOpen;
+        if (active && inputState.isPressed(GameAction.PAUSE)) {
+            if (backpackOpen) backpackOpen = false;   // 가방이 열려 있으면 Esc는 가방부터 닫는다
+            else paused = !paused;
+        }
+        if (active && Gdx.input.isKeyJustPressed(Input.Keys.F1)) debugEnabled = !debugEnabled;
+        if (active && Gdx.input.isKeyJustPressed(Input.Keys.F2)) tileDebugEnabled = !tileDebugEnabled;
+        // [임시] 월드 아이템 획득 시스템이 아직 없어, G로 테스트 물품을 회수해 8칸/가득참을 확인한다.
+        if (active && !backpackOpen && Gdx.input.isKeyJustPressed(Input.Keys.G)
+            && !session.collect("debug_sample")) hud.flashBackpackFull();
 
         boolean runStarted = false;
-        float animDelta = paused || transitionLocked ? 0f : dt;
-        if (!paused && !transitionLocked && !player.isDead()) {
+        float animDelta = paused || transitionLocked || backpackOpen ? 0f : dt;
+        if (!paused && !transitionLocked && !backpackOpen && !player.isDead()) {
             PlayerIntent intent = controller.intentFrom(player, inputState);
             if (intent.attack) playerCombat.attack().start(player.facing());
             playerGrid.forPlayer(monsters);
@@ -149,7 +162,7 @@ public class LaboratoryScreen extends BaseScreen {
             config.playerAttackCooldownSeconds);
         batch.end();
         combatRenderer.renderWorld(camera, monsters, player, playerCombat.attack(), config);
-        combatRenderer.renderHud(batch, player);
+        hud.render(assets.hud(), assets.fadePixel(), player, session.backpack(), backpackOpen, dt);
         if (tileDebugEnabled) tileDebugRenderer.render(camera, room, visuals, batch);
         if (debugEnabled) {
             debugRenderer.render(camera, room, player);
@@ -173,5 +186,6 @@ public class LaboratoryScreen extends BaseScreen {
         combatRenderer.dispose();
         debugRenderer.dispose();
         tileDebugRenderer.dispose();
+        hud.dispose();
     }
 }

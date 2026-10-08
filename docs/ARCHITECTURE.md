@@ -185,3 +185,10 @@ The laboratory's vertical side doors use the supplied `lab_side_doors_2x2_64.png
 - Monsters use existing axis-separated `CollisionSystem` resolution through `CombatCollisionGrid`. Dead monsters are removed after the update pass.
 - Laboratory monster placement is seeded and bounded. The default seed changes per game; tests can inject a fixed seed.
 - Frame order: input/intent, player movement and run-start event, player attack hit frames, monster AI/movement/attack, damage and death cleanup, camera, world, combat bars/effects, HUD, transition overlay.
+
+## 플레이어 HP HUD · 8칸 가방
+- `inventory/Backpack`: 순수 8칸 수집 모델(collect/isFull/count/slot/handOver). 화면과 분리, 단위 테스트 가능.
+- `world/PlayerSessionState`: 맵 간 공유 상태가 Backpack을 보유(collect/backpack/inventory 위임).
+- `asset/HudLayout`: ui_layout.json(top-left 좌표) 파싱 순수 데이터. `asset/PlayerHudAssets`: 9개 UI PNG + 한글 가득참 라벨 로드(GameAssets가 소유·해제).
+- `render/PlayerHudRenderer`: 화면 좌표계(월드 카메라와 분리) HP HUD + 가방 오버레이. 자체 SpriteBatch/카메라/폰트.
+- 화면 연결: LaboratoryScreen/HeadquartersScreen이 HUD 렌더·R 토글·Esc 닫기·가방 열림 시 입력 차단. 기존 CombatRenderer의 임시 HP바는 제거.

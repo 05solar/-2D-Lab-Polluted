@@ -67,3 +67,8 @@
 - Added a contextual SPACE prompt at the water dispenser; using it restores the living player's HP to maximum.
 - Added north-side facing/range/obstruction checks and a manual WATER test spawn; `core:test` passes 89 tests and `lwjgl3:build` succeeds (`docs/images/hq_water_prompt.png`).
 - Expanded both interaction prompt visibility radii to 2.5 tiles, independent of facing, and centered the water prompt over the dispenser.
+# 2026-10-08 플레이어 HP HUD · 8칸 가방 UI
+- 화면 좌측 상단에 항상 보이는 HP HUD(프레임+채움+숫자)를 본부·연구소 양쪽에 추가. 채움 폭은 HP/100, 색은 >50 healthy·>25 warning·그 이하 critical. 월드 카메라와 분리된 화면 좌표로 그린다.
+- R로 8칸 가방 UI 토글(중앙 패널+딤), Esc는 가방부터 닫음, 가방 열림 시 이동·공격·상호작용 정지. 보유 물품 아이콘과 "현재/8" 표시, 가득 참 알림(가방이 가득 찼습니다).
+- 8칸 수집 모델(inventory.Backpack): 최대 8개, 가득 차면 9번째 거부(물품 보존). 본부 인계(handOver)는 연결 지점만 마련(실제 보관 경제 미구현).
+- [임시] 월드 아이템 획득 시스템이 아직 없어, 연구소에서 G로 테스트 물품을 회수해 8칸/가득참을 눈으로 확인한다.

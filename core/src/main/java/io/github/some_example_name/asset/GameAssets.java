@@ -34,6 +34,7 @@ public class GameAssets implements Disposable {
     private final LaboratoryTileSetV2 tileSet;
     private final Texture sideDoorTexture;
     private final HeadquartersAssets headquartersAssets;
+    private final PlayerHudAssets hudAssets;
     private final Texture fadePixel;
 
     private final Texture playerTexture;
@@ -61,6 +62,7 @@ public class GameAssets implements Disposable {
         Gdx.app.log("GameAssets", "tileSet regions=" + tileSet.regionCount());
 
         headquartersAssets = new HeadquartersAssets();
+        hudAssets = new PlayerHudAssets();
         Pixmap pixel = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixel.setColor(1f, 1f, 1f, 1f);
         pixel.fill();
@@ -171,6 +173,7 @@ public class GameAssets implements Disposable {
 
     public LaboratoryTileSetV2 tileSet() { return tileSet; }
     public HeadquartersAssets headquarters() { return headquartersAssets; }
+    public PlayerHudAssets hud() { return hudAssets; }
     public Texture fadePixel() { return fadePixel; }
 
     public AnimationSet playerAnimations() { return playerAnimations; }
@@ -182,6 +185,7 @@ public class GameAssets implements Disposable {
         for (Texture tex : atlasTextures.values()) tex.dispose();
         sideDoorTexture.dispose();
         headquartersAssets.dispose();
+        hudAssets.dispose();
         fadePixel.dispose();
         playerTexture.dispose();
         playerDeathTexture.dispose();

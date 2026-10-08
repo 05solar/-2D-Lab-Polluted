@@ -24,6 +24,7 @@ import io.github.some_example_name.render.AnimationController;
 import io.github.some_example_name.render.EntityRenderer;
 import io.github.some_example_name.render.HeadquartersDebugRenderer;
 import io.github.some_example_name.render.HeadquartersRenderer;
+import io.github.some_example_name.render.PlayerHudRenderer;
 import io.github.some_example_name.world.HeadquartersLayout;
 import io.github.some_example_name.world.HeadquartersRoom;
 import io.github.some_example_name.world.HeadquartersVisuals;
@@ -51,12 +52,16 @@ public final class HeadquartersScreen extends BaseScreen {
     private final HeadquartersDebugRenderer debugRenderer = new HeadquartersDebugRenderer();
     private final VendingMachineInteraction vendingInteraction = new VendingMachineInteraction();
     private final VendingMachineInteraction waterInteraction = new VendingMachineInteraction();
+    private final PlayerHudRenderer hud = new PlayerHudRenderer();
+    private final PlayerSessionState session;
     private boolean paused;
     private boolean debug;
+    private boolean backpackOpen;
 
     public HeadquartersScreen(LaboratoryGame game, GameAssets assets,
                               HeadquartersLayout layout, PlayerSessionState session) {
         super(game, assets);
+        this.session = session;
         room = layout.room();
         visuals = layout.visuals();
         player = session.player();
@@ -75,17 +80,21 @@ public final class HeadquartersScreen extends BaseScreen {
             player.setMoving(false);
         } else {
             input.poll(inputState);
-            if (inputState.isPressed(GameAction.PAUSE)) paused = !paused;
+            if (Gdx.input.isKeyJustPressed(Input.Keys.R)) backpackOpen = !backpackOpen;
+            if (inputState.isPressed(GameAction.PAUSE)) {
+                if (backpackOpen) backpackOpen = false;   // 가방이 열려 있으면 Esc는 가방부터 닫는다
+                else paused = !paused;
+            }
             if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) debug = !debug;
         }
-        if (!paused && !transitionLocked) {
+        if (!paused && !transitionLocked && !backpackOpen) {
             float oldFeetY = player.feetY();
             PlayerIntent intent = controller.intentFrom(player, inputState);
             movement.update(player, intent, room, dt);
             if (!player.isDead() && room.crossedSouthExit(oldFeetY, player, intent.moveY))
                 game.transition().request(MapId.LABORATORY);
         }
-        boolean interactionContext = !player.isDead() && !paused && !transitionLocked;
+        boolean interactionContext = !player.isDead() && !paused && !transitionLocked && !backpackOpen;
         boolean vendingAvailable = interactionContext && room.canInteractWithVending(player);
         boolean waterAvailable = interactionContext && room.canInteractWithWaterDispenser(player);
         boolean vendingPromptVisible = interactionContext && room.isNearVending(player);
@@ -101,7 +110,7 @@ public final class HeadquartersScreen extends BaseScreen {
         vendingAvailable &= vendingPromptVisible;
         waterAvailable &= waterPromptVisible;
         boolean promptIsWater = waterPromptVisible;
-        float animDelta = paused || transitionLocked ? 0f : dt;
+        float animDelta = paused || transitionLocked || backpackOpen ? 0f : dt;
         boolean spacePressed = inputState.isPressed(GameAction.ATTACK);
         boolean vendingFired = vendingInteraction.update(vendingPromptVisible,
             vendingAvailable && spacePressed, animDelta);
@@ -122,6 +131,7 @@ public final class HeadquartersScreen extends BaseScreen {
                 : vendingInteraction.promptFrame(vendingPromptVisible),
             vendingInteraction.showAcceptedFrame());
         batch.end();
+        hud.render(assets.hud(), assets.fadePixel(), player, session.backpack(), backpackOpen, dt);
         renderFade(batch, viewport);
         if (debug) debugRenderer.render(camera, room, player);
     }
@@ -136,5 +146,6 @@ public final class HeadquartersScreen extends BaseScreen {
     @Override public void dispose() {
         batch.dispose();
         debugRenderer.dispose();
+        hud.dispose();
     }
 }
