@@ -235,3 +235,8 @@ Desktop review can start directly in the collision overlay with `LAB_DEBUG_COLLI
 - `world/LaboratoryLayout.easyRoom`: 외곽 2링 autotile 스킨 null(새 외벽이 대체), 대문 개구부 2행, setGatePassage(기본 닫힘), hasExteriorRing()=true.
 - `world/LaboratoryRoom`: gatePassage 사각형 + gateClosed 상태, blocksActorAt가 닫힘 시 통로 차단. setGateClosed/gateClosed.
 - `screen/LaboratoryScreen`: easy 맵에서 ExteriorWallRenderer 호출, SPACE로 대문 토글(nearGate), 기존 crossedSouthExit→HEADQUARTERS 전환 유지.
+
+## 내부 벽 직선 교체 (InteriorWallRenderer)
+- `render/InteriorWallRenderer`: 내부 벽의 직선 벽면을 새 외벽 직선 스프라이트로 덧그린다. 벽 덩어리에서 파낸 구조라 방 경계벽은 T_OPEN_*(한쪽 바닥)로 분류되므로 T_OPEN_*+HORIZONTAL/VERTICAL을 직선으로 보고 바닥 쪽 면(north/south/west/east)을 고른다. 구간(run) 단위로 신축, 두께 1타일.
+- 접합부(OUTER/INNER/CROSS/END)·세로 방문은 기존 v3 유지. 외곽 2타일 링은 ExteriorWallRenderer가 담당.
+- `render/WorldRenderer.setInteriorWalls(renderer, room)`: WALL 레이어 직후(가구/플레이어 전) 같은 batch로 그림. `screen/LaboratoryScreen`이 easy 맵일 때 설정.

@@ -126,6 +126,8 @@ public class LaboratoryScreen extends BaseScreen {
         monsterRenderer = new MonsterRenderer(assets.monsterAnimations());
         exteriorRing = layout.hasExteriorRing();
         exteriorWalls = new io.github.some_example_name.render.ExteriorWallRenderer(assets.exteriorWalls());
+        if (exteriorRing) worldRenderer.setInteriorWalls(
+            new io.github.some_example_name.render.InteriorWallRenderer(assets.exteriorWalls()), room);
         dumpResolvedGridIfRequested();
         updateCamera();
     }

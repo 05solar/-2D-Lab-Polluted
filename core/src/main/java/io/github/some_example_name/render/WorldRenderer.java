@@ -24,6 +24,15 @@ public class WorldRenderer {
     private final LaboratoryTileSetV2 tileSet;
     private final RoomKitAssets roomKits;
     private final LaboratoryFurnitureAssets furniture;
+    private InteriorWallRenderer interiorWalls;          // 내부 벽 직선을 새 에셋으로 덧그림(easy 맵)
+    private io.github.some_example_name.world.LaboratoryRoom interiorRoom;
+
+    /** 내부 직선 벽을 새 외벽 에셋으로 덧그리도록 설정(가구/플레이어보다 먼저, WALL 레이어 직후). */
+    public void setInteriorWalls(InteriorWallRenderer renderer,
+                                 io.github.some_example_name.world.LaboratoryRoom room) {
+        this.interiorWalls = renderer;
+        this.interiorRoom = room;
+    }
 
     public WorldRenderer(LaboratoryTileSetV2 tileSet) {
         this(tileSet, null, null);
@@ -69,6 +78,8 @@ public class WorldRenderer {
 
         drawLayer(batch, visuals, Layer.OVERLAY, minX, maxX, minY, maxY);
         drawLayer(batch, visuals, Layer.WALL, minX, maxX, minY, maxY);
+        // 내부 직선 벽을 새 금속 직선으로 덧그린다(접합부 v3 타일 위, 가구/플레이어 아래).
+        if (interiorWalls != null && interiorRoom != null) interiorWalls.draw(batch, interiorRoom);
         drawLayer(batch, visuals, Layer.STRUCTURE, minX, maxX, minY, maxY);
         if (roomKits != null) {
             for (LaboratoryProp prop : visuals.props()) {
