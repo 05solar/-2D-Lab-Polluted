@@ -87,3 +87,6 @@
 - Wall fixtures keep collision support on the structural wall tile so the tile-based pathfinder does not mark a full interior aisle tile blocked. Generated-room screenshot: `docs/images/laboratory_furniture_containment_chemistry.png`.
 - Fixed laboratory phantom collision: partial furniture AABBs no longer convert every overlapping tile into a solid tile. Movement and F-return routing now query the same body-sized furniture obstacles.
 - Added visible wall autotile variants for connected ends, corners, T/cross junctions, damaged straight runs, and sparse supports. Added F1 collision visualization with distinct passable, solid, furniture, and player colors.
+# 2026-10-13 연구소 벽면 가구 밀착·충돌·뒷모습
+- 남쪽 벽 가구가 **뒷모습(_back)** 으로 표시된다(laboratory_orthographic_views_v8 백뷰 팩 연결, 북=정면·남=뒷모습·좌우=측면).
+- 벽면/중앙 가구의 **충돌을 실제 불투명 바닥 footprint**에 맞췄다. 정면/뒷모습은 바닥 접촉 띠(높이 0.7)만 충돌로 잡고 높은 입면 상단은 통행 가능, 측면은 불투명 사각형 전체. 고정 0.30·1.24폭과 벽 속 숨은 충돌 박스를 제거해 빈 바닥의 보이지 않는 충돌과 가구 관통을 없앴다.

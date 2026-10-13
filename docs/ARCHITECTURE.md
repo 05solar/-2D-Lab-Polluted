@@ -218,3 +218,8 @@ Wall-mounted V7 furniture is packed along north/south walls and both side walls 
 `LaboratoryRoom` is the shared `ObstacleGrid` for player collision and path consumers. Tile solids represent only actual wall/closed-door cells; each furniture ground footprint remains a precise AABB and is checked by `CollisionSystem`, `RoomPathfinder`, spawn validation, monster movement/line checks, and attack line-of-sight. Opening a door changes its tile state in the same room model, so the next movement and route query see the updated passage. F1 draws green outlines for passable cells, red outlines for solid wall/door cells, cyan furniture ground footprints, and a lime player body. The laboratory render pass keeps framebuffer alpha opaque while blending translucent art.
 
 Desktop review can start directly in the collision overlay with `LAB_DEBUG_COLLISION=1`; F1 remains the in-game toggle.
+
+## 가구 방향 에셋(v8 뒷모습)
+- `asset/LaboratoryFurnitureAssets`: v7(front/left/right) + **v8 `_back`**(남쪽 벽) 로드. back 경계는 v8 rearNotes대로 대응 front 경계를 재사용.
+- `world/LaboratoryLayout.wallView`: 북=front·남=back·좌=left_side·우=right_side. `addWallProp`/`addV7` 충돌은 `LaboratoryFurnitureCoverage` 불투명 가로폭 × 바닥 footprint로 산출(하드코딩 상수 제거).
+- 충돌 소비자(LaboratoryRoom/CombatCollisionGrid/RoomPathfinder/CollisionSystem)는 소스 rect만 바뀌면 그대로 전파(변경 불필요).

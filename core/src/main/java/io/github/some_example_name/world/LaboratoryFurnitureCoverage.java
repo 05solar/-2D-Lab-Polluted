@@ -87,7 +87,8 @@ final class LaboratoryFurnitureCoverage {
     static float horizontalSpan(String assetId) { return span(assetId, 0); }
     static float verticalSpan(String assetId) { return span(assetId, 1); }
     private static float span(String assetId, int axis) {
-        String fileKey = assetId.replace("/front", "_front")
+        // 뒷모습은 대응 front의 가시 경계에 맞춰 생성됐으므로 front 스팬을 재사용한다.
+        String fileKey = assetId.replace("/back", "_front").replace("/front", "_front")
             .replace("/left_side", "_left_side").replace("/right_side", "_right_side");
         float[] spans = SPANS.get(fileKey);
         if (spans == null) throw new IllegalArgumentException("missing V7 alpha bounds: " + assetId);

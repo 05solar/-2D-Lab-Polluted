@@ -37,6 +37,7 @@ public final class LaboratoryFurnitureAssets implements Disposable {
                 load(root, bounds, category.name(), name, "front");
                 load(root, bounds, category.name(), name, "left_side");
                 load(root, bounds, category.name(), name, "right_side");
+                loadBack(bounds, category.name(), name);
             }
         }
     }
@@ -50,6 +51,21 @@ public final class LaboratoryFurnitureAssets implements Disposable {
         int[] alpha = bounds.get(file).asIntArray();
         sprites.put(category + "/" + name + "/" + view,
             new Sprite(new TextureRegion(texture), alpha));
+    }
+
+    /**
+     * 뒷모습(_back)은 v8 팩에만 있고 전용 메타데이터가 없다. v8 catalog의 rearNotes대로 뒷모습은
+     * 대응 front의 가시 경계·바닥 기준선에 맞춰 생성됐으므로 front의 alpha 경계를 그대로 재사용한다.
+     */
+    private void loadBack(JsonValue bounds, String category, String name) {
+        String file = category + "/" + name + "_back.png";
+        Texture texture = new Texture(Gdx.files.internal(
+            AssetPaths.FURNITURE_V8_DIR + "runtime_256/" + file));
+        texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        texture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
+        textures.put("v8:" + file, texture);
+        int[] alpha = bounds.get(category + "/" + name + "_front.png").asIntArray();
+        sprites.put(category + "/" + name + "/back", new Sprite(new TextureRegion(texture), alpha));
     }
 
     /** Resolves explicit V7 catalog references used by the revised laboratory plan. */

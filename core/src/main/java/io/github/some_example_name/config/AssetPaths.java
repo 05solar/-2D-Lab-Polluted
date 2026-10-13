@@ -11,6 +11,8 @@ public final class AssetPaths {
     public static final String ROOMKITS_DIR = "laboratory_roomkits_v3/";
     public static final String ROOMKITS_JSON = ROOMKITS_DIR + "laboratory_roomkits_v3.json";
     public static final String FURNITURE_V7_DIR = "laboratory_orthographic_views_v7/";
+    /** v8은 v7과 front/측면이 동일하고 가구별 뒷모습(_back)을 추가로 제공한다(남쪽 벽용). */
+    public static final String FURNITURE_V8_DIR = "laboratory_orthographic_views_v8/";
     public static final String DIFFICULTY_MODAL_DIR = "difficulty_modal_v2/";
     public static final String DIFFICULTY_MODAL_IMAGE = DIFFICULTY_MODAL_DIR
         + "runtime/difficulty_modal_960x640.png";

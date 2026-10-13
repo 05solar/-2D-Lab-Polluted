@@ -1,0 +1,60 @@
+{
+  "pack": "laboratory_orthographic_views_v8",
+  "projection": "orthographic_elevation",
+  "views": [
+    "front",
+    "left_side",
+    "right_side",
+    "back"
+  ],
+  "viewMeaning": "visible physical face, not wall placement and not rotated top-down pixels",
+  "assetCount": 24,
+  "pngCountPerResolution": 96,
+  "runtimeSize": [
+    256,
+    256
+  ],
+  "pathPattern": "{resolution}/{category}/{asset}_{view}.png",
+  "categories": {
+    "general_lab": [
+      "workbench",
+      "fume_hood",
+      "sink_counter",
+      "storage_cabinet"
+    ],
+    "archive_library": [
+      "archive_shelf",
+      "bookshelf",
+      "filing_cabinet"
+    ],
+    "science_lab": [
+      "biosafety_cabinet",
+      "specimen_cabinet",
+      "chemistry_workbench",
+      "chemistry_fume_hood"
+    ],
+    "information_cctv": [
+      "server_rack",
+      "computer_workstation",
+      "cctv_console"
+    ],
+    "pantry": [
+      "kitchenette",
+      "refrigerator",
+      "microwave_cabinet",
+      "coffee_station"
+    ],
+    "lounge_sleeping": [
+      "sofa",
+      "bunk_bed",
+      "locker_bank"
+    ],
+    "restroom_shower": [
+      "toilet",
+      "sink_counter",
+      "shower_stall"
+    ]
+  },
+  "textureFilter": "Nearest",
+  "rearNotes": "Generated straight rear views; original front and side PNG bytes preserved. Rear sprites fitted within corresponding front visible bounds and bottom baseline."
+}

@@ -21,6 +21,8 @@ public final class LaboratoryLayout {
     private static final int SOUTH_SPINE_Y = 5;
     private static final float WALL_FURNITURE_HEIGHT = 2.45f;
     private static final float WALL_FURNITURE_GAP = .05f;
+    /** 정면/뒷모습 가구의 바닥 접촉(footprint) 깊이. 높은 입면 상단은 충돌로 잡지 않는다. */
+    private static final float WALL_FURNITURE_FOOTPRINT = .7f;
 
     private static final String[] TEST_ROOM = {
         "####################",
@@ -459,9 +461,11 @@ public final class LaboratoryLayout {
     }
 
     private static String wallView(String asset, boolean horizontal, String wall) {
+        // 북쪽 벽: 정면(아래=방 안쪽), 남쪽 벽: 뒷모습(위=방 안쪽),
+        // 왼쪽 벽: 오른쪽(방 안쪽) 바라보는 측면, 오른쪽 벽: 왼쪽 바라보는 측면.
         String base = asset.substring(0, asset.lastIndexOf('/'));
-        return base + (horizontal ? "/front"
-            : ("WEST".equals(wall) ? "/left_side" : "/right_side"));
+        if (horizontal) return base + ("SOUTH".equals(wall) ? "/back" : "/front");
+        return base + ("WEST".equals(wall) ? "/left_side" : "/right_side");
     }
 
     private static boolean addWallProp(List<LaboratoryProp> out, String id,
@@ -477,12 +481,12 @@ public final class LaboratoryLayout {
             else if ("EAST".equals(wall)) candidateX = plan.x + plan.w - 1 - width * .5f;
             if ("NORTH".equals(wall)) candidateY = plan.y + plan.h - 1 - artHeight;
             else if ("SOUTH".equals(wall)) candidateY = plan.y + 1;
-            float depth = .30f;
-            Rectangle collision;
-            if ("NORTH".equals(wall)) collision = new Rectangle(candidateX-.15f, plan.y+plan.h-1+.20f, .30f, depth);
-            else if ("SOUTH".equals(wall)) collision = new Rectangle(candidateX-.15f, plan.y+.20f, .30f, depth);
-            else if ("WEST".equals(wall)) collision = new Rectangle(plan.x+.20f, candidateY+.05f, depth, .20f);
-            else collision = new Rectangle(plan.x+plan.w-1+.20f, candidateY+.05f, depth, .20f);
+            // 충돌 = 실제 불투명 아트의 바닥 점유에 맞춘다(투명 여백·고정폭 금지).
+            // 정면/뒷모습(가로벽)은 높은 입면이므로 바닥 접촉 띠만, 측면(세로벽)은 불투명 사각형 전체.
+            boolean horizontalWall = "NORTH".equals(wall) || "SOUTH".equals(wall);
+            float collX = candidateX - width * .5f;
+            float collDepth = horizontalWall ? Math.min(artHeight, WALL_FURNITURE_FOOTPRINT) : artHeight;
+            Rectangle collision = new Rectangle(collX, candidateY, width, collDepth);
             LaboratoryProp candidate = new LaboratoryProp(id,candidateX,candidateY,2.1f,scaledHeight,collision);
             if (addValidated(out, candidate, plan, map)) return true;
         }
@@ -508,7 +512,9 @@ public final class LaboratoryLayout {
     private static void addV7(List<LaboratoryProp> out,String asset,float x,float y,
                               float height,float depth,RoomPlan plan,TileType[][] map) {
         String id="v7:"+asset;
-        Rectangle collision=new Rectangle(x-.62f,y,1.24f,depth);
+        // 충돌 폭 = 실제 불투명 가로폭(고정 1.24 금지). depth는 바닥 접촉 띠.
+        float opaqueW = height * LaboratoryFurnitureCoverage.horizontalSpan(asset);
+        Rectangle collision=new Rectangle(x-opaqueW*.5f,y,opaqueW,depth);
         addValidated(out,new LaboratoryProp(id,x,y,2.1f,height,collision),plan,map);
     }
 

@@ -128,3 +128,7 @@ A door needs a straight wall run of at least five cells. Its center occupies one
 - 플레이어 최대 HP 100(확정). HUD 채움 폭 = round(240 * clamp(hp,0,100)/100). 색: hp>50 healthy, 25<hp<=50 warning, hp<=25 critical. 숫자는 현재 HP(= /100). HP는 실제 Player.hp()와 즉시 동기화.
 - 가방 8칸, 한 물품 한 칸. 가득 차면(8/8) 추가 회수 거부(물품은 월드에 남김)와 "가방이 가득 찼습니다" 알림. (D 교체·바닥 드롭 규칙은 후속 루트 작업에서 구현)
 - 사망 시 물품 처리 규칙은 미정(임의 적용하지 않음). 본부 인계는 기존 경제 시스템 연결 지점(Backpack.handOver)만 둠.
+
+## 벽면 가구 방향·충돌 [확정]
+- 방향별 뷰: 북벽=front(아래=방안), 남벽=back(위=방안), 왼쪽벽=left_side(오른쪽=방안), 오른쪽벽=right_side(왼쪽=방안). 정면 회전/반전으로 뒷모습을 대체하지 않는다(v8 전용 back 에셋 사용).
+- 가구 충돌 = 실제 불투명 아트의 바닥 점유 영역만. 정면/뒷모습은 바닥 접촉 띠(WALL_FURNITURE_FOOTPRINT=0.7타일)만, 측면은 불투명 사각형. PNG 투명 여백·높은 입면 상단은 충돌로 잡지 않는다. 배치/렌더/충돌/길찾기는 동일 prop 데이터(LaboratoryProp)를 공유한다.
