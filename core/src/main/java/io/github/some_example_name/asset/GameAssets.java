@@ -39,6 +39,8 @@ public class GameAssets implements Disposable {
     private final LootAssets lootAssets;
     private final DifficultyModalAssets difficultyModalAssets;
     private final PlayerHudAssets hudAssets;
+    private final Texture minimapFrameTex, footprintsTex, returnButtonTex;
+    private final TextureRegion minimapFrame, footprints, returnButton;
     private final Texture fadePixel;
 
     private final Texture playerTexture;
@@ -72,6 +74,12 @@ public class GameAssets implements Disposable {
             Gdx.files.internal(AssetPaths.LOOT_TABLES).readString("UTF-8"));
         difficultyModalAssets = new DifficultyModalAssets();
         hudAssets = new PlayerHudAssets();
+        minimapFrameTex = loadTile(AssetPaths.NAV_MINIMAP_FRAME);
+        footprintsTex = loadTile(AssetPaths.NAV_FOOTPRINTS);
+        returnButtonTex = loadTile(AssetPaths.NAV_RETURN_BUTTON);
+        minimapFrame = new TextureRegion(minimapFrameTex);
+        footprints = new TextureRegion(footprintsTex);
+        returnButton = new TextureRegion(returnButtonTex);
         Pixmap pixel = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixel.setColor(1f, 1f, 1f, 1f);
         pixel.fill();
@@ -187,6 +195,9 @@ public class GameAssets implements Disposable {
     public LootAssets loot() { return lootAssets; }
     public DifficultyModalAssets difficultyModal() { return difficultyModalAssets; }
     public PlayerHudAssets hud() { return hudAssets; }
+    public TextureRegion minimapFrame() { return minimapFrame; }
+    public TextureRegion footprints() { return footprints; }
+    public TextureRegion returnRouteButton() { return returnButton; }
     public Texture fadePixel() { return fadePixel; }
 
     public AnimationSet playerAnimations() { return playerAnimations; }
@@ -203,6 +214,9 @@ public class GameAssets implements Disposable {
         lootAssets.dispose();
         difficultyModalAssets.dispose();
         hudAssets.dispose();
+        minimapFrameTex.dispose();
+        footprintsTex.dispose();
+        returnButtonTex.dispose();
         fadePixel.dispose();
         playerTexture.dispose();
         playerDeathTexture.dispose();

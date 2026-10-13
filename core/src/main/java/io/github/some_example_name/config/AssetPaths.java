@@ -22,6 +22,11 @@ public final class AssetPaths {
 
     public static final String HQ_DIR = "hq_tent/";
     public static final String HQ_JSON = HQ_DIR + "hq_tent_assets.json";
+    /** 미니맵 프레임·발자국·귀환(대문) 버튼 UI 에셋. */
+    public static final String NAV_MINIMAP_FRAME = "ui/navigation/minimap_frame_256.png";
+    public static final String NAV_FOOTPRINTS = "ui/navigation/footprints_pair_64.png";
+    public static final String NAV_RETURN_BUTTON = "ui/navigation/return_route_button_256x64.png";
+
     public static final String SPACE_PROMPT_IMAGE = "ui/interaction/spacebar_prompt_sheet_128x64.png";
     public static final String SPACE_PROMPT_JSON = "ui/interaction/spacebar_prompt.json";
 

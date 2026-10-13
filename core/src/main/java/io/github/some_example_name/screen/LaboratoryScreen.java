@@ -156,6 +156,10 @@ public class LaboratoryScreen extends BaseScreen {
         if (active && Gdx.input.isKeyJustPressed(Input.Keys.F1)) debugEnabled = !debugEnabled;
         if (active && Gdx.input.isKeyJustPressed(Input.Keys.F2)) tileDebugEnabled = !tileDebugEnabled;
         if (active && Gdx.input.isKeyJustPressed(Input.Keys.F)) routeEnabled = !routeEnabled;
+        // 미니맵 아래 귀환 버튼 클릭도 F와 동일하게 대문 발자국 경로를 토글한다.
+        if (active && !backpackOpen && !paused && Gdx.input.justTouched()
+            && navigationRenderer.buttonHit(Gdx.input.getX(), Gdx.input.getY()))
+            routeEnabled = !routeEnabled;
         // [임시] 월드 아이템 획득 시스템이 아직 없어, G로 테스트 물품을 회수해 8칸/가득참을 확인한다.
         if (active && !backpackOpen && Gdx.input.isKeyJustPressed(Input.Keys.G)
             && !session.collect("debug_sample")) hud.flashBackpackFull();
@@ -216,7 +220,9 @@ public class LaboratoryScreen extends BaseScreen {
         batch.end();
         if (!overviewMode)
             navigationRenderer.render(camera, room, player.feetX(), player.feetY(),
-                player.bounds().width, player.bounds().height, exitPath, monsters);
+                player.bounds().width, player.bounds().height, exitPath, monsters,
+                room.southExitCenterX(), room.southExitPathY(),
+                assets.minimapFrame(), assets.footprints(), assets.returnRouteButton(), routeEnabled);
         combatRenderer.renderWorld(camera, monsters, player, playerCombat.attack(), config);
         if (tileDebugEnabled) tileDebugRenderer.render(camera, room, visuals, batch);
         if (debugEnabled) {

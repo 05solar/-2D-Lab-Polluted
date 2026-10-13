@@ -223,3 +223,8 @@ Desktop review can start directly in the collision overlay with `LAB_DEBUG_COLLI
 - `asset/LaboratoryFurnitureAssets`: v7(front/left/right) + **v8 `_back`**(남쪽 벽) 로드. back 경계는 v8 rearNotes대로 대응 front 경계를 재사용.
 - `world/LaboratoryLayout.wallView`: 북=front·남=back·좌=left_side·우=right_side. `addWallProp`/`addV7` 충돌은 `LaboratoryFurnitureCoverage` 불투명 가로폭 × 바닥 footprint로 산출(하드코딩 상수 제거).
 - 충돌 소비자(LaboratoryRoom/CombatCollisionGrid/RoomPathfinder/CollisionSystem)는 소스 rect만 바뀌면 그대로 전파(변경 불필요).
+
+## 미니맵·귀환 발자국 (NavigationRenderer)
+- `render/NavigationRenderer`: 월드 배치로 경로 발자국 PNG(방향 회전), 화면 배치로 미니맵 격자+프레임 PNG+마커·그 아래 귀환 버튼 PNG. `buttonHit(x,yTop)`로 클릭 판정 노출.
+- 에셋: `assets/ui/navigation/`(minimap_frame_256·footprints_pair_64·return_route_button_256x64), GameAssets 소유·해제.
+- `screen/LaboratoryScreen`: F 키 또는 버튼 클릭으로 routeEnabled 토글 → RoomPathfinder로 대문(남쪽 출구)까지 경로 산출 → NavigationRenderer가 발자국으로 표시.
