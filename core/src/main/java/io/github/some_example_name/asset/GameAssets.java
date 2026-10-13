@@ -39,6 +39,7 @@ public class GameAssets implements Disposable {
     private final LootAssets lootAssets;
     private final DifficultyModalAssets difficultyModalAssets;
     private final PlayerHudAssets hudAssets;
+    private final ExteriorWallAssets exteriorWalls;
     private final Texture minimapFrameTex, footprintsTex, returnButtonTex;
     private final TextureRegion minimapFrame, footprints, returnButton;
     private final Texture fadePixel;
@@ -74,6 +75,7 @@ public class GameAssets implements Disposable {
             Gdx.files.internal(AssetPaths.LOOT_TABLES).readString("UTF-8"));
         difficultyModalAssets = new DifficultyModalAssets();
         hudAssets = new PlayerHudAssets();
+        exteriorWalls = new ExteriorWallAssets();
         minimapFrameTex = loadTile(AssetPaths.NAV_MINIMAP_FRAME);
         footprintsTex = loadTile(AssetPaths.NAV_FOOTPRINTS);
         returnButtonTex = loadTile(AssetPaths.NAV_RETURN_BUTTON);
@@ -195,6 +197,7 @@ public class GameAssets implements Disposable {
     public LootAssets loot() { return lootAssets; }
     public DifficultyModalAssets difficultyModal() { return difficultyModalAssets; }
     public PlayerHudAssets hud() { return hudAssets; }
+    public ExteriorWallAssets exteriorWalls() { return exteriorWalls; }
     public TextureRegion minimapFrame() { return minimapFrame; }
     public TextureRegion footprints() { return footprints; }
     public TextureRegion returnRouteButton() { return returnButton; }
@@ -214,6 +217,7 @@ public class GameAssets implements Disposable {
         lootAssets.dispose();
         difficultyModalAssets.dispose();
         hudAssets.dispose();
+        exteriorWalls.dispose();
         minimapFrameTex.dispose();
         footprintsTex.dispose();
         returnButtonTex.dispose();

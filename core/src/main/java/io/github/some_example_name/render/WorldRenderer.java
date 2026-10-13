@@ -74,8 +74,7 @@ public class WorldRenderer {
             for (LaboratoryProp prop : visuals.props()) {
                 if (prop.y() >= playerFeetY && intersectsView(prop, camera)) drawProp(batch, prop);
             }
-            if (w > 20 && h > 15 && inView(.5f, -1.5f, 6f, 4f, camera))
-                batch.draw(roomKits.region("gate_horizontal_open"), .5f, -1.5f, 6f, 4f);
+            // 외곽 벽·대문은 ExteriorWallRenderer(2타일 링 + 8x4 대문)가 그린다(기존 하드코딩 대문 제거).
         }
     }
 

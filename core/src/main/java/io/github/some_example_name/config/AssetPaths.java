@@ -22,6 +22,10 @@ public final class AssetPaths {
 
     public static final String HQ_DIR = "hq_tent/";
     public static final String HQ_JSON = HQ_DIR + "hq_tent_assets.json";
+    /** 연구소 외벽(2타일 두께 링·모서리) + 본부↔연구소 대문(닫힘/열림) V3 팩. */
+    public static final String EXTERIOR_DIR = "exterior_walls_gate_v3/";
+    public static final String EXTERIOR_LAYOUT_JSON = EXTERIOR_DIR + "layout.json";
+
     /** 미니맵 프레임·발자국·귀환(대문) 버튼 UI 에셋. */
     public static final String NAV_MINIMAP_FRAME = "ui/navigation/minimap_frame_256.png";
     public static final String NAV_FOOTPRINTS = "ui/navigation/footprints_pair_64.png";

@@ -150,3 +150,7 @@ PNG 알파(`LaboratoryTileCatalogV2Test`): 벽/구조물/오버레이의 알파 
 - `LaboratoryRoomObstacleTest.obstacleGridExposesTheSameStaticFootprints`: obstacle enumeration is defensive and matches the movement collision source.
 - `EasyLaboratoryLayoutTest.easyWallVisualsUseConnectedCornersJunctionsAndSparseSupports`: generated easy map uses connected corner/junction variants and sparse supports; validates visible connector pairs.
 - F1 visual review: green walkable cell outlines, red wall/closed-door cell outlines, cyan furniture footprints, and lime player body. Capture normal and debug images for the same room and verify walking against empty floor, furniture, and wall edges.
+
+## 외벽·대문 V3 테스트
+- EasyLaboratoryLayoutTest: 남쪽 복귀 개구부 통행 가능, crossedSouthExit 경계(y=1) 트리거(기존 유지), 16방 연결.
+- 수동(실행 창): 외벽 네 방향·모서리 연속, 대문 닫힘 통행 불가→SPACE로 열림→중앙 통로 통행→남쪽 복귀, 문틀 통과 불가, 미니맵/충돌 디버그 반영.

@@ -44,6 +44,7 @@ public final class LaboratoryLayout {
 
     private final LaboratoryRoom room;
     private final RoomVisuals visuals;
+    private boolean exteriorRing; // true면 2타일 외벽 링 + 8x4 대문 렌더 사용(easy 맵)
     private final List<LootContainerPlacement> lootContainers;
     private final List<LaboratoryRoomArea> roomAreas;
     private final List<WallFurnitureCoverageReport> wallCoverage;
@@ -78,6 +79,7 @@ public final class LaboratoryLayout {
 
     public LaboratoryRoom room() { return room; }
     public RoomVisuals visuals() { return visuals; }
+    public boolean hasExteriorRing() { return exteriorRing; }
     public List<LootContainerPlacement> lootContainers() { return lootContainers; }
     public List<LaboratoryRoomArea> roomAreas() { return roomAreas; }
     public List<WallFurnitureCoverageReport> wallCoverage() { return wallCoverage; }
@@ -139,7 +141,8 @@ public final class LaboratoryLayout {
         List<LootContainerPlacement> containers = new ArrayList<>();
         List<LaboratoryRoomArea> roomAreas = new ArrayList<>();
         DoorPlacementResolver.Result resolved = new DoorPlacementResolver().resolve(logical);
-        for (int x = 62; x <= 64; x++) logical[0][x] = TileType.DOORWAY_OPEN;
+        // 외벽이 2타일 두께이므로 남쪽 대문 개구부도 두 행(y=0,1)을 통과하도록 뚫는다.
+        for (int y = 0; y <= 1; y++) for (int x = 62; x <= 64; x++) logical[y][x] = TileType.DOORWAY_OPEN;
         roomAreas.addAll(areas(plans));
         List<WallFurnitureCoverageReport> coverage = new ArrayList<>();
         for (RoomPlan plan : plans) addRoomFurniture(props, plan, coverage, logical);
@@ -149,7 +152,10 @@ public final class LaboratoryLayout {
         containers.add(findContainer("legendary_cabinet","LIBRARY",plans,props,logical));
         Vector2 spawn = new Vector2(63.5f, 3.2f);
         LaboratoryRoom room = new LaboratoryRoom(logical, spawn, null, resolved.doors, props);
+        // 2타일 개구부(y0,1)를 지나 바깥 경계(y=1)를 남쪽으로 넘을 때 복귀가 트리거된다.
         room.setSouthExitGate(62f, 65f, 1f);
+        // 대문 통로(x62~65, y0~2): 기본 닫힘으로 통행 차단. SPACE로 열면 통행 가능.
+        room.setGatePassage(new Rectangle(62f, 0f, 3f, 2f));
         for (LootContainerPlacement placement : containers)
             room.addWorldObstacle(new Rectangle(placement.x() - .42f, placement.y(), .84f, .48f));
         OverlayResolver.Result overlays = new OverlayResolver(OverlayResolver.DEFAULT_SEED + 100)
@@ -169,11 +175,16 @@ public final class LaboratoryLayout {
             if (logical[y][x] == TileType.WALL)
                 wall[y][x] = autotiler.tileId(room, x, y);
             if (structure[y][x] != null) wall[y][x] = null;
+            // 외곽 2타일 링은 새 exterior_walls_gate_v3 외벽 스프라이트가 대체하므로
+            // 기존 autotile 스킨을 지운다(중복 렌더 방지). 충돌(WALL)은 그대로 유지된다.
+            if (x <= 1 || y <= 1 || x >= w - 2 || y >= h - 2) wall[y][x] = null;
         }
         RoomVisuals visuals = new RoomVisuals(floor, overlays.overlay, wall, structure,
             resolved.doors, props);
         new WallTopologyValidator().validateDoorPlacement(room, visuals);
-        return new LaboratoryLayout(room, visuals, containers, roomAreas, coverage);
+        LaboratoryLayout layout = new LaboratoryLayout(room, visuals, containers, roomAreas, coverage);
+        layout.exteriorRing = true; // easy 맵은 2타일 외벽 링 + 8x4 대문을 쓴다
+        return layout;
     }
 
     private enum Side { NORTH, EAST, SOUTH, WEST }

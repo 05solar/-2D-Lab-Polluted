@@ -1,0 +1,108 @@
+{
+  "coordinateOrigin": "top-left",
+  "textureFilter": "Nearest",
+  "logicalTilePx": 64,
+  "wall": {
+    "ringSize": [
+      768,
+      768
+    ],
+    "ninePatchBorderPx": [
+      128,
+      128,
+      128,
+      128
+    ],
+    "parts": {
+      "corner_nw": [
+        0,
+        0,
+        128,
+        128
+      ],
+      "north": [
+        128,
+        0,
+        640,
+        128
+      ],
+      "corner_ne": [
+        640,
+        0,
+        768,
+        128
+      ],
+      "west": [
+        0,
+        128,
+        128,
+        640
+      ],
+      "east": [
+        640,
+        128,
+        768,
+        640
+      ],
+      "corner_sw": [
+        0,
+        640,
+        128,
+        768
+      ],
+      "south": [
+        128,
+        640,
+        640,
+        768
+      ],
+      "corner_se": [
+        640,
+        640,
+        768,
+        768
+      ]
+    },
+    "recommendedWorldThicknessTiles": 2,
+    "straightSpritesUse": "stretch only along wall length; preserve thickness; match corner joints",
+    "collision": "derive solid wall geometry from room outline; do not mark central transparent opening solid"
+  },
+  "gate": {
+    "closed": "runtime/gate/main_gate_closed_512x256.png",
+    "open": "runtime/gate/main_gate_open_512x256.png",
+    "imageSize": [
+      512,
+      256
+    ],
+    "recommendedWorldSizeTiles": [
+      8,
+      4
+    ],
+    "passageRectPx": [
+      184,
+      76,
+      176,
+      170
+    ],
+    "anchorPx": [
+      256,
+      246
+    ],
+    "closedCollision": "passage blocked plus solid frame",
+    "openCollision": "passage walkable; frame remains solid",
+    "sourceCropBoxes": [
+      [
+        56,
+        75,
+        745,
+        404
+      ],
+      [
+        24,
+        75,
+        713,
+        404
+      ]
+    ]
+  }
+}

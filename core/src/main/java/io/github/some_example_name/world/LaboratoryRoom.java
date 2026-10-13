@@ -95,8 +95,21 @@ public class LaboratoryRoom implements ObstacleGrid {
         int maxX=(int)Math.floor(body.x+body.width-.0001f), maxY=(int)Math.floor(body.y+body.height-.0001f);
         for(int y=minY;y<=maxY;y++) for(int x=minX;x<=maxX;x++) if(isSolid(x,y)) return true;
         for (Rectangle obstacle : propObstacles) if (body.overlaps(obstacle)) return true;
+        // 닫힌 대문은 중앙 통로를 막는다(문틀 jamb은 외벽 WALL로 이미 solid). 열리면 통행 가능.
+        if (gateClosed && gatePassage != null && body.overlaps(gatePassage)) return true;
         return false;
     }
+
+    private Rectangle gatePassage;
+    private boolean gateClosed;
+    /** 대문 통로 사각형을 등록하고 기본 닫힘으로 둔다(통로 차단). */
+    public void setGatePassage(Rectangle passage) {
+        gatePassage = passage == null ? null : new Rectangle(passage);
+        gateClosed = true;
+    }
+    public void setGateClosed(boolean closed) { gateClosed = closed; }
+    public boolean gateClosed() { return gateClosed; }
+    public boolean hasGate() { return gatePassage != null; }
 
     /** Shared static-obstacle sweep used by AI visibility and tile-route edges. */
     public boolean blocksActorAlongPath(float fromX, float fromY, float toX, float toY,

@@ -228,3 +228,10 @@ Desktop review can start directly in the collision overlay with `LAB_DEBUG_COLLI
 - `render/NavigationRenderer`: 월드 배치로 경로 발자국 PNG(방향 회전), 화면 배치로 미니맵 격자+프레임 PNG+마커·그 아래 귀환 버튼 PNG. `buttonHit(x,yTop)`로 클릭 판정 노출.
 - 에셋: `assets/ui/navigation/`(minimap_frame_256·footprints_pair_64·return_route_button_256x64), GameAssets 소유·해제.
 - `screen/LaboratoryScreen`: F 키 또는 버튼 클릭으로 routeEnabled 토글 → RoomPathfinder로 대문(남쪽 출구)까지 경로 산출 → NavigationRenderer가 발자국으로 표시.
+
+## 외벽·대문 V3 (ExteriorWallRenderer)
+- `asset/ExteriorWallAssets`: exterior_walls_gate_v3 외벽 8종 + 대문 2종 + layout.json(두께/8×4/anchor/passageRect). GameAssets 소유·해제.
+- `render/ExteriorWallRenderer`: 월드 좌표로 2타일 링(직선 신축+모서리)과 남쪽 8×4 대문(열림/닫힘)을 그린다. 남쪽 벽은 대문 폭만큼 분리.
+- `world/LaboratoryLayout.easyRoom`: 외곽 2링 autotile 스킨 null(새 외벽이 대체), 대문 개구부 2행, setGatePassage(기본 닫힘), hasExteriorRing()=true.
+- `world/LaboratoryRoom`: gatePassage 사각형 + gateClosed 상태, blocksActorAt가 닫힘 시 통로 차단. setGateClosed/gateClosed.
+- `screen/LaboratoryScreen`: easy 맵에서 ExteriorWallRenderer 호출, SPACE로 대문 토글(nearGate), 기존 crossedSouthExit→HEADQUARTERS 전환 유지.

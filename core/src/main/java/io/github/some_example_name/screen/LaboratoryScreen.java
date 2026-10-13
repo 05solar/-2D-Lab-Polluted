@@ -83,6 +83,8 @@ public class LaboratoryScreen extends BaseScreen {
     private final NavigationRenderer navigationRenderer = new NavigationRenderer();
     private final RoomPathfinder pathfinder = new RoomPathfinder();
     private final PlayerSessionState session;
+    private final io.github.some_example_name.render.ExteriorWallRenderer exteriorWalls;
+    private final boolean exteriorRing;
     private boolean paused;
     private boolean debugEnabled = "1".equals(System.getenv("LAB_DEBUG_COLLISION"));
     private boolean tileDebugEnabled;
@@ -122,6 +124,8 @@ public class LaboratoryScreen extends BaseScreen {
             assets.laboratoryFurniture());
         entityRenderer = new EntityRenderer(new AnimationController(assets.playerAnimations()));
         monsterRenderer = new MonsterRenderer(assets.monsterAnimations());
+        exteriorRing = layout.hasExteriorRing();
+        exteriorWalls = new io.github.some_example_name.render.ExteriorWallRenderer(assets.exteriorWalls());
         dumpResolvedGridIfRequested();
         updateCamera();
     }
@@ -218,6 +222,9 @@ public class LaboratoryScreen extends BaseScreen {
             config.playerAttackCooldownSeconds);
         worldRenderer.renderForegroundProps(batch, visuals, camera, player.feetY());
         batch.end();
+        if (exteriorRing)
+            exteriorWalls.render(camera, room.widthInTiles(), room.heightInTiles(),
+                room.southExitCenterX() + 0.5f, !room.gateClosed());
         if (!overviewMode)
             navigationRenderer.render(camera, room, player.feetX(), player.feetY(),
                 player.bounds().width, player.bounds().height, exitPath, monsters,
@@ -250,6 +257,11 @@ public class LaboratoryScreen extends BaseScreen {
         }
         if (!interactPressed && !dropPressed) return;
         float px=player.feetX(), py=player.feetY();
+        // 대문 근처에서 SPACE: 닫힘↔열림 토글(열려야 남쪽 통로로 본부 복귀 가능).
+        if (interactPressed && nearGate(px, py)) {
+            room.setGateClosed(!room.gateClosed());
+            return;
+        }
         LootContainer nearestChest=null; float nearestChestD=1.45f*1.45f;
         for(LootContainer chest:lootContainers) {
             float dx=px-chest.x(),dy=py-chest.y(); float d=dx*dx+dy*dy;
@@ -298,7 +310,14 @@ public class LaboratoryScreen extends BaseScreen {
             float dx = px - drop.x(), dy = py - drop.y();
             if (dx * dx + dy * dy <= max) return true;
         }
+        if (nearGate(px, py)) return true;
         return room.nearestDoor(px, py, 1.45f) != null;
+    }
+
+    /** 남쪽 대문 통로 접근 범위(SPACE로 대문 토글). */
+    private boolean nearGate(float px, float py) {
+        return exteriorRing && room.hasGate() && py < 5f
+            && Math.abs(px - (room.southExitCenterX() + 0.5f)) < 3f;
     }
 
     private void updateCamera() {
@@ -326,5 +345,6 @@ public class LaboratoryScreen extends BaseScreen {
         tileDebugRenderer.dispose();
         hud.dispose();
         navigationRenderer.dispose();
+        exteriorWalls.dispose();
     }
 }
