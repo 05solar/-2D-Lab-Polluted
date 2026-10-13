@@ -8,6 +8,15 @@ public final class AssetPaths {
     public static final String TILES_V2_JSON = TILES_V2_DIR + "laboratory_tiles_v2.json";
     public static final String LAB_SIDE_DOORS = TILES_V2_DIR + "lab_side_doors_2x2_64.png";
     public static final String MONSTER_DIR = "monsters/";
+    public static final String ROOMKITS_DIR = "laboratory_roomkits_v3/";
+    public static final String ROOMKITS_JSON = ROOMKITS_DIR + "laboratory_roomkits_v3.json";
+    public static final String FURNITURE_V7_DIR = "laboratory_orthographic_views_v7/";
+    public static final String DIFFICULTY_MODAL_DIR = "difficulty_modal_v2/";
+    public static final String DIFFICULTY_MODAL_IMAGE = DIFFICULTY_MODAL_DIR
+        + "runtime/difficulty_modal_960x640.png";
+    public static final String DIFFICULTY_MODAL_LAYOUT = DIFFICULTY_MODAL_DIR + "layout.json";
+    public static final String LOOT_DIR = "loot/";
+    public static final String LOOT_TABLES = LOOT_DIR + "loot_tables.json";
 
     public static final String HQ_DIR = "hq_tent/";
     public static final String HQ_JSON = HQ_DIR + "hq_tent_assets.json";

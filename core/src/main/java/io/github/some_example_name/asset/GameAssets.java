@@ -34,6 +34,10 @@ public class GameAssets implements Disposable {
     private final LaboratoryTileSetV2 tileSet;
     private final Texture sideDoorTexture;
     private final HeadquartersAssets headquartersAssets;
+    private final RoomKitAssets roomKitAssets;
+    private final LaboratoryFurnitureAssets laboratoryFurnitureAssets;
+    private final LootAssets lootAssets;
+    private final DifficultyModalAssets difficultyModalAssets;
     private final PlayerHudAssets hudAssets;
     private final Texture fadePixel;
 
@@ -62,6 +66,11 @@ public class GameAssets implements Disposable {
         Gdx.app.log("GameAssets", "tileSet regions=" + tileSet.regionCount());
 
         headquartersAssets = new HeadquartersAssets();
+        roomKitAssets = new RoomKitAssets();
+        laboratoryFurnitureAssets = new LaboratoryFurnitureAssets();
+        lootAssets = new LootAssets(AssetPaths.LOOT_DIR,
+            Gdx.files.internal(AssetPaths.LOOT_TABLES).readString("UTF-8"));
+        difficultyModalAssets = new DifficultyModalAssets();
         hudAssets = new PlayerHudAssets();
         Pixmap pixel = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixel.setColor(1f, 1f, 1f, 1f);
@@ -173,6 +182,10 @@ public class GameAssets implements Disposable {
 
     public LaboratoryTileSetV2 tileSet() { return tileSet; }
     public HeadquartersAssets headquarters() { return headquartersAssets; }
+    public RoomKitAssets roomKits() { return roomKitAssets; }
+    public LaboratoryFurnitureAssets laboratoryFurniture() { return laboratoryFurnitureAssets; }
+    public LootAssets loot() { return lootAssets; }
+    public DifficultyModalAssets difficultyModal() { return difficultyModalAssets; }
     public PlayerHudAssets hud() { return hudAssets; }
     public Texture fadePixel() { return fadePixel; }
 
@@ -185,6 +198,10 @@ public class GameAssets implements Disposable {
         for (Texture tex : atlasTextures.values()) tex.dispose();
         sideDoorTexture.dispose();
         headquartersAssets.dispose();
+        roomKitAssets.dispose();
+        laboratoryFurnitureAssets.dispose();
+        lootAssets.dispose();
+        difficultyModalAssets.dispose();
         hudAssets.dispose();
         fadePixel.dispose();
         playerTexture.dispose();

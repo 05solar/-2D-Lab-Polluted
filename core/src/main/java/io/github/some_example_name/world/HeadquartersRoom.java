@@ -71,6 +71,8 @@ public final class HeadquartersRoom implements ObstacleGrid {
         return true;
     }
 
+    public void resetExitTrigger() { exitFired = false; }
+
     public boolean canInteractWithVending(float feetX, float feetY) {
         if (vending == null || feetY >= vending.anchorY()) return false;
         float dx = feetX - vending.anchorX();

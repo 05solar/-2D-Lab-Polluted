@@ -270,3 +270,124 @@ Moved the `P` marker in the production 20×15 laboratory map from world cell (3,
 `./gradlew.bat lwjgl3:build` passed after the change. The first launch attempt exposed an accidental 21-cell row where the old spawn marker was removed; I restored the row to 20 cells and the subsequent `./gradlew.bat lwjgl3:run` initialized all atlases and kept the game process responsive. No tests were run for this request. I did not obtain a reliable GUI screenshot for the new running window, so door appearance and the arrival position still need a direct visual check. The updated game process is PID 23136.
 
 Follow-up UI capture note: a later PrintWindow capture showed the updated process still on the headquarters screen; Windows denied bringing the game window to the foreground for keyboard-driven transition, so that capture was discarded. The game window remains responsive. No claim of direct visual confirmation is made for the replacement door frames or new doorfront spawn.
+
+---
+
+## 2026-10-12 continuation — roomkits and loot campaign
+
+The requested archives are now extracted under `assets/laboratory_roomkits_v3/` and `assets/loot/`. `loot/` is placed inside the LibGDX internal assets root so `Gdx.files.internal("loot/loot_tables.json")` and the JSON-relative animation/item atlas paths resolve at runtime.
+
+### Asset inspection
+
+- Read `laboratory_roomkits_v3.json`, `ASSET_CATALOG.md`, and both README files. Atlas cells are fixed-size; source origin is top-left, Nearest filtering is specified, and `_north/_left/_right` denote wall placement. No runtime rotations are applied.
+- Visually opened the full roomkit preview, main-gate and gate-UI atlases, chemistry north/left variants, and wooden chest preview. The gate sheet is a 2×2 grid of 384×256 cells; UI sheet uses the same cell dimensions. Chest animation JSON specifies 64×64 cells, 0.12s/frame, frames 0–7, no loop, reward frame 6.
+- Loot table paths resolve from `assets/loot/`: `containers/<id>/<id>_animation.json` and rarity `items/..._atlas_64.png` paths.
+
+### Code changes
+
+- Added `RoomKitAssets` and `LootAssets` as `GameAssets`-owned loaders; all atlas textures use Nearest and are disposed with the game.
+- Added HQ gate difficulty keys and lab-to-HQ south return transition. Easy layout is 32×24 with connected chemistry, biology, records/CCTV and entrance areas; normal/hard variants are 28×20 and 38×28. Directional roomkit props use smaller ground collision rectangles.
+- Added mini-map, F shortest path to the return gate, brief footstep marks, corner-biased team-leader spawning, loot container animation/reward, E pickup, 8-slot bag reuse, and D lowest-value replacement.
+- Added tests for room reachability, difficulty dimensions/counts, pathfinding, team-leader corner candidates, supplied loot-table parsing/reproducibility, one-shot container rewards, and lowest-value swap.
+
+### Verification and remaining work
+
+- `./gradlew.bat clean core:test lwjgl3:build` passed: 102 tests, 0 failures/errors. The loot reward now appears at the supplied `rewardFrame` 6; the final open frame stays visible.
+- Real window captures showed the roomkit easy layout, minimap, F path, HQ return and easy re-entry. The capture did not exercise every room collision, difficulty screen, boss enrage, or loot interaction. These remain manual acceptance checks; do not report those as visually verified.
+- Continue by launching the latest build and exercising E/D loot and all difficulty choices before declaring the full request complete.
+
+### 2026-10-12 runtime continuation
+
+- Re-ran `./gradlew.bat core:test lwjgl3:build`: passed; test reports contain 102 tests, 0 failures, 0 errors.
+- Launched a fresh `--no-daemon` runtime with `LAB_START_LAB=1` and `LAB_DISABLE_MONSTERS=1`. The game window rendered the laboratory floor, roomkit props, player HP HUD at 100, and the minimap. Captures are in the local `build/` directory (`no-daemon-start.png`, `lab-east2.png`, `chest-near.png`).
+- Keyboard-driven movement was intermittent in this desktop session. Movement and map scrolling were observed once the game window was clicked, but I did not reach and activate a loot container or verify reward pickup / D replacement in the live window. The loot interaction is covered by automated unit tests only for now.
+- Easy/normal/hard selection and the HQ return/re-entry were exercised in the earlier continuation; normal and hard maps rendered with their distinct layouts. Full per-room collision/path traversal and the team leader’s two-run anger transition remain manual checks; they are not marked visually verified.
+- The game is currently running on the easy laboratory map in the monster-disabled validation mode. Do not use this debug launch configuration as the normal game start.
+
+## 2026-10-12 — Easy lab room and loot revision
+
+- Easy is now a 128×96 logical map with 16 themed 24×18 rooms, three-tile orthogonal corridors, and 48 internal doors. Door visuals/jambs/collision are derived from the same `Door` models; the south return gate remains separate.
+- Added ten room-specific furniture props per room and retained separate ground footprints. Render loops cull tile layers and props outside the camera view; the normal camera shows 20×15 tiles to expose adjoining rooms.
+- Placed wooden, epic, and legendary containers in chemistry, information, and library rooms. Their rewards come from `assets/loot/loot_tables.json`; the existing bag accepts items and D replacement rejects equal/lower prices.
+- Added 16-room reachability, door state, one-shot loot, probability ordering, and bag-value tests. Latest `./gradlew.bat clean core:test lwjgl3:build --no-daemon` passed (106 tests, 0 failures).
+- Current run screenshots are `docs/images/laboratory_easy_overview.png` and `docs/images/laboratory_easy_play.png`. The overview confirms the centered facility topology, assets, and HP HUD; the play capture shows movement through an internal door into the connected central corridor, adjoining room sections, and themed props. A full manual three-room/container open-pickup-D walkthrough remains outstanding.
+
+### Follow-up correction — irregular room plans and V7 furniture (2026-10-12)
+
+- Supersedes the preceding 24×18/ten-props summary: the current easy plan is 128×96 with 16 authored room bounds of varying widths/heights, three orthogonal recesses, cross/branch corridors, 16 interior door openings, and one separate south return gate. The exact data is in `LaboratoryLayout.easyRoom()`; walls, floor occupancy, door resolution, collision, minimap, props, and loot positions derive from those plans.
+- Easy room furniture uses the supplied `laboratory_orthographic_views_v7` sprites by explicit catalog ID and directional views. V3 roomkit IDs remain for legacy non-easy layouts. The current visual density is still a review risk: the full-map overview is intentionally scaled down and the chemistry capture has broad open floor. More room-specific prop clustering may be needed to meet the requested dense-workspace look.
+- Captures: `docs/images/laboratory_irregular_overview.png` and six standard-camera room captures (`laboratory_room_chemistry.png`, `laboratory_room_biology.png`, `laboratory_room_restroom.png`, `laboratory_room_sleeping.png`, `laboratory_room_information.png`, `laboratory_room_library.png`). The screenshots confirm the new layout and V7 asset loading, not a complete player-controlled traversal.
+- Latest source verification: `./gradlew.bat core:test lwjgl3:build --no-daemon` passed after the layout changes; the test report contains 106 tests with no failures. `git diff --check` is clean apart from line-ending normalization notices.
+- Still not manually verified: walking every branch, opening doors in play, opening/picking up loot, testing full-bag D replacement, and team-leader enrage. A desktop key-injection attempt did not control the focused game window, so these are not claimed as visually tested.
+
+## 2026-10-13 — Compact rooms and wall furniture
+
+- Kept the easy map at 128×96 and retained tile, character, and furniture source scale. Room bounds use 55% of their prior dimensions (minimum 7×7), with 70% room spacing. Main corridors narrowed from 3 to 2 tiles; branch corridors narrow from 5 to 3 after a two-tile-deep doorway vestibule.
+- Reworked `carveDoorApproaches` so hallway carving no longer overwrites each door's jamb support cells. The resolver still creates 16 internal doors; all open cells are BFS reachable.
+- Packed V7 props along the usable north/south/east/west wall runs, added central work clusters where room size allows, kept prop collision distinct from art, rejected overlapping footprints, and selected chest/cabinet cells in the intended rooms away from furniture and door approaches.
+- Measured room sizes and old-template/current prop counts:
+
+| Room | Previous tiles | Current tiles | Props before → after |
+|---|---:|---:|---:|
+| Chemistry | 17×17 | 9×9 | 10 → 10 |
+| Biology | 18×15 | 10×8 | 8 → 13 |
+| General lab | 15×13 | 8×7 | 5 → 7 |
+| Prep room | 15×13 | 8×7 | 5 → 7 |
+| Information | 17×16 | 9×9 | 10 → 12 |
+| CCTV | 15×15 | 8×8 | 5 → 7 |
+| Specimen | 13×12 | 7×7 | 4 → 5 |
+| Library | 19×13 | 10×7 | 10 → 9 |
+| Lounge | 17×15 | 9×8 | 10 → 10 |
+| Sleeping | 16×17 | 9×9 | 6 → 12 |
+| Restroom / locker / shower | 9×12 each | 7×7 each | 4 each → 6 each |
+| Records | 15×15 | 8×8 | 5 → 4 |
+| Pantry | 9×12 | 7×7 | 4 → 4 |
+| Entrance | 17×14 | 9×8 | 10 → 11 |
+
+- The request for four times as many full-size pieces cannot be met across the 7×7 rooms without overlap or blocking the doorway/path. Current count is 129 vs. 104 in the previous fixed template; the visually reviewed overview shows compact rooms and wall runs, but some interiors still have open floor. This is documented as a remaining visual-density limitation, not claimed as fourfold completion.
+- Added tests for minimum room furniture, non-overlapping footprints, loot clearances, scaled room bounds, and reachable interiors. `./gradlew.bat core:test lwjgl3:build --no-daemon` passed (106 tests). Real game overview and normal camera captures: `docs/images/laboratory_compacted_easy_overview.png`, `docs/images/laboratory_compacted_easy_play.png`.
+- Live screenshot confirms the latest map is rendered. Manual keyboard traversal of each compressed doorway, container pickup and D replacement are not verified in this run.
+# 2026-10-13 — Further corridor reduction and measured wall furnishing
+
+- Narrowed the current easy-map 3-tile room branches to 2 tiles (75% of the currently applied width, rounded up to the 2-tile movement minimum). The main corridors were already 2 tiles and stay there. Door vestibules retain the 5-cell straight support required by the door resolver; they are short approach flares, followed by 2-tile travel corridors.
+- Replaced fixed sparse wall anchors with wall-run packing on north, south, west, and east walls. The planner uses the supplied V7 PNG alpha-bound measurements (256×256 source) so transparent margins do not count toward visual coverage. North/south front views use horizontal alpha width; west/east side views use their vertical alpha span and bottom-center anchor.
+- Placement order is now all wall runs first, then the pre-existing themed center islands. Door openings plus jamb cells, room corners, and authored recesses are excluded from usable wall length. If collision rejects a wall item, a different compatible themed asset is tried. Wall-mounted collision boxes stay within the wall boundary cell, keeping the room aisle open.
+- `WallFurnitureCoverageReport` exposes each room/wall usable length and opaque coverage; the test requires every one of 64 runs to exceed 85%. Measured coverage per room (usable / covered tile-length; min–max across its four walls):
+
+| Room | Usable | Covered | Wall coverage min–max |
+|---|---:|---:|---:|
+| Chemistry | 25.0 | 21.8 | 87.1–87.5% |
+| Biology | 25.0 | 21.8 | 86.9–88.3% |
+| General lab | 19.0 | 16.6 | 87.0–90.0% |
+| Prep room | 19.0 | 16.5 | 86.7–90.0% |
+| Information | 25.0 | 21.8 | 87.1–87.5% |
+| CCTV | 21.0 | 18.4 | 87.5–88.3% |
+| Specimen | 17.0 | 14.9 | 87.0–90.0% |
+| Library | 23.0 | 20.2 | 87.0–90.0% |
+| Lounge | 23.0 | 20.0 | 86.7–87.5% |
+| Sleeping | 25.0 | 21.8 | 87.1–87.5% |
+| Restroom | 17.0 | 14.8 | 87.0–90.0% |
+| Locker | 17.0 | 14.9 | 87.0–90.0% |
+| Shower | 17.0 | 14.8 | 87.0–90.0% |
+| Records | 21.0 | 18.4 | 87.5–88.3% |
+| Pantry | 17.0 | 14.9 | 87.0–90.0% |
+| Entrance | 23.0 | 20.1 | 87.1–88.7% |
+
+- Captured each room in the running LWJGL game with its room-centered debug spawn. Full captures are `docs/images/laboratory_wallfill_<room>.png`; the 4×4 contact sheet is `docs/images/laboratory_wallfill_contact_sheet.png`. HP 100 remained visible. The contact sheet and full `sleeping` capture show attached wall runs and preserved central furniture; the automated reachability test caught and prevented a wall collision box from narrowing an interior tile.
+- Final validation passed: `./gradlew.bat clean core:test lwjgl3:build --no-daemon` (107 tests, 0 failures/errors). `git diff --check` reports no whitespace errors; only the existing CRLF normalization notices remain. The screenshots are from the game runtime with monsters disabled for uncluttered layout inspection. A fresh game is open at the chemistry room on the final source.
+
+## 가구 벽 관통 배치 수정 (2026-10-13)
+- `FurniturePlacementValidator` 추가: 렌더 앵커와 V7 alpha span을 반영한 전체 표시 영역이 실제 방 바닥 셀 안에 있는지 검사한다. 오목한 벽/문 구역은 벽의 외접 사각형으로 통과시키지 않는다.
+- 벽면 가구는 내부 경계에 표시 영역을 맞추고, 작은 배율로 재시도한다. 모든 후보가 유효하지 않으면 해당 슬롯을 건너뛰어 같은 좌표에 중첩하지 않는다.
+- 레이아웃 완성 시 모든 prop 표시 영역, collision, 다른 prop과의 겹침을 다시 검사한다. 벽 부착 collision은 벽 지지 타일에 두어 타일 단위 경로 판정이 실내 통로 전체를 막지 않게 했다.
+- 테스트에 전 가구의 가시 영역/충돌 영역 포함 및 비중첩 검증을 추가했다. 전체 캡처: `docs/images/laboratory_furniture_containment_chemistry.png`.
+## Laboratory collision and wall alignment follow-up (2026-10-13)
+
+- Fixed the phantom blocking source: `LaboratoryRoom.isSolid()` previously treated a tile as fully solid when any part of a furniture AABB overlapped it. It now reports only logical wall/closed door cells; the exact furniture AABBs are supplied separately through `ObstacleGrid` and resolved against actor bounds.
+- Player movement, body-sized F-route pathfinding, monster spawn/movement/line checks, and attack line checks now consult those same static obstacle rectangles. Door state remains in the room model, so toggles immediately update solid checks and route queries.
+- Wall graphics use the connected V3 wall and structure atlases through `WorldRenderer`. `WallAutotiler` uses logical cardinal neighbors for horizontal/vertical segments, ends, inner/outer corners, T-junctions and crosses; only sparse straight segments receive damaged variants or supports. F1 collision debug colors are green walkable cells, red wall/closed-door cells, cyan furniture AABBs and lime player bounds.
+- Added `LaboratoryRoomObstacleTest` for partial-tile movement, path avoidance and defensive obstacle data, plus easy-map connected-wall assertions. Fixed validator handling for intentionally hidden backing perimeter walls.
+- The first F1 overlay exposed translucent framebuffer/compositor artifacts. Collision debug was changed to clear outlines instead of translucent fills, and the desktop launcher explicitly disables a transparent framebuffer.
+- Captured same-position CHEMISTRY normal/debug images: `docs/images/laboratory_collision_after_chemistry.png` and `docs/images/laboratory_collision_debug_chemistry.png`; F route image: `docs/images/laboratory_collision_froute.png`.
+- Latest verification after adding the collider snapshot to F-route search: `./gradlew.bat core:test lwjgl3:build` passed 113 tests with 0 failures. The desktop app started with `LAB_START_LAB=1`, `LAB_START_ROOM=CHEMISTRY`, and `LAB_DEBUG_COLLISION=1`; the F1-style overlay showed red solid cells, green walkable cells, cyan furniture AABBs, and the lime player body. Saved normal/debug images are `docs/images/laboratory_collision_after_chemistry.png` and `docs/images/laboratory_collision_debug_chemistry.png`.
+- I manually opened the chemistry chest with Space and observed the open animation/reward state; the F-route rendered from the player to the south exit in `docs/images/laboratory_collision_froute.png`. One directional movement input was also observed. I did not complete a hands-on traversal of three room types or test a closed/open internal door in this run, so those acceptance checks remain outstanding. Desktop captures also show an unrelated compositor/underlying-window artifact on the right side of the F1 screenshot; the normal image is clean.

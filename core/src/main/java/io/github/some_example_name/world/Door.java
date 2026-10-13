@@ -26,6 +26,11 @@ public final class Door {
         state = next;
     }
 
+    /** Toggle passability and art together at the fixed tile anchor. */
+    public void toggle() {
+        state = state == DoorState.OPEN ? DoorState.CLOSED : DoorState.OPEN;
+    }
+
     public TileType tileType() {
         return state == DoorState.OPEN ? TileType.DOORWAY_OPEN : TileType.DOOR_CLOSED;
     }

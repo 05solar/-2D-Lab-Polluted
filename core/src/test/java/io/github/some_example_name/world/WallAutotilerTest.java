@@ -162,7 +162,8 @@ public class WallAutotilerTest {
         for (int x = 2; x < 80; x++) {
             String id = autotiler.tileId(longWall, x, 1);
             if (id.equals("wall_horizontal_damaged")) damaged++;
-            else assertEquals("wall_horizontal", id);
+            else assertTrue("straight walls may use the connector-preserving support variant",
+                id.equals("wall_horizontal") || id.equals("wall_support_horizontal"));
         }
         assertTrue("직선 벽 파손 변형은 약 10~15%", damaged >= 8 && damaged <= 12);
     }

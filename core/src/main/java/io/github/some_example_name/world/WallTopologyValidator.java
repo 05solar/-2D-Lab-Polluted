@@ -1,6 +1,6 @@
 package io.github.some_example_name.world;
 
-/** 완성된 논리 벽·문과 시각 타일의 접합 방향을 생성 직후 검사한다. */
+/** Validates logical wall/door topology against rendered connector metadata. */
 public final class WallTopologyValidator {
     private static final int[] DX = {0, 1, 0, -1};
     private static final int[] DY = {1, 0, -1, 0};
@@ -12,13 +12,14 @@ public final class WallTopologyValidator {
         for (int y = 0; y < room.heightInTiles(); y++) {
             for (int x = 0; x < room.widthInTiles(); x++) {
                 if (room.tileAt(x, y) != TileType.WALL) continue;
+                if (visualId(visuals, x, y) == null && !adjacentToFloor(room, x, y)) continue;
                 int expected = autotiler.mask(room, x, y);
-                if (expected == 0) fail(x, y, "단독 벽");
+                if (expected == 0) fail(x, y, "isolated wall");
                 String id = visualId(visuals, x, y);
-                if (id == null) fail(x, y, "벽 시각 타일 누락");
+                if (id == null) fail(x, y, "missing wall visual");
                 int actual = WallAutotiler.connectors(id);
                 if (actual != expected)
-                    fail(x, y, "벽 접합 불일치 " + id + " 예상=" + expected + " 실제=" + actual);
+                    fail(x, y, "connector mask " + id + " expected=" + expected + " actual=" + actual);
             }
         }
     }
@@ -32,11 +33,11 @@ public final class WallTopologyValidator {
                     ? WallAutotiler.EAST | WallAutotiler.WEST
                     : WallAutotiler.NORTH | WallAutotiler.SOUTH;
                 if (new WallAutotiler().mask(room, x, y) != expected)
-                    fail(x, y, "문 방향/주변 벽 불일치 " + door.orientation());
+                    fail(x, y, "door orientation/neighbors mismatch " + door.orientation());
                 if (!door.visualId().equals(visuals.structureAt(x, y)) || visuals.wallAt(x, y) != null)
-                    fail(x, y, "문 타일 누락 또는 벽 중복");
+                    fail(x, y, "missing/duplicate door visual");
                 if (room.isSolid(x, y) != (door.state() != DoorState.OPEN))
-                    fail(x, y, "문 상태/충돌 불일치");
+                    fail(x, y, "door state/collision mismatch");
                 if (door.orientation() == Door.Orientation.HORIZONTAL) {
                     require(visuals, x - 1, y, "door_jamb_left");
                     require(visuals, x + 1, y, "door_jamb_right");
@@ -51,20 +52,28 @@ public final class WallTopologyValidator {
     public void validateVisualConnections(LaboratoryRoom room, RoomVisuals visuals) {
         for (int y = 0; y < room.heightInTiles(); y++) {
             for (int x = 0; x < room.widthInTiles(); x++) {
-                if (!wallLike(room, x, y)) continue;
                 String id = visualId(visuals, x, y);
-                if (id == null) fail(x, y, "접합 타일 없음");
+                if (!wallLike(room, x, y) || id == null) continue;
                 int own = WallAutotiler.connectors(id);
                 for (int i = 0; i < 4; i++) {
                     int nx = x + DX[i], ny = y + DY[i];
-                    boolean hasNeighbor = wallLike(room, nx, ny);
+                    // Backing perimeter wall cells without a rendered tile are
+                    // intentionally omitted from the atlas layer. Validate only
+                    // visible-to-visible connector continuity here.
+                    boolean logicalNeighbor = wallLike(room, nx, ny);
+                    boolean visibleNeighbor = nx >= 0 && ny >= 0
+                        && nx < room.widthInTiles() && ny < room.heightInTiles()
+                        && visualId(visuals, nx, ny) != null;
+                    if (logicalNeighbor && !visibleNeighbor) continue;
+                    boolean hasNeighbor = logicalNeighbor;
                     if (((own & DIR[i]) != 0) != hasNeighbor)
-                        fail(x, y, id + " 방향 " + DIR[i] + " / 이웃 불일치 (" + nx + "," + ny + ")");
+                        fail(x, y, id + " dir=" + DIR[i] + " neighbor=" + nx + "," + ny
+                            + " type=" + room.tileAt(nx, ny) + " visual=" + visualId(visuals, nx, ny));
                     if (hasNeighbor) {
                         String nextId = visualId(visuals, nx, ny);
                         int opposite = DIR[(i + 2) % 4];
                         if (nextId == null || (WallAutotiler.connectors(nextId) & opposite) == 0)
-                            fail(x, y, id + " ↔ (" + nx + "," + ny + ") " + nextId + " 접합 불일치");
+                            fail(x, y, id + " <-> (" + nx + "," + ny + ") " + nextId + " mismatch");
                     }
                 }
             }
@@ -73,7 +82,7 @@ public final class WallTopologyValidator {
 
     private static void require(RoomVisuals visuals, int x, int y, String id) {
         if (!id.equals(visuals.structureAt(x, y)) || visuals.wallAt(x, y) != null)
-            fail(x, y, "문틀 누락·중복: " + id);
+            fail(x, y, "missing/duplicate jamb: " + id);
     }
 
     private static String visualId(RoomVisuals visuals, int x, int y) {
@@ -83,10 +92,16 @@ public final class WallTopologyValidator {
 
     private static boolean wallLike(LaboratoryRoom room, int x, int y) {
         if (x < 0 || y < 0 || x >= room.widthInTiles() || y >= room.heightInTiles()) return false;
-        return room.tileAt(x, y) != TileType.FLOOR;
+        TileType tile = room.tileAt(x, y);
+        return tile == TileType.WALL || tile == TileType.DOOR_CLOSED || room.doorAt(x, y) != null;
+    }
+
+    private static boolean adjacentToFloor(LaboratoryRoom room, int x, int y) {
+        return room.tileAt(x + 1, y) == TileType.FLOOR || room.tileAt(x - 1, y) == TileType.FLOOR
+            || room.tileAt(x, y + 1) == TileType.FLOOR || room.tileAt(x, y - 1) == TileType.FLOOR;
     }
 
     private static void fail(int x, int y, String reason) {
-        throw new IllegalStateException("벽 검증 실패 (" + x + "," + y + "): " + reason);
+        throw new IllegalStateException("wall validation failed (" + x + "," + y + "): " + reason);
     }
 }

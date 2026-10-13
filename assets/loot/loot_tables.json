@@ -1,0 +1,76 @@
+{
+  "probabilityFormula": "weight = 1 / sqrt(price), normalized within each rarity",
+  "containers": [
+    {
+      "id": "wooden_chest",
+      "name": "일반 나무 상자",
+      "rarity": "COMMON",
+      "border": {
+        "style": "blue_gradient",
+        "colors": ["#123A8C", "#2168E8", "#59D9FF"]
+      },
+      "animation": "containers/wooden_chest/wooden_chest_animation.json",
+      "items": [
+        { "id": "small_hand_mirror", "name": "작은 손거울", "price": 200, "probability": 14.05, "atlasColumn": 0 },
+        { "id": "broken_dropper", "name": "깨진 스포이드", "price": 500, "probability": 8.89, "atlasColumn": 1 },
+        { "id": "wet_leather_notebook", "name": "젖은 가죽노트", "price": 250, "probability": 12.57, "atlasColumn": 2 },
+        { "id": "broken_mouse", "name": "고장난 마우스", "price": 180, "probability": 14.81, "atlasColumn": 3 },
+        { "id": "tumbler", "name": "텀블러", "price": 420, "probability": 9.70, "atlasColumn": 4 },
+        { "id": "loose_research_log", "name": "연구일지 낱장", "price": 180, "probability": 14.81, "atlasColumn": 5 },
+        { "id": "broken_beaker", "name": "깨진 비커", "price": 300, "probability": 11.47, "atlasColumn": 6 },
+        { "id": "latex_gloves", "name": "라텍스 장갑", "price": 210, "probability": 13.70, "atlasColumn": 7 }
+      ],
+      "itemAtlas": "items/common/common_items_atlas_64.png"
+    },
+    {
+      "id": "epic_cabinet",
+      "name": "일반 캐비넷",
+      "rarity": "EPIC",
+      "border": {
+        "style": "purple_gradient",
+        "colors": ["#42106E", "#8A27CC", "#E05CFF"]
+      },
+      "animation": "containers/epic_cabinet/epic_cabinet_animation.json",
+      "items": [
+        { "id": "broken_computer_tower", "name": "고장난 컴퓨터 본체", "price": 800, "probability": 21.52, "atlasColumn": 0 },
+        { "id": "broken_microscope", "name": "고장난 현미경", "price": 1400, "probability": 16.27, "atlasColumn": 1 },
+        { "id": "lantern", "name": "랜턴", "price": 2000, "probability": 13.61, "atlasColumn": 2 },
+        { "id": "research_log_booklet", "name": "연구일지 수첩", "price": 5000, "probability": 8.61, "atlasColumn": 3 },
+        { "id": "cracked_reagent_bottle", "name": "깨진 시약병", "price": 3000, "probability": 11.11, "atlasColumn": 4 },
+        { "id": "broken_centrifuge", "name": "고장난 원심분리기", "price": 2900, "probability": 11.30, "atlasColumn": 5 },
+        { "id": "safety_goggles", "name": "보안경", "price": 1200, "probability": 17.58, "atlasColumn": 6 }
+      ],
+      "itemAtlas": "items/epic/epic_items_atlas_64.png"
+    },
+    {
+      "id": "legendary_cabinet",
+      "name": "고급 캐비넷",
+      "rarity": "LEGENDARY",
+      "border": {
+        "style": "gold_gradient",
+        "colors": ["#8A4B12", "#E8A921", "#FFF08A"]
+      },
+      "animation": "containers/legendary_cabinet/legendary_cabinet_animation.json",
+      "items": [
+        { "id": "mini_incubator", "name": "미니 인큐베이터", "price": 10000, "probability": 13.01, "atlasColumn": 0 },
+        { "id": "centrifuge", "name": "원심분리기", "price": 15000, "probability": 10.62, "atlasColumn": 1 },
+        { "id": "vial_set", "name": "바이알 세트", "price": 8000, "probability": 14.55, "atlasColumn": 2 },
+        { "id": "gas_mask", "name": "방독면", "price": 5500, "probability": 17.54, "atlasColumn": 3 },
+        { "id": "microscope", "name": "현미경", "price": 7000, "probability": 15.55, "atlasColumn": 4 },
+        { "id": "reagent_bottle", "name": "시약병", "price": 9000, "probability": 13.71, "atlasColumn": 5 },
+        { "id": "culture_incubator", "name": "배양기", "price": 20000, "probability": 9.20, "atlasColumn": 6 },
+        { "id": "discarded_biological_specimen", "name": "폐기된 생물", "price": 50000, "probability": 5.82, "atlasColumn": 7 }
+      ],
+      "itemAtlas": "items/legendary/legendary_items_atlas_64.png"
+    }
+  ],
+  "atlasLayout": {
+    "frameWidth": 64,
+    "frameHeight": 64,
+    "columns": 8,
+    "baseRow": 0,
+    "framedRow": 1,
+    "origin": "top-left",
+    "textureFilter": "Nearest"
+  }
+}

@@ -26,6 +26,15 @@ public class WallAutotiler {
                 && Math.floorMod(tx * 17 + ty * 31, 8) == 0) {
             return shape == Shape.HORIZONTAL ? "wall_horizontal_damaged" : "wall_vertical_damaged";
         }
+        if ((shape == Shape.HORIZONTAL || shape == Shape.VERTICAL) && room.widthInTiles() >= 32) {
+            boolean nearDoor = room.doorAt(tx, ty) != null
+                || room.doorAt(tx + 1, ty) != null || room.doorAt(tx - 1, ty) != null
+                || room.doorAt(tx, ty + 1) != null || room.doorAt(tx, ty - 1) != null;
+            // Reinforced supports are sparse and only replace straight, connected,
+            // solid wall cells. They are never used as openings or at door jambs.
+            if (!nearDoor && Math.floorMod(tx * 13 + ty * 7, 11) == 3)
+                return shape == Shape.HORIZONTAL ? "wall_support_horizontal" : "wall_support_vertical";
+        }
         return idFor(shape);
     }
 
@@ -134,6 +143,6 @@ public class WallAutotiler {
             return false;
         }
         TileType t = room.tileAt(tx, ty);
-        return t == TileType.WALL || t == TileType.DOOR_CLOSED || t == TileType.DOORWAY_OPEN;
+        return t == TileType.WALL || t == TileType.DOOR_CLOSED || room.doorAt(tx,ty) != null;
     }
 }

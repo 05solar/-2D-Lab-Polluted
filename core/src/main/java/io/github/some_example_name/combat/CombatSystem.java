@@ -52,13 +52,7 @@ public final class CombatSystem {
                                     LaboratoryRoom room) {
         float sx = player.feetX(), sy = player.feetY() + player.bounds().height / 2f;
         float tx = monster.feetX(), ty = monster.feetY() + monster.bounds().height / 2f;
-        float dx = tx - sx, dy = ty - sy;
-        int steps = Math.max(1, (int) (Math.max(Math.abs(dx), Math.abs(dy)) / 0.12f));
-        for (int i = 1; i < steps; i++) {
-            float x = sx + dx * i / steps, y = sy + dy * i / steps;
-            if (room.isSolid((int) Math.floor(x), (int) Math.floor(y))) return false;
-        }
-        return true;
+        return !room.blocksActorAlongPath(sx,sy,tx,ty,.05f,.05f);
     }
 
     private static float directionX(Direction d) {

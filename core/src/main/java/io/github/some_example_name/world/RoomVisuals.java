@@ -13,6 +13,7 @@ public class RoomVisuals {
     private final Door[][] doors;
     private final int width;
     private final int height;
+    private final java.util.List<LaboratoryProp> props;
 
     public RoomVisuals(String[][] floor, String[][] overlay, String[][] wall, String[][] structure) {
         this(floor, overlay, wall, structure, null);
@@ -20,11 +21,18 @@ public class RoomVisuals {
 
     public RoomVisuals(String[][] floor, String[][] overlay, String[][] wall, String[][] structure,
                        Door[][] doors) {
+        this(floor, overlay, wall, structure, doors,
+            java.util.Collections.<LaboratoryProp>emptyList());
+    }
+
+    public RoomVisuals(String[][] floor, String[][] overlay, String[][] wall, String[][] structure,
+                       Door[][] doors, java.util.List<LaboratoryProp> props) {
         this.floor = floor;
         this.overlay = overlay;
         this.wall = wall;
         this.structure = structure;
         this.doors = doors;
+        this.props = java.util.Collections.unmodifiableList(new java.util.ArrayList<>(props));
         this.height = floor.length;
         this.width = floor[0].length;
     }
@@ -39,6 +47,7 @@ public class RoomVisuals {
 
     public int widthInTiles()  { return width; }
     public int heightInTiles() { return height; }
+    public java.util.List<LaboratoryProp> props() { return props; }
 
     /** 특정 레이어에서 해당 타일 ID가 몇 번 쓰였는지(진단/검증용). */
     public int count(String layer, String id) {

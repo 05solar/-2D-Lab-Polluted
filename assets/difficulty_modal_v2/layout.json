@@ -1,0 +1,62 @@
+{
+  "image": "difficulty_modal_960x640.png",
+  "size": [
+    960,
+    640
+  ],
+  "coordinateOrigin": "top-left",
+  "titleRect": [
+    100,
+    70,
+    760,
+    76
+  ],
+  "options": [
+    {
+      "id": "EASY",
+      "rect": [
+        110,
+        170,
+        740,
+        100
+      ]
+    },
+    {
+      "id": "NORMAL",
+      "rect": [
+        110,
+        285,
+        740,
+        100
+      ]
+    },
+    {
+      "id": "HARD",
+      "rect": [
+        110,
+        400,
+        740,
+        100
+      ]
+    }
+  ],
+  "footerRect": [
+    230,
+    535,
+    500,
+    45
+  ],
+  "recommendedDisplay": {
+    "maxWidthFraction": 0.78,
+    "maxHeightFraction": 0.82,
+    "anchor": "center",
+    "preserveAspectRatio": true
+  },
+  "sourceBBox": [
+    56,
+    54,
+    1480,
+    962
+  ],
+  "textureFilter": "Nearest"
+}

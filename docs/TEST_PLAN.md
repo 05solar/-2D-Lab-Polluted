@@ -4,8 +4,10 @@
 계산·상태 전환은 LibGDX 화면 없이 순수 Java로 테스트한다. 시간은 주입 가능한 delta/GameTime,
 랜덤은 seed/공급자 주입으로 재현 가능하게 한다.
 
-## 현재 상태
-- 1단계 + Laboratory Tileset V2 렌더링 수정까지 단위 테스트 **42개 통과** (`./gradlew.bat core:test`).
+## 현재 상태 (2026-10-12)
+- clean 검증 기준 core 테스트 **107개 통과** (`./gradlew.bat clean core:test lwjgl3:build --no-daemon`).
+- 실제 화면에서 쉬움 맵/roomkit 렌더링, 미니맵·F 경로, 쉬움 연구소→본부 복귀→쉬움 재입장을 확인했다. 난이도별 화면·전 방 충돌·상자 수집/교체·팀장 분노의 수동 확인은 남아 있다.
+- 추가 테스트: `EasyLaboratoryLayoutTest`, `RoomPathfinderTest`, `DifficultyLayoutTest`, `LootTableCatalogTest`, `LootContainerTest`, `BackpackValueSwapTest`.
   - `movement/RunStartDetectorTest` (4): 달리기 시작 1회성/재시작 2회성.
   - `movement/MovementSystemTest` (3): 이동 거리=speed*delta(프레임 독립), 뛰기>걷기, 벽 비통과.
   - `input/InputStateTest` (2): pressed/held/released 엣지.
@@ -13,7 +15,7 @@
   - `world/LaboratoryLayoutTest` (14): 아래 배경 다양화 및 4레이어 시나리오.
   - `world/LaboratoryTileCatalogV2Test` (8): ID/인덱스, PNG 크기·알파.
   - `world/WallAutotilerTest` (8): 직선·끝·모서리·T자·십자·문 연결.
-- 전투/보물/팀장 테스트는 해당 단계에서 추가.
+- 전투·팀장 규칙 테스트는 `CombatSystemTest` 및 `RunStartDetectorTest`를 사용한다.
 
 ### 배경 다양화 (LaboratoryLayoutTest)
 - given 깨끗한 경계 셀, then 상/하/좌/우가 북/남/서/동 벽 시각으로 선택된다.
@@ -121,3 +123,30 @@ PNG 알파(`LaboratoryTileCatalogV2Test`): 벽/구조물/오버레이의 알파 
 - `inventory.BackpackTest`: 8개 수집→9번째 거부(개수 불변·물품 보존), 슬롯 순서, handOver 비우기·재사용, 빈 ID 거부.
 - `asset.HudLayoutTest`: ui_layout.json 파싱(maxHp 100, fill 240x18@(134,57), 임계 50/25, 8 슬롯 좌표, 패널 960x600, dim 0.55).
 - 수동(실행 창): HP 100/50/25/0 채움·색·숫자, R 토글, Esc 닫기, G로 8개 수집·9번째 거부·가득참 알림, 본부·연구소 HUD 유지.
+
+## 쉬움 연구소 다중 방·문·loot (2026-10-12)
+
+- `EasyLaboratoryLayoutTest`: 128×96, 소/중/대 크기의 16개 방, 3개의 ㄱ자 홈, 각 방 중심 및 모든 통행 칸의 BFS 도달, 남쪽 귀환 게이트, 16개 문·문틀·열림/닫힘 충돌 동기화, V7 가구 ID와 세 등급 컨테이너를 검증한다.
+- `LAB_MAP_OVERVIEW=1` 실제 실행 캡처: `docs/images/laboratory_irregular_overview.png`. 표준 20×15 화면 캡처는 CHEMISTRY, BIOLOGY, RESTROOM, SLEEPING, INFORMATION, LIBRARY 시작 좌표에서 저장했다. 좌표는 개발용 `LAB_START_ROOM`으로 선택하며 일반 플레이 기본 스폰은 유지한다.
+- 수동 입력으로 실제 이동하며 문을 열고 컨테이너를 여는 확인은 이번 캡처 절차에서 자동화하지 않았다. 연결 경로는 타일 및 가구 충돌을 포함한 BFS 테스트로 확인하고, 컨테이너 단회 개봉/아이템 추첨은 기존 도메인 테스트로 확인한다.
+- `LootContainerTest`: 상자는 한 번만 열리고 애니메이션 중 한 번만 보상을 배출한다. `LootTableCatalogTest`: 제공 JSON을 파싱하고 각 컨테이너의 고가 아이템 확률이 저가 아이템보다 낮은지 검사한다.
+- `BackpackValueSwapTest`: 8칸 가방에서 더 높은 가치만 최저 슬롯을 교체하며, 같거나 낮은 가격은 그대로 둔다.
+- 실제 실행 캡처: 전체 지도 `docs/images/laboratory_easy_overview.png`, 일반 카메라 방 `docs/images/laboratory_easy_play.png`. 수동 확인은 세 방 이동, 벽 문 E 개폐/통과, 세 등급 상자 열기/줍기, 가득 찬 가방 D 교체를 포함한다.
+
+## 축소 연구소 레이아웃 (2026-10-13)
+
+- `EasyLaboratoryLayoutTest`: 16개 방의 7×7~10×9 경계, 모든 통행 셀의 BFS 연결, 문 16개와 남쪽 귀환 출구, 세 방의 직교 홈, 방마다 최소 4개 V7 가구, 가구 충돌 footprint 중복 방지, 컨테이너와 가구 충돌 방지를 확인한다.
+- `core:test`와 `lwjgl3:build` 성공. 전체 실행 화면은 `docs/images/laboratory_compacted_easy_overview.png`, 플레이 카메라 화면은 `docs/images/laboratory_compacted_easy_play.png`에 있다.
+- 직접 입력으로 모든 문과 loot 상호작용까지 통과한 테스트는 아니다. 좁은 통로 이동, 문 개폐, 각 등급 loot 획득 및 D 교체는 수동 확인 항목으로 남긴다.
+# Easy map wall packing checks (2026-10-13)
+
+- `EasyLaboratoryLayoutTest.everyUsableRoomWallUsesMeasuredOpaqueFurnitureCoverage` checks all 64 wall reports against measured alpha spans. Short runs around doors, room corners, and concave cutouts are not force-filled when no full prop fits.
+- `EasyLaboratoryLayoutTest.easyMapHasSixteenConnectedRoomsAndReturnGate` additionally checks the main cross corridor is exactly two walkable tiles wide (the immediately adjacent rows remain blocked) and verifies that all rooms remain connected.
+- Run `./gradlew.bat core:test --no-daemon` after layout edits. Follow with `./gradlew.bat lwjgl3:build --no-daemon` and capture the running game to inspect sprites and wall seams; numerical coverage alone does not verify visual alignment.
+- `EasyLaboratoryLayoutTest.everyFurnitureVisibleBoundsAndFootprintStayInsideItsRoom` checks the opaque art rectangle and collision footprint against named room bounds and every intersected logical floor tile, then verifies prop rectangles do not overlap. Layout generation runs the same checks and throws with the prop ID and anchor if invalid data is produced.
+- Wall runs shorter than the placement constraints around notches, corners, and door clearances are allowed to remain open; a placement is never forced through a wall to meet a percentage. Dense-fill reports are diagnostic and are not a substitute for the whole-art containment assertions.
+- `LaboratoryRoomObstacleTest.furnitureAabbBlocksOnlyItsActualFootprint`: a partial furniture footprint does not mark its entire tile solid; player collision still stops at the real AABB edge.
+- `LaboratoryRoomObstacleTest.fRouteUsesTheSameFurnitureObstaclesAsMovement`: body-sized path search avoids the same fixture AABB and every route edge is clear under the same sweep query.
+- `LaboratoryRoomObstacleTest.obstacleGridExposesTheSameStaticFootprints`: obstacle enumeration is defensive and matches the movement collision source.
+- `EasyLaboratoryLayoutTest.easyWallVisualsUseConnectedCornersJunctionsAndSparseSupports`: generated easy map uses connected corner/junction variants and sparse supports; validates visible connector pairs.
+- F1 visual review: green walkable cell outlines, red wall/closed-door cell outlines, cyan furniture footprints, and lime player body. Capture normal and debug images for the same room and verify walking against empty floor, furniture, and wall edges.

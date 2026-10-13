@@ -3,6 +3,7 @@ package io.github.some_example_name.inventory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 연구소 1회 진입 중 회수품을 담는 8칸 가방(순수 도메인, 화면/텍스처 없음 → 화면 없이 테스트 가능).
@@ -34,6 +35,32 @@ public final class Backpack {
     }
 
     public List<String> items() { return Collections.unmodifiableList(items); }
+
+    /** Replaces the least valuable held item; returns the displaced id, or null when not full. */
+    public String replaceLowestValue(String itemId, Map<String, Integer> values) {
+        if (itemId == null || itemId.isEmpty()) throw new IllegalArgumentException("itemId");
+        if (!isFull()) { collect(itemId); return null; }
+        int lowestIndex=0, lowest=Integer.MAX_VALUE;
+        for(int i=0;i<items.size();i++) {
+            Integer value=values.get(items.get(i)); int price=value==null?0:value;
+            if(price<lowest) { lowest=price; lowestIndex=i; }
+        }
+        Integer candidate = values.get(itemId);
+        if ((candidate == null ? 0 : candidate) <= lowest) return null;
+        String displaced=items.set(lowestIndex,itemId);
+        return displaced;
+    }
+
+    public boolean canReplaceLowestValue(String itemId, Map<String, Integer> values) {
+        if (!isFull()) return true;
+        int lowest = Integer.MAX_VALUE;
+        for (String held : items) {
+            Integer value = values.get(held);
+            lowest = Math.min(lowest, value == null ? 0 : value);
+        }
+        Integer candidate = values.get(itemId);
+        return (candidate == null ? 0 : candidate) > lowest;
+    }
 
     /** 본부 보관함 인계용: 현재 물품을 모두 돌려주고 가방을 비운다. */
     public List<String> handOver() {

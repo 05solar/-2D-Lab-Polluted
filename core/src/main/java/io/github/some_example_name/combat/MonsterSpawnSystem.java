@@ -6,6 +6,7 @@ import io.github.some_example_name.world.Hazard;
 import io.github.some_example_name.world.LaboratoryRoom;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
@@ -31,12 +32,21 @@ public final class MonsterSpawnSystem {
             }
         }
         Collections.shuffle(candidates, random);
+        final float[][] outerCorners = traversableCorners(room);
         List<Monster> placed = new ArrayList<>();
         long id = 1;
         for (MonsterType type : MonsterType.values()) {
             int count = count(type);
             int attempts = 0;
-            for (float[] point : candidates) {
+            List<float[]> ordered = new ArrayList<>(candidates);
+            if (type == MonsterType.TEAM_LEADER) {
+                Collections.sort(ordered, new Comparator<float[]>() {
+                    @Override public int compare(float[] a, float[] b) {
+                        return Float.compare(cornerDistance(outerCorners, a), cornerDistance(outerCorners, b));
+                    }
+                });
+            }
+            for (float[] point : ordered) {
                 if (attempts++ >= config.monsterSpawnAttempts || count == 0) break;
                 if (!separated(point, placed)) continue;
                 int hp = maxHp(type);
@@ -49,10 +59,37 @@ public final class MonsterSpawnSystem {
         return placed;
     }
 
+    private static float[][] traversableCorners(LaboratoryRoom room) {
+        int minX = room.widthInTiles(), minY = room.heightInTiles(), maxX = 0, maxY = 0;
+        for (int y = 0; y < room.heightInTiles(); y++) {
+            int open = 0;
+            for (int x = 0; x < room.widthInTiles(); x++) if (!room.isSolid(x, y)) open++;
+            if (open > 8) { minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
+        }
+        for (int x = 0; x < room.widthInTiles(); x++) {
+            int open = 0;
+            for (int y = 0; y < room.heightInTiles(); y++) if (!room.isSolid(x, y)) open++;
+            if (open > 8) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); }
+        }
+        // Prefer the corners of the actual traversable laboratory footprint, not
+        // empty padded map bounds used to keep the 128x96 overview centered.
+        return new float[][] {{minX+1.5f,minY+1.5f},{maxX-1.5f,minY+1.5f},
+            {minX+1.5f,maxY-1.5f},{maxX-1.5f,maxY-1.5f}};
+    }
+
+    private static float cornerDistance(float[][] corners, float[] p) {
+        float best = Float.MAX_VALUE;
+        for (float[] c : corners) {
+            float dx=p[0]-c[0],dy=p[1]-c[1]; best=Math.min(best,dx*dx+dy*dy);
+        }
+        return best;
+    }
+
     private boolean safeArea(LaboratoryRoom room, int x, int y) {
         for (int ty = y - 1; ty <= y + 1; ty++) {
             for (int tx = x - 1; tx <= x + 1; tx++) {
-                if (room.isSolid(tx, ty) || room.hazardAt(tx, ty) != Hazard.NONE) return false;
+                if (room.blocksActorAtCell(tx, ty, config.monsterBoundsWidth, config.monsterBoundsHeight)
+                        || room.hazardAt(tx, ty) != Hazard.NONE) return false;
             }
         }
         return true;

@@ -1,86 +1,62 @@
 # ROADMAP
 
-상태: `TODO` · `IN_PROGRESS` · `DONE` · `BLOCKED`
-한 번에 하나의 핵심 기능만 `IN_PROGRESS`로 둔다.
+기능 상태는 코드·테스트·실제 실행 확인을 구분해 기록한다.
 
-## 0단계: 프로젝트 뼈대 — DONE
-- 루트 `AGENTS.md`, `docs/*` 기준 문서 작성
-- 템플릿 `Main`(ApplicationAdapter) → `LaboratoryGame`(Game)로 전환
-- 런처가 `LaboratoryGame`을 진입하도록 수정
-- 배선 확인용 임시 `PlaceholderScreen` 추가
+## 완료된 기반
 
-## 1단계: 기본 플레이 공간 — DONE
-- 연구소 테스트 방 1개 (20×15 타일, 테두리 벽 + 내부 장애물 + 장식 바닥)
-- 플레이어 걷기/뛰기 (입력·상태·이동 계산·렌더 분리)
-- 카메라 추적(방 경계 클램프), 벽 충돌(AABB 축별 해결), 디버그 충돌 영역(F1)
-- 달리기 시작 1회 판정(화면 없이 테스트 가능), 단위 테스트 12개 통과
-- 플레이어 스프라이트 4방향 걷기/idle 애니메이션(JSON 구동), 일시정지(Esc)
-- **완료 조건 충족:** 이동 거리 = speed*delta(프레임 독립, 테스트), 벽 비통과(테스트)
-- 수동 확인 필요: 실제 조작감/카메라/애니메이션 (창 실행)
+- Java 8 / LibGDX 1.14.2, `core` + `lwjgl3` 구성과 화면·월드·엔티티 책임 분리.
+- 플레이어 이동/충돌, 4방향 공격, 몬스터 AI 4종, HP/사망 애니메이션과 HP HUD.
+- 본부 안전 구역, 공유 `PlayerSessionState`, 페이드 전환, 8칸 가방 및 물통 회복.
+- roomkit/loot 에셋 로더와 loot JSON 경로를 프로젝트 assets에 배치.
 
-### 1단계 보완: 배경 다양화 — DONE
-- 타일셋 16종을 모두 사용해 테스트 방을 4구역(입구·중앙 실험·오염·정비)으로 구성
-- 논리 타일(TileType) / 시각 타일(TileVisual) / 충돌 분리, `LaboratoryLayout` 설계 전담
-- 벽·모서리를 이웃 기반 오토타일(`WallAutotiler`)로 방향 선택, 닫힌 문/열린 출입구 충돌 구분
-- 독성·전선은 hazard 의미만 데이터로 구분(피해 로직 없음), 고정 데이터로 재현 가능
-- 테스트 7개 추가(총 19개 통과). 이동·충돌·카메라 회귀 없음
+## 연구소 캠페인 진행
 
-## 2단계: 기본 전투 — IN_PROGRESS 후보 (다음)
-- 플레이어 공격, 공격 쿨다운, 몬스터 HP/사망, 슬라임 1종
-- **완료 조건:** HP20 슬라임이 공격력15 2회에 사망, 한 공격 피해 중복 없음
+### 1. 본부 게이트 → 난이도 → 쉬움 연구소 왕복 — 구현 완료, 실행 확인 일부
 
-## 3단계: 보물 회수 흐름 — TODO
-- 보물 줍기/내려놓기, 본부 반납 구역, 보상 확정, 사망 시 미반납 손실
-- **완료 조건:** 진입→획득→귀환→반납 1사이클 동작
+- 본부 남쪽 게이트에서 1/EASY, 2/NORMAL, 3/HARD를 선택한다. Esc는 선택을 닫는다.
+- 선택된 난이도 연구소로 0.35초 페이드 전환하고, 남쪽 연구소 문을 통해 본부로 돌아온다.
+- HP/가방/재화 세션을 공유한다. 전환은 `MapTransitionController`가 중복 요청을 차단한다.
+- 실제 확인: 쉬움 맵 실행, F 경로 표시, 본부 복귀, 본부에서 쉬움 선택 후 재입장. 일반/어려움 선택 화면은 수동 확인 필요.
 
-## 4단계: 팀장 몬스터 — TODO
-- 앉은 상태, 소음 감지 범위, 달리기 시작 이벤트, 2회 후 분노, 추격·35피해
-- **완료 조건:** 걷기 접근 시 무반응, 달리기 2회 또는 직접 피격 시 분노
+### 2. 쉬움 연구소 방 구조 및 roomkit 배치 — 구현 완료, 전 구간 수동 플레이 확인 필요
 
-## 5단계: 몬스터 확장 — TODO
-- 경비원 순찰·추격, 연구원 거리 유지 공격, 몬스터별 데이터 분리
+- 128×96 타일. 쉬움은 크기와 외곽 형태가 다른 16개 방, ㄱ자 홈 3곳, 교차 주 복도와 분기 통로, V7 방향별 가구 배치를 갖는다. 보통/어려움의 별도 방 구성은 후속 작업이다.
+- 북쪽/서쪽/동쪽 방향 variant를 사용한다. 가구 바닥 충돌은 sprite 크기와 분리한다.
+- BFS 기반 테스트가 스폰에서 모든 이동 가능한 셀과 주요 방에 도달하는지 검사한다.
+- 실제 실행 화면에서 16개 방, 복도, 테마 가구, 미니맵/외곽 게이트 로드를 확인했다. 전체 지도 캡처는 `docs/images/laboratory_easy_overview.png`; 정상 카메라 스케일의 방 캡처는 `docs/images/laboratory_easy_play.png`다. 모든 문·가구 경로를 직접 걸어 확인하는 것은 미완료.
 
-## 6단계: 본부와 성장 — TODO
-- 체력 회복, 능력 강화(공격력·체력·운반), 저장/불러오기, 자판기 구매 UI
+#### 2026-10-13 방 축소·가구 밀도 후속
 
-### 본부 기본 맵과 연구소 진입 — DONE
-- 독립된 20×15 안전 천막, 구역별 가구, 지면 충돌, 남쪽 출구를 구현했다.
-- 0.35초 페이드 전환과 입력 잠금, 공유 플레이어 상태 유지를 구현했다.
-- 자판기 접근 강조와 F1 본부 충돌·출구 디버그를 구현했다. 구매·회복 기능은 6단계에 남는다.
+- 128×96 지도와 16개 방을 유지하고 방 경계는 이전 크기의 약 55%(최소 7×7), 방 간격은 약 70%로 압축했다. 주·분기 이동 복도는 현재 2칸이며, 문 앞에는 resolver의 벽 지지 규칙을 만족하는 짧은 5칸 vestibule을 둔다.
+- V7 벽면 가구를 북·남·좌·우 벽까지 확장하고 중앙 작업 가구를 유지했다. 충돌 footprint 중복과 상자 주변 가구를 테스트한다.
+- 현재 실측 가구 수는 방별 4~13개, 합계 129개다. 이전 고정 템플릿은 방별 약 4~10개, 합계 104개였다. 축소 공간에서 이미지 크기와 이동성을 유지하면서 방마다 4배를 채우지는 못했다.
 
-## 7단계: 콘텐츠·완성도 — TODO
-- 추가 구역, 사운드, 애니메이션, UI, 클리어 조건, Android 조작·성능(선택)
+### 3. 미니맵·최단 경로·발자국·팀장 — 구현 완료, 수동 조작 확인 일부
 
-## 1단계 보강 2: Laboratory Tileset V2 적용 — DONE
-- 신규 64px 타일셋(바닥24/벽16/구조물16/오버레이24)으로 맵 타일 배치 전면 교체. 구버전 타일셋 제거.
-- JSON 카탈로그 기반 ID→리전 매핑(인덱스 하드코딩 제거), 4레이어 렌더(floor/overlay/wall/structure).
-- 벽 오토타일 V2(직선/끝/바깥·안쪽 모서리/T자/십자), 고정 seed 바닥 변형, 오염/전선 오버레이 + hazard 분리.
-- core 테스트 34개 통과, lwjgl3:build 성공, 클린 실행 시 에셋 로딩/stderr 오류 없음(미리보기: docs/images/map_v2_after.png).
+- 미니맵은 방/벽/플레이어/팀장을 표시한다. F는 연구소 남쪽 출구까지 최단 경로를 토글한다.
+- 이동 중 발자국 흔적이 잠깐 남는다. 팀장은 안전한 외곽 코너 후보를 우선 사용하고 기존 두 번 달리기 분노 규칙을 유지한다.
+- 실제 실행에서 미니맵과 F 경로 선이 표시되는 것을 확인했다. 팀장 소음 규칙을 실제 전투로 확인해야 한다.
 
-### 1단계 보강 2 수정: 벽 투명부 검은 빈 공간 제거 — DONE
-- 벽·문 셀을 포함한 모든 셀에 바닥을 그리고 투명 레이어의 알파 블렌딩을 보장한다.
-- 직선 벽의 파손 변형을 드물게 배치하고 F2 타일 레이어 디버그를 제공한다.
-- core 테스트 42개 통과, 데스크톱 빌드 성공. 실제 실행 창에서 남쪽·북동쪽 화면을 캡처해 검은 빈 공간 제거를 확인했다.
+### 4. 컨테이너 loot 및 가치 교체 — 코드/단위 테스트 완료, 실제 획득 플레이 미확인
 
-### 1단계 보강 3: 벽 연결 및 문 조립 — DONE
+- `assets/loot/loot_tables.json`의 확률·이름·가격·희귀도와 컨테이너 애니메이션/아이템 아틀라스를 사용한다.
+- E로 상자를 열고, 애니메이션 완료 후 나온 물품을 E로 8칸 가방에 담는다. 가방이 가득 찬 상태에서 D를 누르면 최저 가치 슬롯을 새 물품으로 교체하고 기존 물품은 월드에 남긴다.
+- Loot JSON 파싱·결정적 뽑기, 상자 1회 개방/보상 1회, 8칸 가치 교체를 단위 테스트한다.
+- 쉬움에는 나무 상자(화학실), 에픽 캐비넷(정보실), 레전드 캐비넷(도서관)을 하나씩 배치하며 방 레이아웃 데이터가 렌더·충돌 생성에 함께 사용된다.
 
-- 원본 V2 PNG를 보존하고 셀 경계까지 금속 본체가 닿는 파생 벽·문·문틀 아틀라스를 적용했다.
-- 9×9 시각 갤러리와 문 조립 맵, 실제 20×15 맵 화면에서 수평·수직 연결을 확인했다.
-- 오토타일 마스크, 문 방향/문틀, 상호 연결 검증, F2 연결점 표시, 이미지 연결 테스트를 추가했다.
-- 무작위 바닥 seam이 단독 벽처럼 보이던 배치를 제거했다.
-## First combat pass (2026-10-07)
+### 5. 보통·어려움 — 구현 완료, 화면/밸런스 수동 확인 필요
 
-- [x] Four monster types, seeded laboratory placement, basic wander/chase/attack, health and death handling.
-- [x] Player melee attacks on configured hit frames, damage/invulnerability, player and monster HP bars, team leader run-noise enrage.
-- [ ] Follow-up: game-over flow, dedicated hit/death animations, richer attack effects, and broader manual balance playtesting.
-# Player death presentation
+- 보통 28×20, 어려움 38×28의 별도 분할 구조를 사용한다.
+- 몬스터 수는 난이도 설정에 따라 쉬움 3/2/1/1, 보통 5/3/2/1, 어려움 7/5/3/1 (슬라임/연구원/경비원/팀장)이다.
+- 난이도별 맵의 모든 비충돌 셀 연결을 테스트한다. 실제 플레이 밸런스 조정은 후속 작업이다.
 
-- [x] Load the supplied directional death sheet and play it once on lethal damage, holding the final frame.
-- [x] Block player actions and cancel active attacks after death.
-- [ ] Add a game-over or revival flow (out of scope for the death animation pass).
+## 남은 확인
 
-## Compact headquarters shop
+- 보통·어려움 맵의 실제 화면과 충돌 확인.
+- 각 방 통로를 직접 걸으며 모든 문/가구의 플레이어·몬스터 충돌 확인.
+- 팀장 분노, 상자 열기/아이템 수집/가방 교체를 실제 키 입력으로 각각 확인.
+- 상점 구매, 본부 반납/보상, 저장/불러오기, 게임오버/부활.
+# Easy laboratory wall density follow-up (2026-10-13)
 
-- [x] Reduce headquarters to a 14x10 furnished safe map with a fixed full-map camera.
-- [x] Add the supplied three-state SPACE keycap prompt and one-shot vending interaction feedback.
-- [ ] Implement the real shop and purchase flow.
+- Implemented: 2-tile minimum branch corridors and all-four-wall alpha-aware furniture packing for the easy laboratory; all 64 usable wall segments meet the 85% floor.
+- Verified: 107 core tests pass, desktop build succeeds, all 16 room-centered LWJGL captures and contact sheet were reviewed; every measured usable wall run exceeds 85% coverage.

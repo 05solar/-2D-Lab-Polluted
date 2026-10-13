@@ -28,7 +28,7 @@ public final class DoorPlacementResolver {
                     && !wallLike(logical, x, y - 1) && !wallLike(logical, x, y + 1);
                 boolean vertical = wall(logical, x, y - 1) && wall(logical, x, y + 1)
                     && !wallLike(logical, x - 1, y) && !wallLike(logical, x + 1, y);
-                if (horizontal == vertical) invalid(x, y, "문 방향을 하나로 판정할 수 없음");
+                if (horizontal == vertical) invalid(x, y, "orientation N=" + typeAt(logical,x,y+1) + " E=" + typeAt(logical,x+1,y) + " S=" + typeAt(logical,x,y-1) + " W=" + typeAt(logical,x-1,y));
                 Door.Orientation orientation = horizontal ? Door.Orientation.HORIZONTAL : Door.Orientation.VERTICAL;
                 if (horizontal) {
                     if (!straightSupport(logical, x - 2, y, true) ||
@@ -49,6 +49,8 @@ public final class DoorPlacementResolver {
         }
         return new Result(doors, structure);
     }
+
+    private static String typeAt(TileType[][] logical,int x,int y) { return y<0||x<0||y>=logical.length||x>=logical[0].length ? "OUT" : logical[y][x].name(); }
 
     private static boolean wall(TileType[][] logical, int x, int y) {
         return y >= 0 && y < logical.length && x >= 0 && x < logical[0].length

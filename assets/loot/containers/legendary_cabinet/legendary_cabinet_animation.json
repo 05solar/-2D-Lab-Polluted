@@ -1,0 +1,17 @@
+{
+  "image": "legendary_cabinet_opening_sheet_64.png",
+  "frameWidth": 64,
+  "frameHeight": 64,
+  "columns": 4,
+  "rows": 2,
+  "origin": "top-left",
+  "animation": {
+    "frames": [0, 1, 2, 3, 4, 5, 6, 7],
+    "frameDuration": 0.12,
+    "loop": false,
+    "closedFrame": 0,
+    "openFrame": 7,
+    "rewardFrame": 6
+  },
+  "rendering": { "textureFilter": "Nearest", "anchor": "bottom-center" }
+}

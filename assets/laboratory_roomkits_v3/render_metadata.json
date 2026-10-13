@@ -1,0 +1,1285 @@
+{
+  "origin": "top-left",
+  "items": {
+    "gate_horizontal_closed": {
+      "bounds": [
+        9,
+        9,
+        384,
+        256
+      ],
+      "width": 384,
+      "height": 256
+    },
+    "gate_horizontal_open": {
+      "bounds": [
+        0,
+        3,
+        377,
+        256
+      ],
+      "width": 384,
+      "height": 256
+    },
+    "gate_vertical_closed": {
+      "bounds": [
+        16,
+        0,
+        384,
+        256
+      ],
+      "width": 384,
+      "height": 256
+    },
+    "gate_vertical_open": {
+      "bounds": [
+        0,
+        0,
+        377,
+        256
+      ],
+      "width": 384,
+      "height": 256
+    },
+    "workbench_north": {
+      "bounds": [
+        15,
+        27,
+        160,
+        152
+      ],
+      "width": 160,
+      "height": 152
+    },
+    "fume_hood_north": {
+      "bounds": [
+        15,
+        15,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "sink_counter_north": {
+      "bounds": [
+        7,
+        9,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "storage_cabinet_north": {
+      "bounds": [
+        0,
+        23,
+        144,
+        152
+      ],
+      "width": 160,
+      "height": 152
+    },
+    "workbench_left": {
+      "bounds": [
+        20,
+        0,
+        160,
+        152
+      ],
+      "width": 160,
+      "height": 152
+    },
+    "fume_hood_left": {
+      "bounds": [
+        0,
+        8,
+        150,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "sink_counter_left": {
+      "bounds": [
+        0,
+        0,
+        160,
+        152
+      ],
+      "width": 160,
+      "height": 152
+    },
+    "storage_cabinet_left": {
+      "bounds": [
+        0,
+        0,
+        130,
+        152
+      ],
+      "width": 160,
+      "height": 152
+    },
+    "workbench_right": {
+      "bounds": [
+        18,
+        0,
+        160,
+        152
+      ],
+      "width": 160,
+      "height": 152
+    },
+    "fume_hood_right": {
+      "bounds": [
+        10,
+        8,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "sink_counter_right": {
+      "bounds": [
+        0,
+        0,
+        160,
+        152
+      ],
+      "width": 160,
+      "height": 152
+    },
+    "storage_cabinet_right": {
+      "bounds": [
+        0,
+        0,
+        138,
+        152
+      ],
+      "width": 160,
+      "height": 152
+    },
+    "experiment_island": {
+      "bounds": [
+        23,
+        0,
+        160,
+        136
+      ],
+      "width": 160,
+      "height": 152
+    },
+    "equipment_cart": {
+      "bounds": [
+        0,
+        0,
+        160,
+        136
+      ],
+      "width": 160,
+      "height": 152
+    },
+    "lab_stools": {
+      "bounds": [
+        0,
+        0,
+        160,
+        137
+      ],
+      "width": 160,
+      "height": 152
+    },
+    "sample_crate": {
+      "bounds": [
+        0,
+        0,
+        137,
+        131
+      ],
+      "width": 160,
+      "height": 152
+    },
+    "kitchenette_north": {
+      "bounds": [
+        19,
+        4,
+        192,
+        128
+      ],
+      "width": 192,
+      "height": 128
+    },
+    "refrigerator_north": {
+      "bounds": [
+        0,
+        15,
+        190,
+        128
+      ],
+      "width": 192,
+      "height": 128
+    },
+    "microwave_cabinet_north": {
+      "bounds": [
+        1,
+        11,
+        161,
+        128
+      ],
+      "width": 192,
+      "height": 128
+    },
+    "coffee_station_north": {
+      "bounds": [
+        6,
+        12,
+        174,
+        128
+      ],
+      "width": 192,
+      "height": 128
+    },
+    "kitchenette_left": {
+      "bounds": [
+        14,
+        0,
+        192,
+        128
+      ],
+      "width": 192,
+      "height": 128
+    },
+    "kitchenette_right": {
+      "bounds": [
+        0,
+        0,
+        192,
+        128
+      ],
+      "width": 192,
+      "height": 128
+    },
+    "wall_shelf_left": {
+      "bounds": [
+        0,
+        0,
+        192,
+        128
+      ],
+      "width": 192,
+      "height": 128
+    },
+    "wall_shelf_right": {
+      "bounds": [
+        0,
+        0,
+        161,
+        128
+      ],
+      "width": 192,
+      "height": 128
+    },
+    "sofa_north": {
+      "bounds": [
+        19,
+        0,
+        192,
+        124
+      ],
+      "width": 192,
+      "height": 128
+    },
+    "sofa_left": {
+      "bounds": [
+        0,
+        0,
+        185,
+        128
+      ],
+      "width": 192,
+      "height": 128
+    },
+    "sofa_right": {
+      "bounds": [
+        4,
+        0,
+        192,
+        128
+      ],
+      "width": 192,
+      "height": 128
+    },
+    "coffee_table": {
+      "bounds": [
+        4,
+        0,
+        169,
+        120
+      ],
+      "width": 192,
+      "height": 128
+    },
+    "armchair": {
+      "bounds": [
+        7,
+        3,
+        192,
+        128
+      ],
+      "width": 192,
+      "height": 128
+    },
+    "water_dispenser": {
+      "bounds": [
+        0,
+        0,
+        184,
+        119
+      ],
+      "width": 192,
+      "height": 128
+    },
+    "snack_cabinet": {
+      "bounds": [
+        15,
+        0,
+        188,
+        111
+      ],
+      "width": 192,
+      "height": 128
+    },
+    "trash_cups": {
+      "bounds": [
+        5,
+        11,
+        156,
+        119
+      ],
+      "width": 192,
+      "height": 128
+    },
+    "bunk_bed_north": {
+      "bounds": [
+        23,
+        23,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "bunk_bed_left": {
+      "bounds": [
+        0,
+        23,
+        159,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "bunk_bed_right": {
+      "bounds": [
+        12,
+        22,
+        159,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "field_cot": {
+      "bounds": [
+        12,
+        32,
+        119,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "locker_bank_north": {
+      "bounds": [
+        23,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "locker_bank_left": {
+      "bounds": [
+        0,
+        0,
+        157,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "locker_bank_right": {
+      "bounds": [
+        4,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "changing_bench": {
+      "bounds": [
+        0,
+        0,
+        145,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "footlocker": {
+      "bounds": [
+        1,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "protective_suit_rack": {
+      "bounds": [
+        0,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "laundry_hamper": {
+      "bounds": [
+        0,
+        0,
+        160,
+        147
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "shoe_rack": {
+      "bounds": [
+        0,
+        0,
+        153,
+        153
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "privacy_partition": {
+      "bounds": [
+        25,
+        0,
+        160,
+        142
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "blanket_stack": {
+      "bounds": [
+        0,
+        0,
+        158,
+        145
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "bedside_cabinet": {
+      "bounds": [
+        19,
+        0,
+        160,
+        146
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "personal_items": {
+      "bounds": [
+        0,
+        24,
+        143,
+        139
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "toilet_north": {
+      "bounds": [
+        30,
+        9,
+        148,
+        146
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "toilet_left": {
+      "bounds": [
+        1,
+        11,
+        139,
+        147
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "toilet_right": {
+      "bounds": [
+        18,
+        10,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "urinal_bank": {
+      "bounds": [
+        0,
+        30,
+        146,
+        146
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "sink_left": {
+      "bounds": [
+        0,
+        0,
+        146,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "sink_right": {
+      "bounds": [
+        19,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "stall_partition": {
+      "bounds": [
+        0,
+        0,
+        152,
+        142
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "shower_north": {
+      "bounds": [
+        0,
+        0,
+        159,
+        147
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "shower_left": {
+      "bounds": [
+        45,
+        0,
+        153,
+        146
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "shower_right": {
+      "bounds": [
+        19,
+        0,
+        160,
+        146
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "floor_drain_mat": {
+      "bounds": [
+        0,
+        30,
+        144,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "shower_bench": {
+      "bounds": [
+        8,
+        39,
+        160,
+        141
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "towel_soap_rack": {
+      "bounds": [
+        0,
+        23,
+        148,
+        140
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "cleaning_cart": {
+      "bounds": [
+        13,
+        0,
+        146,
+        139
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "damaged_stall": {
+      "bounds": [
+        13,
+        0,
+        146,
+        145
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "reagent_cabinet": {
+      "bounds": [
+        0,
+        26,
+        146,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "chemistry_bench_north": {
+      "bounds": [
+        0,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "chemistry_bench_left": {
+      "bounds": [
+        0,
+        0,
+        156,
+        151
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "chemistry_bench_right": {
+      "bounds": [
+        9,
+        0,
+        160,
+        152
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "gas_cylinder_rack": {
+      "bounds": [
+        0,
+        0,
+        145,
+        150
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "distillation_station": {
+      "bounds": [
+        8,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "centrifuge": {
+      "bounds": [
+        0,
+        6,
+        150,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "analyzer_machine": {
+      "bounds": [
+        2,
+        17,
+        160,
+        153
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "hotplate_station": {
+      "bounds": [
+        0,
+        13,
+        154,
+        146
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "eyewash_station": {
+      "bounds": [
+        0,
+        0,
+        145,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "spill_response_cabinet": {
+      "bounds": [
+        8,
+        0,
+        150,
+        144
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "pipette_station": {
+      "bounds": [
+        2,
+        0,
+        160,
+        131
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "chemical_waste": {
+      "bounds": [
+        0,
+        9,
+        146,
+        131
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "biosafety_cabinet_north": {
+      "bounds": [
+        0,
+        8,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "biosafety_cabinet_left": {
+      "bounds": [
+        0,
+        8,
+        144,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "biosafety_cabinet_right": {
+      "bounds": [
+        12,
+        8,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "microscope_workbench": {
+      "bounds": [
+        0,
+        33,
+        146,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "incubator_bank": {
+      "bounds": [
+        14,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "laboratory_freezer": {
+      "bounds": [
+        0,
+        0,
+        155,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "culture_workstation": {
+      "bounds": [
+        5,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "culture_rack": {
+      "bounds": [
+        0,
+        0,
+        150,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "dissection_table": {
+      "bounds": [
+        0,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "autoclave": {
+      "bounds": [
+        0,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "cryogenic_tanks": {
+      "bounds": [
+        0,
+        0,
+        154,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "biohazard_container": {
+      "bounds": [
+        8,
+        0,
+        143,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "specimen_cabinet_north": {
+      "bounds": [
+        23,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "specimen_cabinet_left": {
+      "bounds": [
+        0,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "specimen_cabinet_right": {
+      "bounds": [
+        2,
+        0,
+        160,
+        141
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "specimen_jar_rack": {
+      "bounds": [
+        0,
+        0,
+        145,
+        139
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "server_rack_north": {
+      "bounds": [
+        16,
+        30,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "server_rack_left": {
+      "bounds": [
+        0,
+        24,
+        157,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "server_rack_right": {
+      "bounds": [
+        18,
+        28,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "network_cabinet": {
+      "bounds": [
+        0,
+        28,
+        145,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "computer_desk_north": {
+      "bounds": [
+        9,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "computer_desk_left": {
+      "bounds": [
+        0,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "computer_desk_right": {
+      "bounds": [
+        4,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "operator_console": {
+      "bounds": [
+        0,
+        0,
+        149,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "cctv_wall_north": {
+      "bounds": [
+        0,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "cctv_wall_left": {
+      "bounds": [
+        0,
+        0,
+        159,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "cctv_wall_right": {
+      "bounds": [
+        20,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "alarm_console": {
+      "bounds": [
+        0,
+        0,
+        148,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "cable_panel": {
+      "bounds": [
+        0,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "ups_unit": {
+      "bounds": [
+        0,
+        0,
+        159,
+        132
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "office_chair": {
+      "bounds": [
+        19,
+        0,
+        160,
+        138
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "camera_parts_rack": {
+      "bounds": [
+        0,
+        16,
+        146,
+        140
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "filing_cabinet_north": {
+      "bounds": [
+        0,
+        18,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "filing_cabinet_left": {
+      "bounds": [
+        0,
+        15,
+        157,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "filing_cabinet_right": {
+      "bounds": [
+        28,
+        16,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "fireproof_document_cabinet": {
+      "bounds": [
+        0,
+        0,
+        145,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "archive_shelf_north": {
+      "bounds": [
+        0,
+        12,
+        160,
+        149
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "archive_shelf_left": {
+      "bounds": [
+        0,
+        0,
+        160,
+        147
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "archive_shelf_right": {
+      "bounds": [
+        0,
+        0,
+        160,
+        147
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "document_cart": {
+      "bounds": [
+        0,
+        0,
+        144,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "bookshelf_north": {
+      "bounds": [
+        0,
+        1,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "bookshelf_left": {
+      "bounds": [
+        0,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "bookshelf_right": {
+      "bounds": [
+        0,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "double_sided_bookshelf": {
+      "bounds": [
+        0,
+        0,
+        145,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "review_table": {
+      "bounds": [
+        0,
+        0,
+        160,
+        141
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "reading_desk": {
+      "bounds": [
+        0,
+        0,
+        160,
+        154
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "library_ladder": {
+      "bounds": [
+        0,
+        0,
+        160,
+        131
+      ],
+      "width": 160,
+      "height": 154
+    },
+    "catalog_terminal_books": {
+      "bounds": [
+        0,
+        0,
+        150,
+        127
+      ],
+      "width": 160,
+      "height": 154
+    }
+  }
+}

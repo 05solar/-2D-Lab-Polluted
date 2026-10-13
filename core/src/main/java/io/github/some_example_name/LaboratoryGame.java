@@ -17,6 +17,7 @@ import io.github.some_example_name.world.LaboratoryLayout;
 import io.github.some_example_name.world.MapId;
 import io.github.some_example_name.world.MapTransitionController;
 import io.github.some_example_name.world.PlayerSessionState;
+import io.github.some_example_name.world.GameDifficulty;
 import com.badlogic.gdx.math.Vector2;
 import java.util.Collections;
 import java.util.List;
@@ -35,18 +36,28 @@ public class LaboratoryGame extends Game {
     private PlayerSessionState session;
     private MapTransitionController transition;
     private List<Monster> laboratoryMonsters;
+    private GameDifficulty difficulty = GameDifficulty.EASY;
 
     @Override
     public void create() {
         assets = new GameAssets();
         headquarters = HeadquartersLayout.create();
         String wallTest = System.getenv("LAB_WALL_TEST");
+        boolean startInLaboratory = wallTest != null || "1".equals(System.getenv("LAB_START_LAB"));
         laboratory = "1".equals(wallTest) ? LaboratoryLayout.wallConnectionGallery()
             : "2".equals(wallTest) ? LaboratoryLayout.wallDoorAssemblyTestRoom()
-            : LaboratoryLayout.testRoom();
-        MapId initial = wallTest == null ? MapId.HEADQUARTERS : MapId.LABORATORY;
+            : LaboratoryLayout.forDifficulty(difficulty);
+        MapId initial = startInLaboratory ? MapId.LABORATORY : MapId.HEADQUARTERS;
         Vector2 spawn = initial == MapId.HEADQUARTERS
             ? headquarters.room().spawnPoint() : laboratory.room().spawnPoint();
+        String captureRoom = System.getenv("LAB_START_ROOM");
+        if (initial == MapId.LABORATORY && captureRoom != null) {
+            for (io.github.some_example_name.world.LaboratoryRoomArea area : laboratory.roomAreas())
+                if (area.id().equalsIgnoreCase(captureRoom)) {
+                    spawn.set(area.centerX(), area.centerY());
+                    break;
+                }
+        }
         String hqTest = System.getenv("LAB_HQ_TEST");
         boolean vendingTest = initial == MapId.HEADQUARTERS && "VENDING".equals(hqTest);
         boolean waterTest = initial == MapId.HEADQUARTERS && "WATER".equals(hqTest);
@@ -62,8 +73,10 @@ public class LaboratoryGame extends Game {
         }
         session = new PlayerSessionState(initialPlayer);
         transition = new MapTransitionController(initial, config.mapFadeSeconds);
-        if (initial == MapId.LABORATORY && wallTest == null)
+        if (initial == MapId.LABORATORY && wallTest == null && monstersEnabled())
             laboratoryMonsters = new MonsterSpawnSystem(config).spawn(laboratory.room(), config.monsterSpawnSeed);
+        else if (initial == MapId.LABORATORY)
+            laboratoryMonsters = new java.util.ArrayList<Monster>();
         setScreen(initial == MapId.HEADQUARTERS
             ? new HeadquartersScreen(this, assets, headquarters, session)
             : new LaboratoryScreen(this, assets, laboratory, session,
@@ -75,13 +88,18 @@ public class LaboratoryGame extends Game {
         if (transition.state() == MapTransitionController.State.SWITCHING_MAP) {
             Screen previous = getScreen();
             if (transition.target() == MapId.LABORATORY) {
-                if (laboratoryMonsters == null)
+                headquarters.room().resetExitTrigger();
+                config.applyDifficulty(difficulty);
+                if (laboratoryMonsters == null && monstersEnabled())
                     laboratoryMonsters = new MonsterSpawnSystem(config).spawn(laboratory.room(), config.monsterSpawnSeed);
+                else if (laboratoryMonsters == null)
+                    laboratoryMonsters = new java.util.ArrayList<Monster>();
                 Vector2 spawn = laboratory.room().spawnPoint();
                 session.player().bounds().setPosition(
                     spawn.x - session.player().bounds().width / 2f, spawn.y);
                 setScreen(new LaboratoryScreen(this, assets, laboratory, session, laboratoryMonsters, config));
             } else {
+                laboratory.room().resetSouthExitTrigger();
                 Vector2 spawn = headquarters.room().spawnPoint();
                 session.player().bounds().setPosition(
                     spawn.x - session.player().bounds().width / 2f, spawn.y);
@@ -94,6 +112,13 @@ public class LaboratoryGame extends Game {
     }
 
     public MapTransitionController transition() { return transition; }
+    public void selectDifficulty(GameDifficulty selected) {
+        if (selected == null) throw new IllegalArgumentException("difficulty");
+        difficulty=selected; config.applyDifficulty(selected);
+        laboratory=LaboratoryLayout.forDifficulty(selected); laboratoryMonsters=null;
+    }
+    public GameDifficulty difficulty() { return difficulty; }
+    private static boolean monstersEnabled() { return !"1".equals(System.getenv("LAB_DISABLE_MONSTERS")); }
     public FadeOverlayRenderer fadeRenderer() { return fadeRenderer; }
 
     @Override

@@ -26,5 +26,10 @@ public final class CombatCollisionGrid implements ObstacleGrid {
     @Override public boolean isSolid(int x, int y) { return room.isSolid(x, y); }
     @Override public int widthInTiles() { return room.widthInTiles(); }
     @Override public int heightInTiles() { return room.heightInTiles(); }
-    @Override public Iterable<Rectangle> obstacles() { return bodies; }
+    @Override public Iterable<Rectangle> obstacles() {
+        List<Rectangle> all = new ArrayList<>();
+        for (Rectangle obstacle : room.obstacles()) all.add(obstacle);
+        all.addAll(bodies);
+        return all;
+    }
 }

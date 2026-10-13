@@ -60,4 +60,13 @@ public class BalanceConfig {
     // --- 시간 ---
     public float maxFrameDeltaSeconds = 1f / 30f; // delta 상한(저프레임 시 터널링/점프 방지)
     public float mapFadeSeconds = 0.35f;           // [임시값] 각 페이드 구간
+
+    public void applyDifficulty(io.github.some_example_name.world.GameDifficulty difficulty) {
+        switch (difficulty) {
+            case EASY: slimeSpawnCount=3; researcherSpawnCount=2; guardSpawnCount=1; teamLeaderSpawnCount=1; break;
+            case NORMAL: slimeSpawnCount=5; researcherSpawnCount=3; guardSpawnCount=2; teamLeaderSpawnCount=1; break;
+            case HARD: slimeSpawnCount=7; researcherSpawnCount=5; guardSpawnCount=3; teamLeaderSpawnCount=1; break;
+            default: throw new IllegalArgumentException("difficulty");
+        }
+    }
 }

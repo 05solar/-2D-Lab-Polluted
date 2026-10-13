@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.some_example_name.LaboratoryGame;
 import io.github.some_example_name.asset.GameAssets;
 import io.github.some_example_name.collision.CollisionSystem;
@@ -22,6 +23,7 @@ import io.github.some_example_name.movement.MovementSystem;
 import io.github.some_example_name.movement.RunStartDetector;
 import io.github.some_example_name.render.AnimationController;
 import io.github.some_example_name.render.EntityRenderer;
+import io.github.some_example_name.render.DifficultyModalRenderer;
 import io.github.some_example_name.render.HeadquartersDebugRenderer;
 import io.github.some_example_name.render.HeadquartersRenderer;
 import io.github.some_example_name.render.PlayerHudRenderer;
@@ -29,6 +31,8 @@ import io.github.some_example_name.world.HeadquartersLayout;
 import io.github.some_example_name.world.HeadquartersRoom;
 import io.github.some_example_name.world.HeadquartersVisuals;
 import io.github.some_example_name.world.MapId;
+import io.github.some_example_name.world.GameDifficulty;
+import io.github.some_example_name.asset.DifficultyModalLayout;
 import io.github.some_example_name.world.PlayerSessionState;
 import java.util.EnumSet;
 
@@ -39,6 +43,8 @@ public final class HeadquartersScreen extends BaseScreen {
     private final OrthographicCamera camera = new OrthographicCamera();
     private final FitViewport viewport = new FitViewport(VIEW_WIDTH, VIEW_HEIGHT, camera);
     private final SpriteBatch batch = new SpriteBatch();
+    private final ScreenViewport uiViewport = new ScreenViewport();
+    private final DifficultyModalRenderer difficultyModalRenderer = new DifficultyModalRenderer();
     private final BalanceConfig config = new BalanceConfig();
     private final HeadquartersRoom room;
     private final HeadquartersVisuals visuals;
@@ -57,6 +63,8 @@ public final class HeadquartersScreen extends BaseScreen {
     private boolean paused;
     private boolean debug;
     private boolean backpackOpen;
+    private boolean difficultySelection;
+    private int selectedDifficultyIndex;
 
     public HeadquartersScreen(LaboratoryGame game, GameAssets assets,
                               HeadquartersLayout layout, PlayerSessionState session) {
@@ -70,6 +78,7 @@ public final class HeadquartersScreen extends BaseScreen {
         playerRenderer = new EntityRenderer(new AnimationController(assets.playerAnimations()));
         worldRenderer = new HeadquartersRenderer(assets.headquarters(), visuals);
         updateCamera();
+        uiViewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
     }
 
     @Override public void render(float delta) {
@@ -78,6 +87,9 @@ public final class HeadquartersScreen extends BaseScreen {
         if (transitionLocked) {
             inputState.update(EnumSet.noneOf(GameAction.class));
             player.setMoving(false);
+        } else if (difficultySelection) {
+            inputState.update(EnumSet.noneOf(GameAction.class));
+            updateDifficultySelectionInput();
         } else {
             input.poll(inputState);
             if (Gdx.input.isKeyJustPressed(Input.Keys.R)) backpackOpen = !backpackOpen;
@@ -87,14 +99,15 @@ public final class HeadquartersScreen extends BaseScreen {
             }
             if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) debug = !debug;
         }
-        if (!paused && !transitionLocked && !backpackOpen) {
+        if (!paused && !transitionLocked && !backpackOpen && !difficultySelection) {
             float oldFeetY = player.feetY();
             PlayerIntent intent = controller.intentFrom(player, inputState);
             movement.update(player, intent, room, dt);
             if (!player.isDead() && room.crossedSouthExit(oldFeetY, player, intent.moveY))
-                game.transition().request(MapId.LABORATORY);
+                difficultySelection = true;
         }
-        boolean interactionContext = !player.isDead() && !paused && !transitionLocked && !backpackOpen;
+        boolean interactionContext = !player.isDead() && !paused && !transitionLocked
+            && !backpackOpen && !difficultySelection;
         boolean vendingAvailable = interactionContext && room.canInteractWithVending(player);
         boolean waterAvailable = interactionContext && room.canInteractWithWaterDispenser(player);
         boolean vendingPromptVisible = interactionContext && room.isNearVending(player);
@@ -123,6 +136,7 @@ public final class HeadquartersScreen extends BaseScreen {
             Gdx.app.log("Headquarters", "WaterDispenserInteraction event (player healed to full HP)");
         }
         ScreenUtils.clear(0.025f, 0.028f, 0.025f, 1f);
+        viewport.apply();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         worldRenderer.render(batch, visuals, player, playerRenderer,
@@ -131,9 +145,55 @@ public final class HeadquartersScreen extends BaseScreen {
                 : vendingInteraction.promptFrame(vendingPromptVisible),
             vendingInteraction.showAcceptedFrame());
         batch.end();
-        hud.render(assets.hud(), assets.fadePixel(), player, session.backpack(), backpackOpen, dt);
+        if (difficultySelection)
+            difficultyModalRenderer.render(batch, uiViewport, assets.difficultyModal(), selectedDifficultyIndex);
+        uiViewport.apply();
+        hud.render(assets.hud(), assets.loot(), assets.fadePixel(), player,
+            session.backpack(), backpackOpen, dt);
         renderFade(batch, viewport);
         if (debug) debugRenderer.render(camera, room, player);
+    }
+
+    private void updateDifficultySelectionInput() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            difficultySelection = false;
+            room.resetExitTrigger();
+            return;
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.UP))
+            selectedDifficultyIndex = (selectedDifficultyIndex + 2) % 3;
+        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN))
+            selectedDifficultyIndex = (selectedDifficultyIndex + 1) % 3;
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) selectedDifficultyIndex = 0;
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) selectedDifficultyIndex = 1;
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) selectedDifficultyIndex = 2;
+
+        float width = uiViewport.getWorldWidth(), height = uiViewport.getWorldHeight();
+        float mouseX = Gdx.input.getX();
+        float mouseY = height - Gdx.input.getY();
+        for (int i = 0; i < 3; i++) {
+            DifficultyModalLayout.Rect row = assets.difficultyModal().layout()
+                .optionRect(i, width, height);
+            if (row.contains(mouseX, mouseY)) {
+                selectedDifficultyIndex = i;
+                if (Gdx.input.justTouched()) {
+                    confirmDifficultySelection();
+                    return;
+                }
+            }
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)
+            || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_ENTER))
+            confirmDifficultySelection();
+        // Clicks outside the three visible option rows are intentionally ignored.
+    }
+
+    private void confirmDifficultySelection() {
+        GameDifficulty selected = GameDifficulty.valueOf(
+            assets.difficultyModal().layout().optionId(selectedDifficultyIndex));
+        difficultySelection = false;
+        game.selectDifficulty(selected);
+        game.transition().request(MapId.LABORATORY);
     }
 
     private void updateCamera() {
@@ -141,10 +201,15 @@ public final class HeadquartersScreen extends BaseScreen {
         camera.update();
     }
 
-    @Override public void resize(int width, int height) { viewport.update(width, height); }
+    @Override public void resize(int width, int height) {
+        viewport.update(width, height);
+        uiViewport.update(width, height, true);
+        updateCamera();
+    }
 
     @Override public void dispose() {
         batch.dispose();
+        difficultyModalRenderer.dispose();
         debugRenderer.dispose();
         hud.dispose();
     }

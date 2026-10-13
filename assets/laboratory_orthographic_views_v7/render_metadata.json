@@ -1,0 +1,441 @@
+{
+  "origin": "top-left",
+  "size": [
+    256,
+    256
+  ],
+  "views": {
+    "archive_library/archive_shelf_front.png": [
+      47,
+      66,
+      209,
+      189
+    ],
+    "archive_library/archive_shelf_left_side.png": [
+      94,
+      51,
+      161,
+      205
+    ],
+    "archive_library/archive_shelf_right_side.png": [
+      94,
+      51,
+      162,
+      205
+    ],
+    "archive_library/bookshelf_front.png": [
+      47,
+      63,
+      209,
+      192
+    ],
+    "archive_library/bookshelf_left_side.png": [
+      96,
+      51,
+      160,
+      205
+    ],
+    "archive_library/bookshelf_right_side.png": [
+      95,
+      51,
+      161,
+      205
+    ],
+    "archive_library/filing_cabinet_front.png": [
+      46,
+      66,
+      210,
+      189
+    ],
+    "archive_library/filing_cabinet_left_side.png": [
+      94,
+      51,
+      162,
+      205
+    ],
+    "archive_library/filing_cabinet_right_side.png": [
+      94,
+      51,
+      162,
+      205
+    ],
+    "general_lab/fume_hood_front.png": [
+      66,
+      49,
+      189,
+      207
+    ],
+    "general_lab/fume_hood_left_side.png": [
+      92,
+      50,
+      164,
+      206
+    ],
+    "general_lab/fume_hood_right_side.png": [
+      90,
+      50,
+      165,
+      206
+    ],
+    "general_lab/sink_counter_front.png": [
+      48,
+      80,
+      208,
+      175
+    ],
+    "general_lab/sink_counter_left_side.png": [
+      87,
+      54,
+      168,
+      202
+    ],
+    "general_lab/sink_counter_right_side.png": [
+      85,
+      54,
+      170,
+      202
+    ],
+    "general_lab/storage_cabinet_front.png": [
+      65,
+      50,
+      191,
+      206
+    ],
+    "general_lab/storage_cabinet_left_side.png": [
+      94,
+      52,
+      161,
+      204
+    ],
+    "general_lab/storage_cabinet_right_side.png": [
+      94,
+      51,
+      161,
+      205
+    ],
+    "general_lab/workbench_front.png": [
+      47,
+      83,
+      209,
+      172
+    ],
+    "general_lab/workbench_left_side.png": [
+      80,
+      54,
+      176,
+      202
+    ],
+    "general_lab/workbench_right_side.png": [
+      80,
+      54,
+      175,
+      202
+    ],
+    "information_cctv/cctv_console_front.png": [
+      46,
+      63,
+      210,
+      192
+    ],
+    "information_cctv/cctv_console_left_side.png": [
+      90,
+      50,
+      166,
+      206
+    ],
+    "information_cctv/cctv_console_right_side.png": [
+      91,
+      50,
+      165,
+      206
+    ],
+    "information_cctv/computer_workstation_front.png": [
+      46,
+      77,
+      210,
+      179
+    ],
+    "information_cctv/computer_workstation_left_side.png": [
+      69,
+      51,
+      186,
+      205
+    ],
+    "information_cctv/computer_workstation_right_side.png": [
+      68,
+      50,
+      187,
+      206
+    ],
+    "information_cctv/server_rack_front.png": [
+      46,
+      63,
+      210,
+      193
+    ],
+    "information_cctv/server_rack_left_side.png": [
+      75,
+      51,
+      181,
+      205
+    ],
+    "information_cctv/server_rack_right_side.png": [
+      75,
+      51,
+      180,
+      205
+    ],
+    "lounge_sleeping/bunk_bed_front.png": [
+      49,
+      61,
+      207,
+      195
+    ],
+    "lounge_sleeping/bunk_bed_left_side.png": [
+      53,
+      55,
+      203,
+      201
+    ],
+    "lounge_sleeping/bunk_bed_right_side.png": [
+      53,
+      53,
+      202,
+      203
+    ],
+    "lounge_sleeping/locker_bank_front.png": [
+      49,
+      63,
+      207,
+      192
+    ],
+    "lounge_sleeping/locker_bank_left_side.png": [
+      92,
+      55,
+      164,
+      201
+    ],
+    "lounge_sleeping/locker_bank_right_side.png": [
+      90,
+      54,
+      166,
+      202
+    ],
+    "lounge_sleeping/sofa_front.png": [
+      47,
+      89,
+      209,
+      166
+    ],
+    "lounge_sleeping/sofa_left_side.png": [
+      62,
+      58,
+      193,
+      198
+    ],
+    "lounge_sleeping/sofa_right_side.png": [
+      63,
+      58,
+      193,
+      198
+    ],
+    "pantry/coffee_station_front.png": [
+      50,
+      75,
+      206,
+      180
+    ],
+    "pantry/coffee_station_left_side.png": [
+      74,
+      53,
+      181,
+      203
+    ],
+    "pantry/coffee_station_right_side.png": [
+      74,
+      53,
+      181,
+      203
+    ],
+    "pantry/kitchenette_front.png": [
+      47,
+      86,
+      209,
+      169
+    ],
+    "pantry/kitchenette_left_side.png": [
+      84,
+      53,
+      171,
+      203
+    ],
+    "pantry/kitchenette_right_side.png": [
+      78,
+      53,
+      177,
+      203
+    ],
+    "pantry/microwave_cabinet_front.png": [
+      51,
+      55,
+      205,
+      201
+    ],
+    "pantry/microwave_cabinet_left_side.png": [
+      93,
+      51,
+      162,
+      205
+    ],
+    "pantry/microwave_cabinet_right_side.png": [
+      94,
+      50,
+      162,
+      206
+    ],
+    "pantry/refrigerator_front.png": [
+      62,
+      51,
+      193,
+      205
+    ],
+    "pantry/refrigerator_left_side.png": [
+      86,
+      50,
+      170,
+      206
+    ],
+    "pantry/refrigerator_right_side.png": [
+      85,
+      49,
+      170,
+      207
+    ],
+    "restroom_shower/shower_stall_front.png": [
+      53,
+      50,
+      203,
+      206
+    ],
+    "restroom_shower/shower_stall_left_side.png": [
+      71,
+      50,
+      184,
+      206
+    ],
+    "restroom_shower/shower_stall_right_side.png": [
+      71,
+      50,
+      184,
+      206
+    ],
+    "restroom_shower/sink_counter_front.png": [
+      48,
+      64,
+      208,
+      191
+    ],
+    "restroom_shower/sink_counter_left_side.png": [
+      81,
+      51,
+      174,
+      205
+    ],
+    "restroom_shower/sink_counter_right_side.png": [
+      81,
+      51,
+      175,
+      205
+    ],
+    "restroom_shower/toilet_front.png": [
+      58,
+      51,
+      198,
+      205
+    ],
+    "restroom_shower/toilet_left_side.png": [
+      73,
+      51,
+      182,
+      205
+    ],
+    "restroom_shower/toilet_right_side.png": [
+      70,
+      51,
+      186,
+      205
+    ],
+    "science_lab/biosafety_cabinet_front.png": [
+      53,
+      50,
+      203,
+      206
+    ],
+    "science_lab/biosafety_cabinet_left_side.png": [
+      90,
+      49,
+      166,
+      207
+    ],
+    "science_lab/biosafety_cabinet_right_side.png": [
+      89,
+      49,
+      166,
+      207
+    ],
+    "science_lab/chemistry_fume_hood_front.png": [
+      53,
+      50,
+      202,
+      206
+    ],
+    "science_lab/chemistry_fume_hood_left_side.png": [
+      86,
+      49,
+      169,
+      207
+    ],
+    "science_lab/chemistry_fume_hood_right_side.png": [
+      83,
+      49,
+      172,
+      207
+    ],
+    "science_lab/chemistry_workbench_front.png": [
+      49,
+      69,
+      207,
+      187
+    ],
+    "science_lab/chemistry_workbench_left_side.png": [
+      87,
+      51,
+      169,
+      205
+    ],
+    "science_lab/chemistry_workbench_right_side.png": [
+      87,
+      51,
+      169,
+      205
+    ],
+    "science_lab/specimen_cabinet_front.png": [
+      55,
+      50,
+      201,
+      206
+    ],
+    "science_lab/specimen_cabinet_left_side.png": [
+      92,
+      49,
+      163,
+      207
+    ],
+    "science_lab/specimen_cabinet_right_side.png": [
+      91,
+      50,
+      165,
+      206
+    ]
+  }
+}

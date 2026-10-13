@@ -12,6 +12,8 @@ import io.github.some_example_name.asset.HudLayout;
 import io.github.some_example_name.asset.PlayerHudAssets;
 import io.github.some_example_name.entity.player.Player;
 import io.github.some_example_name.inventory.Backpack;
+import io.github.some_example_name.asset.LootAssets;
+import io.github.some_example_name.inventory.LootItem;
 
 /**
  * 화면 좌표계(월드 카메라와 분리)에 HP HUD와 8칸 가방 오버레이를 그린다. 자체 SpriteBatch/카메라/폰트를 소유한다.
@@ -25,13 +27,20 @@ public final class PlayerHudRenderer {
     private final BitmapFont font = new BitmapFont(); // ASCII 숫자/용량 텍스트용(한글 알림은 래스터 라벨 사용)
     private final GlyphLayout glyph = new GlyphLayout();
     private float fullFlashTimer;
+    private float lootFlashTimer;
+    private LootItem recentLoot;
 
     /** 가방이 가득 차 회수가 거부됐을 때 알림을 띄운다. */
     public void flashBackpackFull() { fullFlashTimer = 2.0f; }
+    public void flashLoot(LootItem item) {
+        recentLoot = item;
+        lootFlashTimer = 2.0f;
+    }
 
-    public void render(PlayerHudAssets hud, Texture whitePixel, Player player,
+    public void render(PlayerHudAssets hud, LootAssets loot, Texture whitePixel, Player player,
                        Backpack backpack, boolean backpackOpen, float delta) {
         if (fullFlashTimer > 0f) fullFlashTimer = Math.max(0f, fullFlashTimer - delta);
+        if (lootFlashTimer > 0f) lootFlashTimer = Math.max(0f, lootFlashTimer - delta);
         float sw = Gdx.graphics.getWidth(), sh = Gdx.graphics.getHeight();
         camera.setToOrtho(false, sw, sh);
         batch.setProjectionMatrix(camera.combined);
@@ -39,7 +48,7 @@ public final class PlayerHudRenderer {
 
         batch.begin();
         drawHealth(hud, player, L, sh);
-        if (backpackOpen) drawBackpack(hud, whitePixel, backpack, L, sw, sh);
+        if (backpackOpen) drawBackpack(hud, loot, whitePixel, backpack, L, sw, sh);
         else drawRPrompt(hud, sh);
         if (fullFlashTimer > 0f && hud.backpackFullLabel() != null) {
             TextureRegion label = hud.backpackFullLabel();
@@ -48,7 +57,26 @@ public final class PlayerHudRenderer {
             batch.draw(label, (sw - w) / 2f, sh * 0.82f, w, h);
             batch.setColor(Color.WHITE);
         }
+        if (lootFlashTimer > 0f && recentLoot != null)
+            drawLootToast(loot, whitePixel, sw, sh);
         batch.end();
+    }
+
+    private void drawLootToast(LootAssets loot, Texture whitePixel, float sw, float sh) {
+        float alpha = Math.min(1f, lootFlashTimer);
+        float x = sw - 198f, y = sh - 84f;
+        batch.setColor(0.025f, 0.035f, 0.055f, .88f * alpha);
+        batch.draw(whitePixel, x, y, 176f, 58f);
+        batch.setColor(Color.WHITE);
+        batch.draw(loot.itemFramed(recentLoot), x + 7f, y + 7f, 44f, 44f);
+        font.getData().setScale(1f);
+        glyph.setText(font, "LOOT  +" + recentLoot.price);
+        float scale = 18f / glyph.height;
+        font.getData().setScale(scale);
+        glyph.setText(font, "LOOT  +" + recentLoot.price);
+        font.setColor(1f, 1f, 1f, alpha);
+        font.draw(batch, glyph, x + 58f, y + 36f);
+        font.setColor(Color.WHITE);
     }
 
     private void drawHealth(PlayerHudAssets hud, Player player, HudLayout L, float sh) {
@@ -77,7 +105,7 @@ public final class PlayerHudRenderer {
         batch.draw(r, 18f, 18f, r.getRegionWidth(), r.getRegionHeight());
     }
 
-    private void drawBackpack(PlayerHudAssets hud, Texture whitePixel, Backpack backpack,
+    private void drawBackpack(PlayerHudAssets hud, LootAssets loot, Texture whitePixel, Backpack backpack,
                               HudLayout L, float sw, float sh) {
         // dim background
         batch.setColor(0f, 0f, 0f, L.dimAlpha);
@@ -89,16 +117,15 @@ public final class PlayerHudRenderer {
         float px = (sw - panelW) / 2f, py = (sh - panelH) / 2f;
         float panelTop = py + panelH; // libGDX y of panel top edge
         batch.draw(hud.backpackPanel(), px, py, panelW, panelH);
-        // item icons in occupied slots (placeholder tint; real item art is a connection point)
+        // Items use their actual icon with the rarity frame supplied by the loot pack.
         for (int i = 0; i < backpack.count() && i < L.slotTopLeft.length; i++) {
             float ox = L.slotTopLeft[i][0] + L.iconInsetX;
             float oy = L.slotTopLeft[i][1] + L.iconInsetY;
             float ix = px + ox * scale;
             float iy = py + panelH - (oy + L.iconInsetH) * scale;
             float iw = L.iconInsetW * scale, ih = L.iconInsetH * scale;
-            batch.setColor(0.23f, 0.78f, 0.80f, 0.92f);
-            batch.draw(whitePixel, ix, iy, iw, ih);
-            batch.setColor(Color.WHITE);
+            LootItem item = loot.catalog().find(backpack.slot(i));
+            if (item != null) batch.draw(loot.itemFramed(item), ix, iy, iw, ih);
         }
         // capacity text {used} / 8
         float cx = px + (L.capacityX + L.capacityW / 2f) * scale;

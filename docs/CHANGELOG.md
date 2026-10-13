@@ -4,7 +4,13 @@
 
 ## [Unreleased]
 ### Added
-- **독립된 임시 본부 천막:** 원본 `hq_tent` 타일·가구·자판기 에셋으로 안전한 20×15 본부에서 시작한다. 남쪽 열린 출입구, 가구 지면 충돌, 자판기 접근 강조, F1 범위 디버그를 추가했다. 남쪽 바깥 출구를 넘으면 0.35초 페이드로 연구소에 이동하며 HP·재화·인벤토리·진행 상태를 유지한다. 자판기 구매 UI와 회복 기능은 후속 단계다.
+- **쉬움 연구소 방 축소 및 벽면 가구 밀도 개선 (2026-10-13):** 128×96 맵의 16개 작은 방은 유지하면서 현재 3칸 분기 복도를 2칸으로 더 줄였다(주 복도 2칸 유지, 문 지지 구간은 5칸). V7의 실제 투명 픽셀 경계에 맞춰 네 방향 벽면 가구를 연속 배치하고, 중앙 작업 구역은 보존했다. 64개 벽 구간의 피복률은 86.7~90.0%이며 테스트가 방 연결·통행·가구 충돌·피복률을 검사한다.
+- **쉬움 연구소 재배치:** 128×96 맵 크기를 유지하면서 9~24타일 폭의 크기가 다른 16개 방, ㄱ자 홈, 교차 복도와 분기 통로를 구성했다. 쉬움 맵의 가구를 `laboratory_orthographic_views_v7` 에셋의 정면/좌측/우측 시점으로 교체하고, 방별 작업 군집과 바닥 충돌 영역을 배치했다. 문·문틀·충돌, 미니맵 점유, 방 접근성은 공통 타일 배치에서 파생된다.
+- **연구소 가구 에셋 교체:** 제공된 orthographic view pack의 front/left/right PNG와 roomkits_v3 아틀라스를 연결하고, 픽셀 알파 경계로 발밑 기준을 맞춘다. 소품은 회전 없이 방 방향에 맞는 원본 뷰를 사용한다.
+- **실제 loot 흐름:** loot 테이블에서 컨테이너별 보상을 한 번 추첨해 애니메이션 후 월드에 떨어뜨리고, 기존 8칸 가방과 연결했다. D는 최저 슬롯보다 가치가 높은 주변 물품만 교체하며 이전 물품을 바닥에 남긴다.
+- **난이도 게이트 및 다중 방 연구소:** 본부에서 쉬움·보통·어려움을 고르고 페이드로 입장/복귀한다. roomkits_v3 방향별 가구, 3단계 맵 크기/방 구조와 몬스터 수, 미니맵·F 경로, 발자국 표시를 추가했다.
+- **loot 컨테이너:** 제공된 loot 테이블·상자 애니메이션·희귀도 아이템 아틀라스를 로드한다. E로 상자를 열고 아이템을 주우며, 가방이 꽉 찬 경우 D로 최저 가치 슬롯을 교체한다.
+- **독립된 임시 본부 천막:** 현재 본부는 14×10 고정 카메라 안전 구역이다. 남쪽 출입구에서 연구소로 페이드 전환하며 플레이어 세션을 유지한다. 자판기와 물통은 2.5타일 내 SPACE 안내를 표시하고, 물통 SPACE 입력은 생존 중인 플레이어 HP를 최대로 회복한다. 자판기 구매 UI는 미구현이다.
 - **Laboratory Tileset V2 적용 (타일 배치 전면 교체):** 전용 64px 타일셋으로 연구소 화면을 다시 그린다.
   - 바닥은 기본 A/B/C + 마모·균열·보수판·배수구·해치가 섞여 반복 격자감이 크게 줄었다.
   - 벽은 직선·끝단·바깥/안쪽 모서리·T자·십자가 이웃에 맞게 연결되고, 외벽이 끊기지 않는다.
@@ -72,3 +78,12 @@
 - R로 8칸 가방 UI 토글(중앙 패널+딤), Esc는 가방부터 닫음, 가방 열림 시 이동·공격·상호작용 정지. 보유 물품 아이콘과 "현재/8" 표시, 가득 참 알림(가방이 가득 찼습니다).
 - 8칸 수집 모델(inventory.Backpack): 최대 8개, 가득 차면 9번째 거부(물품 보존). 본부 인계(handOver)는 연결 지점만 마련(실제 보관 경제 미구현).
 - [임시] 월드 아이템 획득 시스템이 아직 없어, 연구소에서 G로 테스트 물품을 회수해 8칸/가득참을 눈으로 확인한다.
+# 2026-10-13 — Compact easy laboratory wall furnishing
+
+- Narrowed easy-map 3-tile branches to 2 tiles while retaining the 2-tile main routes and door-support vestibules.
+- Replaced sparse fixed wall props with alpha-bound-aware packing across north, south, east, and west walls. Center work islands remain after wall placement; collision footprints remain inside wall cells.
+- Added per-room/per-wall visible-coverage reports and a regression test requiring at least 85% of each usable wall to be furnished.
+- Corrected furniture anchors against measured alpha bounds and the room-facing wall edge. Added full-art/floor-cell and collision-footprint validation, overlap rejection, and smaller-scale retries for concave corners and short wall segments.
+- Wall fixtures keep collision support on the structural wall tile so the tile-based pathfinder does not mark a full interior aisle tile blocked. Generated-room screenshot: `docs/images/laboratory_furniture_containment_chemistry.png`.
+- Fixed laboratory phantom collision: partial furniture AABBs no longer convert every overlapping tile into a solid tile. Movement and F-return routing now query the same body-sized furniture obstacles.
+- Added visible wall autotile variants for connected ends, corners, T/cross junctions, damaged straight runs, and sparse supports. Added F1 collision visualization with distinct passable, solid, furniture, and player colors.

@@ -83,12 +83,21 @@
 
 A door needs a straight wall run of at least five cells. Its center occupies one cell and its two neighboring wall cells become jambs. A corner, junction, adjacent door, or missing jamb space rejects the placement. The surrounding wall topology determines horizontal or vertical direction; the map character only chooses initial open or closed state. `CLOSED`, `OPENING`, and `CLOSING` block movement; only `OPEN` is passable. State changes keep the same cell and direction, and visual art follows collision from the same door object. The opening shows the underlying floor and threshold.
 
-## 임시 본부 천막 [기본 맵 구현 / 임시 전환 시간]
+## 임시 본부 천막 [현재 구현 / 임시 전환 시간]
 
 - 본부는 연구소와 분리된 안전 구역이며 몬스터를 생성하지 않는다. 외벽, 모래주머니, 큰 가구의 바닥 접촉부는 충돌한다. 열린 남쪽 천막 출입구와 매트는 통과할 수 있다.
 - 남쪽 중앙의 문을 지나 바깥 출구 1칸으로 **남쪽 이동 중 발 충돌 상자가 완전히 넘어가는 순간** 연구소 이동을 1회 요청한다. 접근이나 트리거 내부 대기는 발동하지 않는다. 스폰은 문보다 두 칸 이상 안쪽이다.
 - 전환은 입력을 잠그고 페이드아웃 0.35초(임시값) 후 안전한 연구소 입구에 배치한 뒤 페이드인 0.35초(임시값) 후 해제한다. HP, 금액, 인벤토리, 진행 플래그를 유지한다.
-- 자판기 앞 1.25타일 이내에서만 상호작용 가능 상태를 강조한다. `E` 구매 동작과 UI는 후속 구현이며, 현재 재화를 차감하지 않는다. 의료·정비 가구의 상호작용 위치만 예약했다.
+- 본부는 14×10이며 카메라가 전체 맵을 고정 표시한다. 자판기와 물통 SPACE 안내는 살아 있고 본부가 활성 상태일 때 대상에서 2.5타일 이내로 접근하면 표시되며, 대상이 겹치면 가까운 하나만 표시한다.
+- 자판기 SPACE 동작은 정면 접근과 장애물 없는 경로가 필요하며 구매 UI·재화 차감은 미구현이다. 물통은 2타일 이내의 막히지 않은 접근에서 SPACE를 누르면 생존 중인 플레이어 HP를 최대로 회복한다. 사망 상태를 되돌리지는 않는다.
+- F1은 벽·가구·플레이어 충돌, 출구, 본부 스폰, 자판기·물통 상호작용 영역을 표시한다.
+
+## 연구소 난이도·길찾기·loot (구현값)
+
+- 본부 남쪽 게이트에서 1/EASY, 2/NORMAL, 3/HARD를 선택한다. 맵 크기는 쉬움 128×96(16개 방, 각 24×18), 보통 28×20, 어려움 38×28이다. 쉬움 방들은 3타일 폭 복도로 연결한다.
+- 몬스터 수(슬라임/연구원/경비원/팀장)는 3/2/1/1, 5/3/2/1, 7/5/3/1이다. 팀장은 외곽 코너에 가까운 안전 후보를 우선한다. 기존 달리기 시작 2회 및 반경 4타일 분노 규칙을 사용한다.
+- 미니맵은 지형·플레이어·팀장을 표시한다. F는 남쪽 본부 복귀 게이트 최단 경로를 토글하고, 이동 중 잠깐 발자국 표시를 남긴다.
+- `assets/loot/loot_tables.json`의 컨테이너/확률 테이블을 사용한다. 쉬움 연구소의 나무 상자, 에픽 캐비넷, 레전드 캐비넷은 한 번만 열리고 애니메이션 후 등급별 아이템을 월드에 떨어뜨린다. E로 줍고, 8칸이 찬 경우 D는 최저 슬롯보다 비싼 물품만 교체하며 밀려난 물품은 바닥에 남긴다.
 ## First combat pass (2026-10-07)
 
 - Player: 100 HP, 15 damage, four-direction melee; attack cooldown 0.45 seconds, monster-hit invulnerability 0.6 seconds. SPACE (existing binding) or left mouse starts one attack per press.

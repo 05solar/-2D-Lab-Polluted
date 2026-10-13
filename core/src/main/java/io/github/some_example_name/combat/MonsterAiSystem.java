@@ -217,15 +217,9 @@ public final class MonsterAiSystem {
         m.bounds().setPosition(result.x, result.y);
     }
 
-    private static boolean clearPath(float x1, float y1, float x2, float y2, LaboratoryRoom room) {
-        float dx = x2 - x1, dy = y2 - y1;
-        int steps = Math.max(1, (int) (Math.max(Math.abs(dx), Math.abs(dy)) / 0.1f));
-        for (int i = 1; i < steps; i++) {
-            int tx = (int) Math.floor(x1 + dx * i / steps);
-            int ty = (int) Math.floor(y1 + dy * i / steps);
-            if (room.isSolid(tx, ty)) return false;
-        }
-        return true;
+    private boolean clearPath(float x1, float y1, float x2, float y2, LaboratoryRoom room) {
+        return !room.blocksActorAlongPath(x1,y1,x2,y2,
+            config.monsterBoundsWidth,config.monsterBoundsHeight);
     }
 
     private float detectionRadius(MonsterType type) {

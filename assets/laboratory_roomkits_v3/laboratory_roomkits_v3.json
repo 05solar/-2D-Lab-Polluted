@@ -1,0 +1,100 @@
+{
+  "version": 3,
+  "tileSize": 64,
+  "origin": "top-left",
+  "textureFilter": "Nearest",
+  "orientationSuffixes": {
+    "north": "north wall, faces down",
+    "left": "left vertical wall",
+    "right": "right vertical wall"
+  },
+  "packs": {
+    "main_gate": {
+      "atlas": "main_gate/main_gate_atlas.png",
+      "columns": 2, "rows": 2, "cellWidth": 384, "cellHeight": 256,
+      "items": ["gate_horizontal_closed", "gate_horizontal_open", "gate_vertical_closed", "gate_vertical_open"],
+      "uiAtlas": "main_gate/gate_ui_atlas.png",
+      "uiItems": ["enter_laboratory", "return_headquarters", "locked", "transitioning"]
+    },
+    "general_lab": {
+      "atlas": "general_lab/general_lab_atlas.png",
+      "columns": 4, "rows": 4, "cellWidth": 160, "cellHeight": 152,
+      "items": [
+        "workbench_north", "fume_hood_north", "sink_counter_north", "storage_cabinet_north",
+        "workbench_left", "fume_hood_left", "sink_counter_left", "storage_cabinet_left",
+        "workbench_right", "fume_hood_right", "sink_counter_right", "storage_cabinet_right",
+        "experiment_island", "equipment_cart", "lab_stools", "sample_crate"
+      ]
+    },
+    "pantry_lounge": {
+      "atlas": "pantry_lounge/pantry_lounge_atlas.png",
+      "columns": 4, "rows": 4, "cellWidth": 192, "cellHeight": 128,
+      "items": [
+        "kitchenette_north", "refrigerator_north", "microwave_cabinet_north", "coffee_station_north",
+        "kitchenette_left", "kitchenette_right", "wall_shelf_left", "wall_shelf_right",
+        "sofa_north", "sofa_left", "sofa_right", "coffee_table",
+        "armchair", "water_dispenser", "snack_cabinet", "trash_cups"
+      ]
+    },
+    "sleeping_locker": {
+      "atlas": "sleeping_locker/sleeping_locker_atlas.png",
+      "columns": 4, "rows": 4, "cellWidth": 160, "cellHeight": 154,
+      "items": [
+        "bunk_bed_north", "bunk_bed_left", "bunk_bed_right", "field_cot",
+        "locker_bank_north", "locker_bank_left", "locker_bank_right", "changing_bench",
+        "footlocker", "protective_suit_rack", "laundry_hamper", "shoe_rack",
+        "privacy_partition", "blanket_stack", "bedside_cabinet", "personal_items"
+      ]
+    },
+    "restroom_shower": {
+      "atlas": "restroom_shower/restroom_shower_atlas.png",
+      "columns": 4, "rows": 4, "cellWidth": 160, "cellHeight": 154,
+      "items": [
+        "toilet_north", "toilet_left", "toilet_right", "urinal_bank",
+        "sink_counter_north", "sink_left", "sink_right", "stall_partition",
+        "shower_north", "shower_left", "shower_right", "floor_drain_mat",
+        "shower_bench", "towel_soap_rack", "cleaning_cart", "damaged_stall"
+      ]
+    },
+    "chemistry_lab": {
+      "atlas": "chemistry_lab/chemistry_lab_atlas.png",
+      "columns": 4, "rows": 4, "cellWidth": 160, "cellHeight": 154,
+      "items": [
+        "fume_hood_north", "fume_hood_left", "fume_hood_right", "reagent_cabinet",
+        "chemistry_bench_north", "chemistry_bench_left", "chemistry_bench_right", "gas_cylinder_rack",
+        "distillation_station", "centrifuge", "analyzer_machine", "hotplate_station",
+        "eyewash_station", "spill_response_cabinet", "pipette_station", "chemical_waste"
+      ]
+    },
+    "biology_specimen": {
+      "atlas": "biology_specimen/biology_specimen_atlas.png",
+      "columns": 4, "rows": 4, "cellWidth": 160, "cellHeight": 154,
+      "items": [
+        "biosafety_cabinet_north", "biosafety_cabinet_left", "biosafety_cabinet_right", "microscope_workbench",
+        "incubator_bank", "laboratory_freezer", "culture_workstation", "culture_rack",
+        "dissection_table", "autoclave", "cryogenic_tanks", "biohazard_container",
+        "specimen_cabinet_north", "specimen_cabinet_left", "specimen_cabinet_right", "specimen_jar_rack"
+      ]
+    },
+    "information_cctv": {
+      "atlas": "information_cctv/information_cctv_atlas.png",
+      "columns": 4, "rows": 4, "cellWidth": 160, "cellHeight": 154,
+      "items": [
+        "server_rack_north", "server_rack_left", "server_rack_right", "network_cabinet",
+        "computer_desk_north", "computer_desk_left", "computer_desk_right", "operator_console",
+        "cctv_wall_north", "cctv_wall_left", "cctv_wall_right", "alarm_console",
+        "cable_panel", "ups_unit", "office_chair", "camera_parts_rack"
+      ]
+    },
+    "archive_library": {
+      "atlas": "archive_library/archive_library_atlas.png",
+      "columns": 4, "rows": 4, "cellWidth": 160, "cellHeight": 154,
+      "items": [
+        "filing_cabinet_north", "filing_cabinet_left", "filing_cabinet_right", "fireproof_document_cabinet",
+        "archive_shelf_north", "archive_shelf_left", "archive_shelf_right", "document_cart",
+        "bookshelf_north", "bookshelf_left", "bookshelf_right", "double_sided_bookshelf",
+        "review_table", "reading_desk", "library_ladder", "catalog_terminal_books"
+      ]
+    }
+  }
+}
