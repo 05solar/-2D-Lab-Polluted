@@ -9,6 +9,7 @@ import io.github.some_example_name.entity.Direction;
 import io.github.some_example_name.entity.monster.Monster;
 import io.github.some_example_name.entity.player.Player;
 import io.github.some_example_name.render.MonsterAnimationSet;
+import io.github.some_example_name.world.Hazard;
 import io.github.some_example_name.world.LaboratoryRoom;
 import java.util.Iterator;
 import java.util.List;
@@ -84,6 +85,19 @@ public final class MonsterAiSystem {
             float distance2 = dx * dx + dy * dy;
             float detect = detectionRadius(monster.type());
             if (distance2 <= detect * detect) monster.setAggro(true);
+            // 추격 리시: 플레이어와의 거리가 감지 반경×배수를 넘어가면 무조건 따라다니지 않고
+            // 추격을 포기한 뒤, 즉시 다른 공간의 목적지를 골라 자유 이동으로 돌아간다.
+            // (분노한 팀장은 기존 규칙대로 그 조우 동안 포기하지 않는다.)
+            else if (monster.aggro() && monster.type() != MonsterType.TEAM_LEADER) {
+                float giveUp = detect * config.monsterChaseGiveUpFactor;
+                if (distance2 > giveUp * giveUp) {
+                    monster.setAggro(false);
+                    monster.clearRoamTarget();
+                    monster.setWanderTime(config.monsterRoamRestSeconds); // 바로 새 목적지 선정
+                    monster.setState(MonsterState.IDLE);
+                    monster.setStateTime(0f);
+                }
+            }
             if (monster.aggro()) {
                 monster.setState(MonsterState.ALERT);
                 if (distance2 <= attackRange(monster) * attackRange(monster)
@@ -101,7 +115,7 @@ public final class MonsterAiSystem {
                 monster.advanceStateTime(delta);
                 chase(monster, player, monsters, room, dx, dy, delta);
             } else if (monster.type() != MonsterType.TEAM_LEADER) {
-                wander(monster, player, monsters, room, delta);
+                roam(monster, player, monsters, room, delta);
             }
         }
         // Iteration is complete before dead entities leave the world collection.
@@ -187,17 +201,67 @@ public final class MonsterAiSystem {
         }
     }
 
-    private void wander(Monster m, Player player, List<Monster> all, LaboratoryRoom room, float delta) {
+    /**
+     * 자유 이동(로밍): 한가한 몬스터는 제자리 배회가 아니라 맵의 다른 공간에 있는 목적지를
+     * 골라 그쪽으로 걸어간다. 도착하면 잠깐 쉬었다가 새 목적지를 고르고, 오래 막혀 있으면
+     * 재선정한다. 직선이 막히면 축 우선으로 돌아가고, 양 축 모두 막히면 목적지를 버린다.
+     */
+    private void roam(Monster m, Player player, List<Monster> all, LaboratoryRoom room, float delta) {
         m.advanceStateTime(delta);
         m.advanceWanderTime(delta);
-        if (m.wanderTime() >= config.monsterWanderSeconds) {
-            Direction[] options = Direction.values();
-            m.setWanderDirection(options[random.nextInt(options.length)]);
-            m.setWanderTime(0f);
-        }
-        float vx = directionX(m.wanderDirection()), vy = directionY(m.wanderDirection());
         m.setState(MonsterState.IDLE);
-        move(m, player, all, room, vx, vy, delta);
+        if (!m.hasRoamTarget()) {
+            if (m.wanderTime() < config.monsterRoamRestSeconds) return; // 도착 후 잠깐 휴식
+            pickRoamTarget(m, room);
+            if (!m.hasRoamTarget()) return;
+        } else if (m.wanderTime() >= config.monsterRoamRetargetSeconds) {
+            pickRoamTarget(m, room); // 너무 오래 못 가면 다른 목적지로
+            if (!m.hasRoamTarget()) return;
+        }
+        float dx = m.roamTargetX() - m.feetX(), dy = m.roamTargetY() - m.feetY();
+        if (dx * dx + dy * dy < 1f) {       // 도착
+            m.clearRoamTarget();
+            m.setWanderTime(0f);
+            return;
+        }
+        float cy = m.feetY() + m.bounds().height / 2f;
+        if (clearPath(m.feetX(), cy, m.roamTargetX(), m.roamTargetY(), room)) {
+            Vector2 direction = new Vector2(dx, dy).nor();
+            move(m, player, all, room, direction.x, direction.y, delta);
+            return;
+        }
+        boolean xClear = clearPath(m.feetX(), cy, m.roamTargetX(), cy, room);
+        boolean yClear = clearPath(m.feetX(), cy, m.feetX(), m.roamTargetY(), room);
+        if (xClear && (Math.abs(dx) >= Math.abs(dy) || !yClear))
+            move(m, player, all, room, Math.signum(dx), 0f, delta);
+        else if (yClear)
+            move(m, player, all, room, 0f, Math.signum(dy), delta);
+        else {
+            m.clearRoamTarget();            // 양 축 모두 막힘 → 다음 프레임에 새 공간 선택
+            m.setWanderTime(config.monsterRoamRestSeconds);
+        }
+    }
+
+    /** 현재 위치에서 최소 거리 이상 떨어진, 설 수 있고 위험 없는 셀을 무작위로 고른다. */
+    private void pickRoamTarget(Monster m, LaboratoryRoom room) {
+        m.setWanderTime(0f);
+        float best = -1f, bestX = Float.NaN, bestY = Float.NaN;
+        for (int attempt = 0; attempt < 30; attempt++) {
+            int x = 1 + random.nextInt(Math.max(1, room.widthInTiles() - 2));
+            int y = 1 + random.nextInt(Math.max(1, room.heightInTiles() - 2));
+            if (room.blocksActorAtCell(x, y, config.monsterBoundsWidth, config.monsterBoundsHeight)
+                || room.hazardAt(x, y) != Hazard.NONE) continue;
+            float cx = x + .5f, cy = y + .5f;
+            float dx = cx - m.feetX(), dy = cy - m.feetY();
+            float d2 = dx * dx + dy * dy;
+            if (d2 >= config.monsterRoamMinDistance * config.monsterRoamMinDistance) {
+                m.setRoamTarget(cx, cy);
+                return;
+            }
+            if (d2 > best) { best = d2; bestX = cx; bestY = cy; } // 좁은 맵 대비 가장 먼 후보
+        }
+        if (!Float.isNaN(bestX)) m.setRoamTarget(bestX, bestY);
+        else m.clearRoamTarget();
     }
 
     private void move(Monster m, Player player, List<Monster> all, LaboratoryRoom room,
@@ -253,6 +317,4 @@ public final class MonsterAiSystem {
         return set.frameDuration(clip) * set.frameCount(clip);
     }
     private static String directionKey(Direction d) { return d.name().toLowerCase(); }
-    private static float directionX(Direction d) { return d == Direction.LEFT ? -1f : d == Direction.RIGHT ? 1f : 0f; }
-    private static float directionY(Direction d) { return d == Direction.DOWN ? -1f : d == Direction.UP ? 1f : 0f; }
 }

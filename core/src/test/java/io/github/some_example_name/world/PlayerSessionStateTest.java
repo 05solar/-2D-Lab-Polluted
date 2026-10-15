@@ -24,4 +24,39 @@ public class PlayerSessionStateTest {
         assertEquals(spawnX, player.feetX(), 0.0001f);
         assertEquals(spawnY, player.feetY(), 0.0001f);
     }
+
+    @Test public void deathLosesAllCarriedItemsButKeepsMoneyAndProgress() {
+        Player player = new Player(5f, 5f, 0.6f, 0.5f, 100);
+        PlayerSessionState session = new PlayerSessionState(player);
+        session.addItem("sample_01");
+        session.addItem("sample_02");
+        session.addMoney(120);
+        session.markProgress("hq_departed");
+        player.takeDamage(100);
+        assertTrue(player.isDead());
+        // 사망 페널티: 들고 있던(미반납) 소지품만 모두 잃고, 반납 완료 재화·진행은 유지.
+        session.loseAllItemsOnDeath();
+        assertTrue(session.inventory().isEmpty());
+        assertFalse(session.backpack().isFull());
+        assertEquals(120L, session.money());
+        assertTrue(session.hasProgress("hq_departed"));
+    }
+
+    @Test public void reviveRestoresFullHpAndClearsDeadStateOnce() {
+        Player player = new Player(5f, 5f, 0.6f, 0.5f, 100);
+        player.takeDamage(100);
+        assertTrue(player.isDead());
+        // 사망 중에는 회복이 거부된다(늦은 처치 보상 등).
+        player.heal(20);
+        assertEquals(0, player.hp());
+        // 본부 재소환 시점의 부활: 상태 해제 + HP 최대.
+        player.revive();
+        assertFalse(player.isDead());
+        assertEquals(100, player.hp());
+        // 부활 후에는 다시 피해/회복이 정상 동작한다.
+        player.takeDamage(30);
+        assertEquals(70, player.hp());
+        player.heal(20);
+        assertEquals(90, player.hp());
+    }
 }

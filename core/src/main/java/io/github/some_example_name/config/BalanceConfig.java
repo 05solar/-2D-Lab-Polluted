@@ -22,6 +22,8 @@ public class BalanceConfig {
     public float playerBoundsHeight = 0.5f;       // [임시값] 충돌 박스 높이(발밑 기준)
     /** 몬스터 처치 1마리당 HP 회복량(최대 HP 제한, 사망자 부활 없음). [확정] */
     public int killHealHp = 20;
+    /** 사망 후 본부 재소환까지 대기(쓰러짐 연출 0.8s 포함). [임시값] */
+    public float deathRespawnDelaySeconds = 2.0f;
 
     // --- 돌진(F) ---
     public float dashDistanceTiles = 3f;          // [확정] 초기 돌진 거리(타일)
@@ -57,7 +59,15 @@ public class BalanceConfig {
     public float monsterAttackRange = 0.75f;
     public float teamLeaderAttackRange = 1.2f;
     public float monsterAttackCooldownSeconds = 0.75f;
-    public float monsterWanderSeconds = 1.8f;
+    // --- 몬스터 이동(추격 리시 + 자유 로밍, 2026-10-15) ---
+    /** 추격 포기 거리 = 감지 반경 × 이 배수. 넘어가면 추격을 멈추고 다른 공간으로 떠난다(팀장 제외). */
+    public float monsterChaseGiveUpFactor = 2.2f;
+    /** 자유 이동 목적지의 최소 거리(월드 단위) — 근처 배회가 아니라 다른 공간으로 이동. */
+    public float monsterRoamMinDistance = 6f;
+    /** 목적지에 오래 도달하지 못하면 재선정하는 시간(초). */
+    public float monsterRoamRetargetSeconds = 12f;
+    /** 목적지 도착 후 잠깐 쉬었다가 다음 목적지를 고르는 시간(초). */
+    public float monsterRoamRestSeconds = 1.2f;
     public float knockbackSeconds = 0.12f;
     public float playerKnockbackDistance = 0.28f;
     public float monsterKnockbackDistance = 0.2f;

@@ -116,10 +116,19 @@ public class LaboratoryGame extends Game {
                 setScreen(new LaboratoryScreen(this, assets, laboratory, session, laboratoryMonsters, config));
             } else {
                 laboratory.room().resetSouthExitTrigger();
+                // 사망 재소환: 본부 도착 시점에 부활(HP 최대). 소지품은 연구소에서 이미 비웠다.
+                boolean respawnedFromDeath = session.player().isDead();
+                if (respawnedFromDeath) {
+                    session.player().revive();
+                    Gdx.app.log("Respawn", "revived at HQ hp=" + session.player().hp()
+                        + " items=" + session.inventory().size());
+                }
                 Vector2 spawn = headquarters.room().spawnPoint();
                 session.player().bounds().setPosition(
                     spawn.x - session.player().bounds().width / 2f, spawn.y);
                 setScreen(new HeadquartersScreen(this, assets, headquarters, session));
+                if (respawnedFromDeath && "1".equals(System.getenv("LAB_TEST_DEATH")))
+                    Gdx.app.exit();
             }
             previous.dispose();
             transition.mapSwitched();

@@ -37,6 +37,18 @@
   제자리에서 RUN만 누르면 WALKING으로 보고, 움직이기 시작하는 프레임에 RUNNING 전환 = 달리기 시작.
   (구현: `RunStartDetector`. 단위 테스트로 1회성/재시작 2회성 검증)
 
+## 몬스터 이동 — 추격 리시 + 자유 로밍 (2026-10-15) [확정]
+- 몬스터는 플레이어를 **무조건 따라다니지 않는다**. 감지 반경 안에 들어오면 추격을 시작하고,
+  거리가 **감지 반경 × `monsterChaseGiveUpFactor`(기본 2.2)**를 넘어가면 추격을 포기한다.
+- 추격을 포기하면 즉시 **다른 공간의 목적지**(현재 위치에서 `monsterRoamMinDistance`(6타일) 이상
+  떨어진, 설 수 있고 위험 없는 무작위 셀)를 골라 걸어간다. 도착하면 잠깐(`monsterRoamRestSeconds`,
+  1.2초) 쉬었다가 새 목적지를 고르고, `monsterRoamRetargetSeconds`(12초) 안에 도달하지 못하거나
+  양 축이 모두 막히면 목적지를 재선정한다 — 한가한 몬스터의 기본 행동도 제자리 배회가 아니라 이 로밍이다.
+- 로밍 중에도 벽/닫힌 문/가구/다른 몸체 충돌은 동일하게 적용되며, 로밍하다 플레이어가 감지 반경에
+  들어오면 다시 추격한다.
+- **분노한 팀장은 예외**: 기존 규칙대로 그 조우 동안 거리가 벌어져도 추격을 포기하지 않는다.
+  비분노 팀장은 기존대로 자리에 머문다(로밍하지 않음).
+
 ## 팀장(TeamLeader) 규칙 [확정]
 - 지정 자리에 **앉은(SEATED) 상태**로 시작한다.
 - 주변에서 플레이어가 **걷기만** 하면 반응하지 않는다.
@@ -63,9 +75,13 @@
 - 벽의 시각 방향(북/남/동/서/모서리)은 이웃을 보고 자동 선택하지만, **충돌은 논리 벽 셀 기준**이라
   시각이 바뀌어도 통과 가능 여부는 변하지 않는다.
 
-## 사망·보상 [확정]
-- 사망 시 이번 탐사의 **미반납** 보물 보상은 제거된다.
-- 이미 반납 완료한 보상은 다음 탐사에도 유지된다.
+## 사망·보상 [확정] (2026-10-15 재소환 구현)
+- 사망 시 이번 탐사의 **미반납** 보물 보상은 제거된다 — 구현: 사망 시 가방(8칸) 소지품을 **모두 잃는다**.
+- 이미 반납 완료한 보상(재화)과 진행 플래그는 다음 탐사에도 유지된다.
+- **본부 재소환**: 쓰러짐 연출을 포함해 `deathRespawnDelaySeconds`(기본 2초) 뒤 소지품을 비우고
+  페이드와 함께 본부 스폰으로 이동, 도착 시점에 부활(HP 최대)한다. 재소환은 사망 1회당 1회만 요청되고,
+  사망 상태 동안의 늦은 처치 보상 등으로는 회복/부활하지 않는다(부활은 재소환 경로 전용 `Player.revive`).
+- 연구소 상태(열린 상자·남은 몬스터)는 일반 복귀와 동일하게 유지된다.
 
 ## Laboratory Tileset V2 — 충돌·위험 규칙 [확정]
 
@@ -189,7 +205,8 @@ A door needs a straight wall run of at least five cells. Its center occupies one
 - Player HP is clamped to `[0, 100]`; reaching zero enters `DEAD` once and preserves the last facing direction and world position.
 - `DEAD` blocks movement, running/noise, attacks, damage, interactions, and the HQ exit. Pause and debug controls remain available.
 - The direction-specific death clip advances at 0.1 seconds per frame, does not loop, and holds frame 7. Paused or transition-locked screens pass zero animation delta.
-- A game-over screen and revival are not implemented in this pass.
+- (2026-10-15) After the collapse is shown, the player loses all carried items and respawns at the
+  headquarters with full HP (see 사망·보상). A separate game-over screen is still not implemented.
 
 ## Headquarters vending interaction
 

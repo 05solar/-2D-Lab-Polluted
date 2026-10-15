@@ -119,6 +119,12 @@ public class LaboratoryScreen extends BaseScreen {
     private final boolean perfLog = "1".equals(System.getenv("LAB_PERF"));
     private float perfAccum, perfMax;
     private int perfFrames;
+    // 사망 → 쓰러짐 연출을 보여준 뒤 소지품을 모두 잃고 본부로 재소환한다(1회).
+    private float deathTimer;
+    private boolean deathRespawnRequested;
+    // LAB_TEST_DEATH=1(개발 전용): 잠시 뒤 치명 피해를 가해 사망→소지품 상실→본부 재소환을 실행 검증.
+    private final boolean testDeath = "1".equals(System.getenv("LAB_TEST_DEATH"));
+    private int testDeathFrame;
 
     public LaboratoryScreen(LaboratoryGame game, GameAssets assets, LaboratoryLayout layout,
                             PlayerSessionState session, List<Monster> monsters, BalanceConfig config) {
@@ -215,6 +221,12 @@ public class LaboratoryScreen extends BaseScreen {
         float animDelta = paused || transitionLocked || backpackOpen ? 0f : dt;
         if (!paused && !transitionLocked && !backpackOpen && !player.isDead()) {
             int hpBefore = player.hp();
+            if (testDeath && ++testDeathFrame == 30) {
+                session.collect("debug_death_a");
+                session.collect("debug_death_b");
+                Gdx.app.log("TestDeath", "items before death=" + session.inventory().size());
+                player.takeDamage(player.hp());
+            }
             PlayerIntent intent = controller.intentFrom(player, inputState);
             boolean spaceInteract = Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
                 && hasNearbyInteractable();
@@ -262,6 +274,17 @@ public class LaboratoryScreen extends BaseScreen {
             else if (player.hp() < hpBefore) assets.combatSounds().playPlayerHurt();
         } else {
             player.setMoving(false);
+        }
+
+        // 사망 재소환: 쓰러짐 연출(0.8s)을 포함한 대기 후 소지품을 모두 비우고 본부 전환을
+        // 1회만 요청한다. 부활(HP 복구)은 본부 도착 시점에 게임 루트가 수행한다.
+        if (player.isDead() && !paused && !transitionLocked) {
+            deathTimer += dt;
+            if (!deathRespawnRequested && deathTimer >= config.deathRespawnDelaySeconds) {
+                deathRespawnRequested = true;
+                session.loseAllItemsOnDeath();
+                game.transition().request(io.github.some_example_name.world.MapId.HEADQUARTERS);
+            }
         }
 
         // 상호작용 안내 대상: 플레이 가능한 상태에서만 선택(가방/일시정지/사망/전환 중엔 없음).

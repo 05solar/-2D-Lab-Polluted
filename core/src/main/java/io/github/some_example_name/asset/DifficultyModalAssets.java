@@ -47,13 +47,11 @@ public final class DifficultyModalAssets implements Disposable {
         panel.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
         panelRegion = new TextureRegion(panel);
         layout = DifficultyModalLayout.fromJson(json);
+        // 몬스터 수 설명 라벨은 제거했다(2026-10-15 요청). 난이도 이름만 표시한다.
         add("title", "연구소 난이도 선택", 36);
         add("easy", "쉬움", 34);
-        add("easy_description", "슬라임 3 · 연구원 2 · 경비원 1", 20);
         add("normal", "보통", 34);
-        add("normal_description", "슬라임 5 · 연구원 3 · 경비원 2", 20);
         add("hard", "어려움", 34);
-        add("hard_description", "슬라임 7 · 연구원 5 · 경비원 3", 20);
         add("footer", "Enter: 입장  ·  Esc: 취소", 22);
     }
 

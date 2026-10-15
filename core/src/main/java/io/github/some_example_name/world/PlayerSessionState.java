@@ -30,6 +30,12 @@ public final class PlayerSessionState {
     public boolean collect(String id) { return backpack.collect(id); }
     public void addItem(String id) { backpack.collect(id); }
     public List<String> inventory() { return backpack.items(); }
+    /**
+     * 사망 페널티: 이번 탐사에서 들고 있던(미반납) 소지품을 모두 잃는다.
+     * 이미 반납 완료한 재화(money)와 진행 플래그는 규칙서대로 유지한다.
+     */
+    public void loseAllItemsOnDeath() { backpack.handOver(); }
+
     public void markProgress(String flag) {
         if (flag == null || flag.isEmpty()) throw new IllegalArgumentException("flag");
         progressFlags.add(flag);

@@ -14,7 +14,6 @@ public final class Monster {
     private final HealthComponent health;
     private MonsterState state = MonsterState.IDLE;
     private Direction facing = Direction.DOWN;
-    private Direction wanderDirection = Direction.DOWN;
     private float stateTime;
     private float wanderTime;
     private float attackCooldown;
@@ -24,6 +23,8 @@ public final class Monster {
     private boolean aggro;
     private int nearbyRunStarts;
     private boolean attackHit;
+    // 자유 이동(로밍) 목적지. 추격을 포기하거나 한가할 때 다른 공간의 지점으로 걸어간다.
+    private float roamTargetX = Float.NaN, roamTargetY = Float.NaN;
 
     public Monster(long id, MonsterType type, float feetX, float feetY, float width, float height, int maxHp) {
         if (id < 0 || type == null || width <= 0f || height <= 0f) throw new IllegalArgumentException();
@@ -43,8 +44,6 @@ public final class Monster {
     public void setState(MonsterState state) { this.state = state; }
     public Direction facing() { return facing; }
     public void setFacing(Direction facing) { if (facing != null) this.facing = facing; }
-    public Direction wanderDirection() { return wanderDirection; }
-    public void setWanderDirection(Direction direction) { if (direction != null) wanderDirection = direction; }
     public float stateTime() { return stateTime; }
     public void setStateTime(float time) { stateTime = time; }
     public void advanceStateTime(float delta) { stateTime += delta; }
@@ -66,6 +65,11 @@ public final class Monster {
     public void setAggro(boolean value) { aggro = value; }
     public int nearbyRunStarts() { return nearbyRunStarts; }
     public int countRunStart() { return ++nearbyRunStarts; }
+    public boolean hasRoamTarget() { return !Float.isNaN(roamTargetX); }
+    public float roamTargetX() { return roamTargetX; }
+    public float roamTargetY() { return roamTargetY; }
+    public void setRoamTarget(float x, float y) { roamTargetX = x; roamTargetY = y; }
+    public void clearRoamTarget() { roamTargetX = Float.NaN; roamTargetY = Float.NaN; }
     public float knockbackTime() { return knockbackTime; }
     public float knockbackX() { return knockbackX; }
     public float knockbackY() { return knockbackY; }

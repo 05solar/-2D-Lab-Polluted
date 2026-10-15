@@ -73,6 +73,12 @@ public class Player {
         }
     }
 
+    /** 본부 재소환용 부활: 사망 상태를 풀고 HP를 최대로 되돌린다(소지품 처리는 세션이 담당). */
+    public void revive() {
+        state = PlayerState.ALIVE;
+        hp = maxHp;
+    }
+
     public PlayerState state() { return state; }
     public boolean isDead() { return state == PlayerState.DEAD; }
 

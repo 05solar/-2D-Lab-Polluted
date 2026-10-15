@@ -181,3 +181,14 @@ PNG 알파(`LaboratoryTileCatalogV2Test`): 벽/구조물/오버레이의 알파 
 - 효과음 9종의 실제 청취(음량 밸런스·타격음 겹침 체감) — 재생 호출은 실행 중 예외 없이 동작했으나 소리 자체는 미청취.
 - 키보드 실입력: F 돌진 방향(8방)·벽/닫힌 문 차단 체감, H 귀환 경로 토글, 가방/일시정지 중 F 차단, Shift 달리기와 돌진 혼용 시 팀장 소음 정상.
 - HP 90/30에서 실제 전투 처치 회복 HUD 반영(로직은 KillHealTest로 검증 완료).
+
+## 사망 재소환 테스트 (2026-10-15)
+- `PlayerSessionStateTest.deathLosesAllCarriedItemsButKeepsMoneyAndProgress` — 사망 페널티로 가방만 비우고 재화·진행 유지.
+- `PlayerSessionStateTest.reviveRestoresFullHpAndClearsDeadStateOnce` — 사망 중 heal 거부, revive 후 ALIVE·HP 100, 이후 피해/회복 정상.
+- 실행 검증: `LAB_TEST_DEATH=1 LAB_START_LAB=1` — 소지품 2개 수집 → 치명 피해 → 2초 뒤 전환 → "revived at HQ hp=100 items=0" 로그로 본부 재소환 확인.
+- 수동: 실제 몬스터에게 사망해 쓰러짐 연출→페이드→본부 부활, 가방 비움·HP HUD 100, 난이도 모달에 몬스터 숫자 없음 확인.
+
+## 몬스터 이동(리시+로밍) 테스트 (2026-10-15)
+- `combat/MonsterRoamTest` — 감지 안 추격(거리 감소), 리시 초과 시 1프레임에 추격 포기, 6초 로밍 동안 이동량 ≥3타일·벽 비침범·재어그로 없음, 로밍 목적지 최소 거리·통행 가능 셀, 분노 팀장은 원거리에서도 추격 유지.
+- 실행: EASY 56마리 로밍 상태에서 avgFrame 16.7ms(~60fps, LAB_PERF) 유지, 예외 없음.
+- 수동: 몬스터를 끌고 멀리 달아나 추격 포기→다른 방으로 걸어가는 모습, 재접근 시 재추격 확인.
