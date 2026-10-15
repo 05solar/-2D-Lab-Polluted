@@ -51,10 +51,10 @@ public final class CombatSoundAssets implements Disposable {
         masterVolume = Math.max(0f, Math.min(1f, volume));
     }
 
-    /** 유효한 개봉 연타 입력 1회(엣지)마다 — 낮고 둔탁한 잠금장치 조작음. */
-    public void playContainerPress() { lastPress = throttled(containerPress, .45f, lastPress); }
+    /** 유효한 개봉 연타 입력 1회(엣지)마다 — 경쾌한 나무 걸쇠 '탁!'(container_sfx_v2). */
+    public void playContainerPress() { lastPress = throttled(containerPress, .5f, lastPress); }
 
-    /** 나무 상자/캐비넷 개봉 완료 순간 1회. */
+    /** 개봉 완료 순간 1회 — 걸쇠 팝+뚜껑 삐걱+상승 차임(container_sfx_v2). */
     public void playContainerOpen() { lastOpen = throttled(containerOpen, .6f, lastOpen); }
 
     /** 플레이어 HP가 실제로 감소한 프레임 1회(무적시간 거절 시 호출하지 않는다). */

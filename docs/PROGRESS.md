@@ -36,6 +36,8 @@
 
 ### 코어 플레이 (완료·안정)
 - 본부(HQ 텐트, 14×10)에서 시작. 이동(WASD/방향키)·달리기(Shift)·일시정지(Esc).
+- **배경음악**(2026-10-15): `assets/music/background_music.ogg` 무한 반복 — 본부·연구소·전환과 무관하게 연속
+  (음량 `musicVolume=0.45`, 무음 실행 `LAB_MUTE_MUSIC=1`).
 - **좌상단 HP HUD**(프레임+폭 가변 채움+숫자, 색 임계 >50/>25/≤25) — 본부·연구소 양쪽 항상 표시.
 - **R 8칸 가방**: 열기/닫기, 중앙 패널+딤, 가득 차면 알림, D로 최저가치 교체.
 - 본부 남쪽 대문 넘기 → **난이도 선택 모달(쉬움/보통/어려움)** → 0.35s 페이드 → 연구소 입장.
@@ -60,7 +62,7 @@
   캐비넷은 북쪽 벽 수납만(정면 아트 규칙). normal/hard 구획 중앙점도 동일 교체.
 - **SPACE 연타 개봉**: 나무 1회/일반 5회/고급 8회. 엣지 입력만 1회, 진행도 컨테이너별 저장, 바라보는 가장 가까운 1개만 대상. 도달 입력에서 1회만 개봉+추첨. **안내는 측정된 불투명 상단+화면 6px**에 근접 표시(+카운트, 개봉 후 숨김), 등급별 발광(보라/금/파랑).
 - **아이템 공개 연출**: 등급 테두리 아이콘 2배(1.12)가 상자 위로 짧게 상승 후 정지(월드 효과 레이어). 실제 드롭은 접근 가능한 바닥 지점에 분리 생성.
-- **효과음**: 연타=`container_press_low`(낮고 둔탁), 개봉=`container_open_heavy`(combat_loot_update_v1, 구 sounds/ 2종 대체).
+- **효과음(V2)**: 연타=경쾌한 걸쇠 '탁!'(`container_sfx_v2/container_press_v2`), 개봉=팝+삐걱+상승 차임(`container_open_v2`).
 - 바닥 드롭→SPACE 수집(별도 입력), 가득 차면 D 가치 교체.
 
 ### 맵·타일·벽·대문 (전 난이도 V4 통일)
@@ -115,7 +117,8 @@ config/    AssetPaths · BalanceConfig
 `monsters`, `laboratory_roomkits_v3`, `laboratory_orthographic_views_v7`,
 `laboratory_orthographic_views_v8`(가구 뒷모습), `loot`, `difficulty_modal_v2`,
 `ui/player_hud_inventory_v1`, `ui/navigation`, `exterior_walls_gate_v3`(대문), `textures/player`, `data`,
-`combat_loot_update_v1`(돌진/공격 HUD UI 4종 + 전투·전리품 효과음 9종, CC0 — `sounds/` 구 2종 대체).
+`combat_loot_update_v1`(돌진/공격 HUD UI 4종 + 전투·전리품 효과음 9종, CC0 — `sounds/` 구 2종 대체),
+`container_sfx_v2`(경쾌한 상자 걸쇠/개봉 차임 — 팩 press/open 대체), `music`(배경음악 OGG, 무한 반복).
 
 ### V4 파일 ↔ 사용 매핑
 - `laboratory_structure_v4/runtime/walls/walls_blob47_atlas_128.png` → `LaboratoryStructureV4Assets.wall(index)`,

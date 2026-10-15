@@ -57,8 +57,9 @@ public final class AssetPaths {
     public static final String COMBAT_UI_DASH_ICON = COMBAT_PACK_DIR + "runtime/ui/dash_icon_128.png";
     public static final String COMBAT_UI_ATTACK_ICON = COMBAT_PACK_DIR + "runtime/ui/attack_icon_128.png";
     public static final String COMBAT_AUDIO_DIR = COMBAT_PACK_DIR + "runtime/audio/";
-    public static final String SOUND_CONTAINER_PRESS = COMBAT_AUDIO_DIR + "container_press_low.wav";
-    public static final String SOUND_CONTAINER_OPEN = COMBAT_AUDIO_DIR + "container_open_heavy.wav";
+    /** 컨테이너 조작음 V2(경쾌한 걸쇠 '탁!'+개봉 차임) — 팩의 저음 press/open 대체. */
+    public static final String SOUND_CONTAINER_PRESS = "container_sfx_v2/container_press_v2.wav";
+    public static final String SOUND_CONTAINER_OPEN = "container_sfx_v2/container_open_v2.wav";
     public static final String SOUND_MONSTER_HIT_1 = COMBAT_AUDIO_DIR + "monster_hit_01.wav";
     public static final String SOUND_MONSTER_HIT_2 = COMBAT_AUDIO_DIR + "monster_hit_02.wav";
     public static final String SOUND_PLAYER_HURT = COMBAT_AUDIO_DIR + "player_hurt.wav";
@@ -66,6 +67,9 @@ public final class AssetPaths {
     public static final String SOUND_DOOR_OPEN = COMBAT_AUDIO_DIR + "door_open_metal.wav";
     public static final String SOUND_ATTACK_SWING = COMBAT_AUDIO_DIR + "attack_swing.wav";
     public static final String SOUND_DASH_WHOOSH = COMBAT_AUDIO_DIR + "dash_whoosh.wav";
+
+    /** 배경음악(사용자 제공 영상에서 추출, OGG 스트리밍·무한 반복). */
+    public static final String MUSIC_BACKGROUND = "music/background_music.ogg";
 
     /** 플레이어 HP HUD + 8칸 가방 UI 팩(런타임 PNG + 배치 좌표 JSON). */
     public static final String HUD_DIR = "ui/player_hud_inventory_v1/";

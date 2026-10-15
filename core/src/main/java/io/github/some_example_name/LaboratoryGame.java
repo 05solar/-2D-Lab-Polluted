@@ -41,6 +41,13 @@ public class LaboratoryGame extends Game {
     @Override
     public void create() {
         assets = new GameAssets();
+        // 배경음악: 게임 시작부터 본부·연구소·화면 전환과 무관하게 무한 반복 재생.
+        // (개발 캡처 등 무음이 필요하면 LAB_MUTE_MUSIC=1)
+        if (!"1".equals(System.getenv("LAB_MUTE_MUSIC"))) {
+            assets.backgroundMusic().setLooping(true);
+            assets.backgroundMusic().setVolume(config.musicVolume);
+            assets.backgroundMusic().play();
+        }
         headquarters = HeadquartersLayout.create();
         // 개발용: LAB_DIFFICULTY=EASY|NORMAL|HARD 로 직접 난이도 맵을 띄운다(기본 EASY).
         String difficultyEnv = System.getenv("LAB_DIFFICULTY");

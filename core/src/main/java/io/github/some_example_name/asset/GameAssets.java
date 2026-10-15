@@ -43,6 +43,9 @@ public class GameAssets implements Disposable {
     private final LaboratoryStructureV4Assets structureV4;
     private final CombatSoundAssets combatSounds;
     private final CombatUiAssets combatUi;
+    // 배경음악: Sound와 달리 스트리밍되는 Music 인스턴스. 여기서 소유·해제하고
+    // 재생 시작(무한 반복)은 게임 루트가 한 번만 호출한다.
+    private final com.badlogic.gdx.audio.Music backgroundMusic;
     private final Texture minimapFrameTex, footprintsTex, returnButtonTex;
     private final TextureRegion minimapFrame, footprints, returnButton;
     private final Texture fadePixel;
@@ -82,6 +85,7 @@ public class GameAssets implements Disposable {
         structureV4 = new LaboratoryStructureV4Assets();
         combatSounds = new CombatSoundAssets();
         combatUi = new CombatUiAssets();
+        backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(AssetPaths.MUSIC_BACKGROUND));
         minimapFrameTex = loadTile(AssetPaths.NAV_MINIMAP_FRAME);
         footprintsTex = loadTile(AssetPaths.NAV_FOOTPRINTS);
         returnButtonTex = loadTile(AssetPaths.NAV_RETURN_BUTTON);
@@ -207,6 +211,7 @@ public class GameAssets implements Disposable {
     public LaboratoryStructureV4Assets structureV4() { return structureV4; }
     public CombatSoundAssets combatSounds() { return combatSounds; }
     public CombatUiAssets combatUi() { return combatUi; }
+    public com.badlogic.gdx.audio.Music backgroundMusic() { return backgroundMusic; }
     public TextureRegion minimapFrame() { return minimapFrame; }
     public TextureRegion footprints() { return footprints; }
     public TextureRegion returnRouteButton() { return returnButton; }
@@ -230,6 +235,7 @@ public class GameAssets implements Disposable {
         structureV4.dispose();
         combatSounds.dispose();
         combatUi.dispose();
+        backgroundMusic.dispose();
         minimapFrameTex.dispose();
         footprintsTex.dispose();
         returnButtonTex.dispose();

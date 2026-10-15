@@ -122,3 +122,6 @@
 - 전투 HUD: 우하단 공격(빈 키캡+실제 바인딩 라벨 SPACE)·돌진(dash_icon+key_f) 아이콘, 쿨다운 어둡기+가림+남은 초 코드 렌더, 리사이즈 대응.
 - 효과음 9종 연결(combat_loot_update_v1, 합성 CC0): 연타 press_low(기존 찰칵 대체)·개봉 open_heavy·타격 hit_01/02 교대(실제 피해만)·피격 hurt(무적 거절 제외)·사망 death(전환 1회)·문 열림 metal(닫힘→열림만)·공격 swing·돌진 whoosh. 타격음 80ms 창 3회 제한, 40ms 스로틀, 팀장 소음과 무관. 구 assets/sounds 2종은 사용 중단.
 - 에셋 등록: assets/combat_loot_update_v1(runtime/ui 4종, runtime/audio 9종, 카탈로그·라이선스) — CombatUiAssets/CombatSoundAssets가 GameAssets 생명주기에서 소유·해제.
+# 2026-10-15 컨테이너 효과음 V2 + 배경음악
+- 상자/캐비넷 조작음을 경쾌한 "상자 까기" 소리로 교체(assets/container_sfx_v2, 직접 합성 CC0): 연타=밝은 나무 걸쇠 '탁!'(0.12s), 개봉=걸쇠 팝→뚜껑 삐걱→상승 3음 차임 C6·E6·G6(0.74s). 재생 규칙(엣지 1회·40ms 스로틀·마스터 음량)은 동일.
+- 배경음악 추가: 사용자 제공 영상(제목 없는 디자인.mp4)에서 오디오 추출 → assets/music/background_music.ogg(3:20, OGG q5). GameAssets가 Music으로 소유·해제, 게임 시작 시 무한 반복 재생(맵 전환에도 연속), 음량 BalanceConfig.musicVolume=0.45, 무음 실행 LAB_MUTE_MUSIC=1.

@@ -32,8 +32,9 @@ public class BalanceConfig {
     /** 돌진 하위 이동 단계의 최대 길이(월드 단위) — 벽/가구 관통·중간 몬스터 건너뜀 방지. */
     public float dashSubstepLength = 0.3f;
 
-    // --- 효과음 ---
+    // --- 효과음·음악 ---
     public float sfxMasterVolume = 1f;            // 전체 효과음 음량(0..1)
+    public float musicVolume = 0.45f;             // 배경음악 음량(0..1, 효과음을 가리지 않게 낮게)
 
     // --- 몬스터(확정 HP / 임시 그 외) : 2단계 이후 사용, 확정값 중앙 관리용 ---
     public int slimeMaxHp = 20;                   // [확정]

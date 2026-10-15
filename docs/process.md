@@ -517,3 +517,14 @@ The requested archives are now extracted under `assets/laboratory_roomkits_v3/` 
 ### 미확인(사용자 핸즈온 필요)
 - 효과음 실제 청감(재생 호출·스로틀은 검증, 소리는 미청취). 실행 영상 녹화는 이 환경에서 불가(PNG 대체).
 - 키보드 실입력: 8방 돌진 체감, 벽/닫힌 문 차단, H 토글, 가방/일시정지 중 F 차단, 다수 몬스터 전투 체감.
+
+## 2026-10-15 — 컨테이너 효과음 V2 + 배경음악
+
+- `assets/container_sfx_v2/`: `generate_container_sfx_v2.py`(표준 라이브러리 합성, 시드 고정)로 press/open V2 생성.
+  press=노이즈 트랜지언트+나무 노크(620/1040/205Hz)+3.15kHz 틱, open=팝+280→700Hz 삐걱 스윕+C6·E6·G6 차임.
+  `AssetPaths.SOUND_CONTAINER_PRESS/OPEN`만 교체(재생 규칙·스로틀 불변).
+- `assets/music/background_music.ogg`: imageio-ffmpeg 번들 ffmpeg로 mp4 오디오 트랙 추출(libvorbis q5).
+  `GameAssets.backgroundMusic()`(Music, dispose 포함) + `LaboratoryGame.create()`에서 setLooping(true)·volume 0.45·play —
+  화면 전환과 무관하게 연속 반복. `LAB_MUTE_MUSIC=1`로 끌 수 있음.
+- 검증: core:test 133·lwjgl3:build 통과. 실행 스모크(AUTO_PRESS)에서 OGG 로드·press×4/open×1 재생 호출 예외 없음.
+  실제 청감(경쾌함 체감·음악 음량 밸런스)은 사용자 핸즈온 필요.
