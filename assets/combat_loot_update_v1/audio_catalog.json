@@ -1,0 +1,98 @@
+{
+  "license": "CC0-1.0",
+  "generation": "original procedural synthesis; no third-party samples",
+  "sampleRate": 44100,
+  "files": [
+    {
+      "id": "container_press_low",
+      "file": "runtime/audio/container_press_low.wav",
+      "durationSeconds": 0.18,
+      "sampleRate": 44100,
+      "channels": 1,
+      "format": "PCM16 WAV",
+      "defaultVolume": 0.45,
+      "description": "낮고 짧은 금속 잠금장치 찰칵. 유효 연타 입력 1회당 재생"
+    },
+    {
+      "id": "container_open_heavy",
+      "file": "runtime/audio/container_open_heavy.wav",
+      "durationSeconds": 0.55,
+      "sampleRate": 44100,
+      "channels": 1,
+      "format": "PCM16 WAV",
+      "defaultVolume": 0.6,
+      "description": "둔탁한 잠금 해제·뚜껑 열림. 개봉 완료 때 한 번"
+    },
+    {
+      "id": "monster_hit_01",
+      "file": "runtime/audio/monster_hit_01.wav",
+      "durationSeconds": 0.25,
+      "sampleRate": 44100,
+      "channels": 1,
+      "format": "PCM16 WAV",
+      "defaultVolume": 0.48,
+      "description": "몬스터에게 실제 피해가 적용됐을 때 타격음 변형"
+    },
+    {
+      "id": "monster_hit_02",
+      "file": "runtime/audio/monster_hit_02.wav",
+      "durationSeconds": 0.25,
+      "sampleRate": 44100,
+      "channels": 1,
+      "format": "PCM16 WAV",
+      "defaultVolume": 0.48,
+      "description": "몬스터에게 실제 피해가 적용됐을 때 타격음 변형"
+    },
+    {
+      "id": "player_hurt",
+      "file": "runtime/audio/player_hurt.wav",
+      "durationSeconds": 0.32,
+      "sampleRate": 44100,
+      "channels": 1,
+      "format": "PCM16 WAV",
+      "defaultVolume": 0.6,
+      "description": "플레이어 체력이 실제 감소했을 때 둔탁한 피격·장비 진동"
+    },
+    {
+      "id": "player_death",
+      "file": "runtime/audio/player_death.wav",
+      "durationSeconds": 1.05,
+      "sampleRate": 44100,
+      "channels": 1,
+      "format": "PCM16 WAV",
+      "defaultVolume": 0.7,
+      "description": "쓰러지는 두 번의 낮은 충격과 짧은 장비 흔들림. 비언어 사망 효과음"
+    },
+    {
+      "id": "door_open_metal",
+      "file": "runtime/audio/door_open_metal.wav",
+      "durationSeconds": 1.06,
+      "sampleRate": 44100,
+      "channels": 1,
+      "format": "PCM16 WAV",
+      "defaultVolume": 0.55,
+      "description": "금속문 잠금 해제·모터 슬라이드·끝 걸림. 닫힘→열림 때 한 번"
+    },
+    {
+      "id": "attack_swing",
+      "file": "runtime/audio/attack_swing.wav",
+      "durationSeconds": 0.2,
+      "sampleRate": 44100,
+      "channels": 1,
+      "format": "PCM16 WAV",
+      "defaultVolume": 0.3,
+      "description": "근접 공격 시작 때의 짧은 휘두름"
+    },
+    {
+      "id": "dash_whoosh",
+      "file": "runtime/audio/dash_whoosh.wav",
+      "durationSeconds": 0.28,
+      "sampleRate": 44100,
+      "channels": 1,
+      "format": "PCM16 WAV",
+      "defaultVolume": 0.45,
+      "description": "돌진 발동 때 짧고 낮은 바람 소리"
+    }
+  ],
+  "playback": "Use event-driven Sound playback; apply catalog default volume times master SFX volume. Avoid adding additional heavy pitch-down to already lowered container sounds."
+}

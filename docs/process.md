@@ -482,3 +482,38 @@ The requested archives are now extracted under `assets/laboratory_roomkits_v3/` 
   두 캐비넷 사이 시선 선택 체감, 가방 가득 D 교체와 연타의 상호작용 실플레이.
 - 실행 영상 녹화는 이 환경에서 불가(프레임 PNG로 대체). 재현:
   `LAB_START_LAB=1 LAB_DIFFICULTY=EASY LAB_START_ROOM=LIBRARY ./gradlew.bat lwjgl3:run` 후 캐비넷 앞 SPACE 연타.
+
+## 2026-10-15 — 전투·전리품 업데이트 V1 (combat_loot_update_v1 적용)
+
+### 에셋·구조
+- `assets/combat_loot_update_v1/` 설치(runtime/ui 4종·runtime/audio 9종·카탈로그·라이선스).
+  `CombatUiAssets`·`CombatSoundAssets`가 로드/해제(GameAssets 소유, 프레임 로드 없음). 구 `ContainerSoundAssets`·`sounds/` 2종 사용 중단.
+- `BalanceConfig` 추가: killHealHp=20, dash(3타일/0.18s/3s/substep 0.3/히트 패딩 0.12), sfxMasterVolume,
+  easy*BaseCount(3/2/1/1)+easyMonsterMultiplier=8(항상 기준값에서 재계산 → 재입장 중복 곱 없음), spawnAttempts 5000.
+
+### 구현 핵심
+1. 컨테이너 배치: `LaboratoryLayout.placeContainer` — 벽45/구석25/가구옆20/중앙10 가중 추첨(빈 분류 재배분),
+   문 체비쇼프 2칸·footprint 바닥·가구/상호 2.2 회피·서기 지점(0.6×0.5) 보장·캐비넷 북벽 전용. easy+variant 공통.
+2. SPACE 안내: `LootAssets.opaqueTopRatio`(로드 시 닫힘 프레임 알파 상단 1회 측정) + 화면 6px→월드 환산 간격.
+3. 공개 연출: `ContainerInteractionRenderer.onReveal/renderReveal` — 등급 테두리 아이콘 1.12(2배) easeOut 상승→정지→페이드,
+   드롭은 `findDropSpot`(8방 접근 가능 바닥)으로 분리. 중복 생성 없음.
+4. EASY 8배: `MonsterSpawnSystem` 3×3 선호 + 셀 단위 예비 후보 분산, 문 3×3 제외, 종류별 수 로그.
+   성능: room.obstacles() 복사 유지(안전 계약) + `CombatCollisionGrid` 정적 스냅샷 캐시. 56마리 avg 16.7ms.
+5. 처치 회복: `CombatSystem.applyPlayerStrike`(공격·돌진 공용) — 사망 전환만 +20, `Player.heal` 최대/사망 가드.
+6. F 돌진: `PlayerDashState`(순수 Java) + 화면에서 room 그리드로 하위 단계 충돌·몬스터 통과 타격. 귀환 토글 F→H
+   (`GameAction.DASH/RETURN_ROUTE`), RunStartDetector와 분리.
+7. 전투 HUD: `CombatHudRenderer` 우하단, 실제 ATTACK 바인딩 라벨, 쿨다운 어둡기+가림+남은 초 코드 렌더.
+8. 효과음: 이벤트 1회 재생(press/open/hit×2 교대/hurt/death/door/swing/dash), 40ms 스로틀, 타격음 80ms 창 3회 제한,
+   카탈로그 음량×마스터. 플레이어 피격/사망은 프레임 HP 비교 엣지로 감지(무적 거절·사망 반복 재생 없음).
+
+### 검증
+- core:test 133개 0 fail(신규: PlayerDashStateTest·KillHealTest·ContainerPlacementTest, 확장: DifficultyLayoutTest),
+  lwjgl3:build 성공.
+- 실행: EASY `spawned SLIME=24 RESEARCHER=16 GUARD=8 TEAM_LEADER=8`, LAB_PERF 56마리 avg 16.68~17.59ms(~60fps).
+- 실프레임: combat_update_press_prompt.png(근접 안내+4/5+발광+HUD), combat_update_reveal_opened.png(2배 공개+분리 드롭),
+  combat_update_dash_cooldown.png(쿨다운 2.8s 표시), frame_001_lab_w128h96_ui.png(8배 몬스터 전체 맵).
+- AutoDash 로그: 37.5→39.17(0.1s, 등속 16.67타일/s 일치), cooldown 2.9 진행.
+
+### 미확인(사용자 핸즈온 필요)
+- 효과음 실제 청감(재생 호출·스로틀은 검증, 소리는 미청취). 실행 영상 녹화는 이 환경에서 불가(PNG 대체).
+- 키보드 실입력: 8방 돌진 체감, 벽/닫힌 문 차단, H 토글, 가방/일시정지 중 F 차단, 다수 몬스터 전투 체감.

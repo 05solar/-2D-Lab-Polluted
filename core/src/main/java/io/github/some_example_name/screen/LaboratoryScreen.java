@@ -15,6 +15,7 @@ import io.github.some_example_name.combat.CombatSystem;
 import io.github.some_example_name.combat.MonsterAiSystem;
 import io.github.some_example_name.combat.PlayerAttackState;
 import io.github.some_example_name.combat.PlayerCombatState;
+import io.github.some_example_name.combat.PlayerDashState;
 import io.github.some_example_name.config.BalanceConfig;
 import io.github.some_example_name.entity.Direction;
 import io.github.some_example_name.entity.monster.Monster;
@@ -32,6 +33,7 @@ import io.github.some_example_name.render.CombatRenderer;
 import io.github.some_example_name.render.DebugRenderer;
 import io.github.some_example_name.render.EntityRenderer;
 import io.github.some_example_name.render.MonsterRenderer;
+import io.github.some_example_name.render.CombatHudRenderer;
 import io.github.some_example_name.render.PlayerHudRenderer;
 import io.github.some_example_name.render.TileDebugRenderer;
 import io.github.some_example_name.render.WorldRenderer;
@@ -46,7 +48,10 @@ import io.github.some_example_name.world.LootContainer;
 import io.github.some_example_name.world.LootDrop;
 import io.github.some_example_name.world.LootContainerPlacement;
 import io.github.some_example_name.world.Door;
+import io.github.some_example_name.world.DoorState;
 import io.github.some_example_name.inventory.LootItem;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.ArrayList;
@@ -66,7 +71,8 @@ public class LaboratoryScreen extends BaseScreen {
     private final Player player;
     private final List<Monster> monsters;
     private final InputState inputState = new InputState();
-    private final GdxPlayerInput input = new GdxPlayerInput(KeyBindings.defaults());
+    private final KeyBindings bindings = KeyBindings.defaults();
+    private final GdxPlayerInput input = new GdxPlayerInput(bindings);
     private final PlayerController controller = new PlayerController();
     private final MovementSystem movementSystem;
     private final CombatCollisionGrid playerGrid;
@@ -103,6 +109,16 @@ public class LaboratoryScreen extends BaseScreen {
         new io.github.some_example_name.render.ContainerInteractionRenderer();
     private LootContainer promptTarget;        // 이번 프레임 상호작용 대상(안내 표시용)
     private float containerGlowHeight = 1f;    // 마지막 유효 입력 대상의 표시 높이(발광 반경 기준)
+    // F 돌진: 별도 상태(달리기 RunStartDetector와 분리). 쿨다운·방향·대상당 1회 피해를 관리한다.
+    private final PlayerDashState dash;
+    private final CollisionSystem dashCollision = new CollisionSystem();
+    private final Rectangle dashHitArea = new Rectangle();
+    private final CombatHudRenderer combatHud = new CombatHudRenderer();
+    private final String attackKeyLabel;
+    // LAB_PERF=1: 프레임 시간(avg/max)·몬스터 수를 120프레임마다 기록(EASY 8배 성능 측정).
+    private final boolean perfLog = "1".equals(System.getenv("LAB_PERF"));
+    private float perfAccum, perfMax;
+    private int perfFrames;
 
     public LaboratoryScreen(LaboratoryGame game, GameAssets assets, LaboratoryLayout layout,
                             PlayerSessionState session, List<Monster> monsters, BalanceConfig config) {
@@ -139,6 +155,17 @@ public class LaboratoryScreen extends BaseScreen {
         // 모든 난이도 맵의 벽·문을 V4 규격으로 논리 점유에서 직접 그린다(구형 스킨/Interior/Exterior 링 대체).
         worldRenderer.setLaboratoryStructureV4(
             new io.github.some_example_name.render.LaboratoryStructureRendererV4(assets.structureV4()), room);
+        dash = new PlayerDashState(config.dashDistanceTiles, config.dashDurationSeconds,
+            config.dashCooldownSeconds);
+        // 몬스터에 실제 피해가 적용된 순간에만 타격음(허공 공격은 스윙음만).
+        combatSystem.setStrikeListener(new io.github.some_example_name.combat.CombatSystem.StrikeListener() {
+            @Override public void onMonsterStruck(Monster monster, boolean killed) {
+                assets.combatSounds().playMonsterHit();
+            }
+        });
+        assets.combatSounds().setMasterVolume(config.sfxMasterVolume);
+        // 공격 HUD 키캡 라벨은 실제 바인딩에서 읽는다(임의 재지정 금지).
+        attackKeyLabel = bindings.primaryKeyName(GameAction.ATTACK).toUpperCase();
         dumpResolvedGridIfRequested();
         updateCamera();
     }
@@ -174,8 +201,9 @@ public class LaboratoryScreen extends BaseScreen {
         if (active && Gdx.input.isKeyJustPressed(Input.Keys.F2)) tileDebugEnabled = !tileDebugEnabled;
         // F12: 현재 프레임을 PNG로 저장(실제 렌더 검증). F1 켜면 충돌 디버그 포함 프레임이 저장된다.
         boolean captureRequested = active && Gdx.input.isKeyJustPressed(Input.Keys.F12);
-        if (active && Gdx.input.isKeyJustPressed(Input.Keys.F)) routeEnabled = !routeEnabled;
-        // 미니맵 아래 귀환 버튼 클릭도 F와 동일하게 대문 발자국 경로를 토글한다.
+        // 귀환 경로 토글은 H(이전 F — F는 이제 돌진 전용이라 한 키에 두 기능이 겹치지 않는다).
+        if (active && inputState.isPressed(GameAction.RETURN_ROUTE)) routeEnabled = !routeEnabled;
+        // 미니맵 아래 귀환 버튼 클릭도 H와 동일하게 대문 발자국 경로를 토글한다.
         if (active && !backpackOpen && !paused && Gdx.input.justTouched()
             && navigationRenderer.buttonHit(Gdx.input.getX(), Gdx.input.getY()))
             routeEnabled = !routeEnabled;
@@ -186,27 +214,52 @@ public class LaboratoryScreen extends BaseScreen {
         boolean runStarted = false;
         float animDelta = paused || transitionLocked || backpackOpen ? 0f : dt;
         if (!paused && !transitionLocked && !backpackOpen && !player.isDead()) {
+            int hpBefore = player.hp();
             PlayerIntent intent = controller.intentFrom(player, inputState);
             boolean spaceInteract = Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
                 && hasNearbyInteractable();
             if (spaceInteract && intent.attack)
                 intent = new PlayerIntent(intent.moveX, intent.moveY, intent.run, false, intent.interact);
-            if (intent.attack) playerCombat.attack().start(player.facing());
+            // F 돌진: 엣지 입력만(누르고 있어도 재발동 없음). 쿨다운 중이면 tryStart가 거부해
+            // 이동/피해/효과음이 모두 발생하지 않는다. 사망/일시정지/가방/전환 중에는 이
+            // 블록에 들어오지 않아 입력이 차단된다.
+            if (inputState.isPressed(GameAction.DASH)
+                && dash.tryStart(intent.moveX, intent.moveY, player.facing())) {
+                Direction dashFacing = Direction.fromInput(dash.dirX(), dash.dirY());
+                if (dashFacing != null) player.setFacing(dashFacing);
+                assets.combatSounds().playDash();
+            }
+            if (intent.attack && playerCombat.attack().start(player.facing()))
+                assets.combatSounds().playAttackSwing();
             playerGrid.forPlayer(monsters);
             float previousFeetY = player.feetY();
-            runStarted = movementSystem.update(player, intent, playerGrid, dt);
+            float dashStep = dash.advance(dt);
+            if (dashStep > 0f) {
+                // 돌진은 MovementSystem과 별개 상태로 처리해 Shift 달리기 시작(소음) 이벤트가
+                // 중복 발생하지 않는다. 몬스터는 통과하며 경로 전체에 타격 판정만 받는다.
+                performDashMovement(dashStep);
+                player.setMoving(true);
+            } else {
+                runStarted = movementSystem.update(player, intent, playerGrid, dt);
+            }
             updateLoot(animDelta, intent.interact || spaceInteract,
                 Gdx.input.isKeyJustPressed(Input.Keys.D));
-            if (room.crossedSouthExit(previousFeetY, player.feetY(), player.feetX(), intent.moveY))
+            // 남쪽 복귀 트리거: 돌진으로 대문을 통과해도 걷기와 동일하게 1회 발동한다.
+            float exitMoveY = dashStep > 0f ? dash.dirY() : intent.moveY;
+            if (room.crossedSouthExit(previousFeetY, player.feetY(), player.feetX(), exitMoveY))
                 game.transition().request(io.github.some_example_name.world.MapId.HEADQUARTERS);
             playerCombat.update(dt);
             monsterAi.update(monsters, player, playerCombat, room, assets.monsterAnimations(), runStarted, dt);
             if (player.isDead()) {
                 movementSystem.stop(player);
                 playerCombat.attack().cancel();
+                dash.cancel();
             } else {
                 combatSystem.updatePlayerAttack(player, playerCombat, assets.playerAnimations(), monsters, room, dt);
             }
+            // 피격/사망 효과음: 실제 HP 감소(무적 거절 제외)에 1회, 살아 있음→사망 전환에 1회.
+            if (hpBefore > 0 && player.isDead()) assets.combatSounds().playPlayerDeath();
+            else if (player.hp() < hpBefore) assets.combatSounds().playPlayerHurt();
         } else {
             player.setMoving(false);
         }
@@ -248,9 +301,14 @@ public class LaboratoryScreen extends BaseScreen {
         entityRenderer.render(batch, player, animDelta, playerCombat.attack(),
             config.playerAttackCooldownSeconds);
         worldRenderer.renderForegroundProps(batch, visuals, camera, player.feetY());
+        // 아이템 공개 연출: 컨테이너/가구에 가려지지 않는 월드 효과 레이어(HUD보다 아래).
+        containerFx.renderReveal(batch);
         // SPACE 안내는 가구/플레이어 위에 그려 항상 읽히게 한다(열린 컨테이너는 표시 안 함).
+        // 기준점은 PNG 캔버스가 아니라 측정된 불투명 그림 상단 + 화면 6px 환산 간격.
         if (promptTarget != null)
-            containerFx.renderPrompt(batch, promptTarget, containerDrawSize(promptTarget.id()),
+            containerFx.renderPrompt(batch, promptTarget,
+                containerDrawSize(promptTarget.id()) * assets.loot().opaqueTopRatio(promptTarget.id()),
+                promptGapWorld(),
                 assets.headquarters().promptFrame(1), assets.headquarters().promptFrame(2));
         batch.end();
         if (exteriorRing)
@@ -267,9 +325,12 @@ public class LaboratoryScreen extends BaseScreen {
             combatRenderer.renderDebug(camera, player, monsters, playerCombat.attack(), config, room);
         }
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        if (!overviewMode)
+        if (!overviewMode) {
             hud.render(assets.hud(), assets.loot(), assets.fadePixel(), player,
                 session.backpack(), backpackOpen, dt);
+            // 돌진/공격 키 안내(우하단) — HP(좌상단)·R 안내(좌하단)·미니맵(우상단)과 분리.
+            combatHud.render(assets.combatUi(), assets.fadePixel(), attackKeyLabel, dash);
+        }
         renderFade(batch, viewport);
         // Some blended debug/font pixels can lower the default framebuffer's
         // alpha. Restore opacity without touching the rendered RGB image so
@@ -278,6 +339,18 @@ public class LaboratoryScreen extends BaseScreen {
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glColorMask(true, true, true, true);
+        // LAB_PERF=1: 몬스터 수 증가(EASY 8배)에 따른 프레임 시간 측정(120프레임 평균/최대).
+        if (perfLog) {
+            perfAccum += delta;
+            perfMax = Math.max(perfMax, delta);
+            if (++perfFrames >= 120) {
+                Gdx.app.log("Perf", String.format(
+                    "monsters=%d avgFrame=%.2fms maxFrame=%.2fms (~%.0f fps)",
+                    monsters.size(), perfAccum / perfFrames * 1000f, perfMax * 1000f,
+                    perfFrames / perfAccum));
+                perfAccum = 0f; perfMax = 0f; perfFrames = 0;
+            }
+        }
         if (captureRequested)
             io.github.some_example_name.render.FrameCapture.capture(
                 "lab_" + difficultyTag() + (debugEnabled ? "_collision" : "_ui"));
@@ -294,17 +367,34 @@ public class LaboratoryScreen extends BaseScreen {
                         containerGlowHeight = containerDrawSize(target.id());
                         boolean opened = result == LootContainer.PressResult.OPENED;
                         containerFx.onValidPress(target, opened);
-                        if (opened) assets.containerSounds().playUnlock();
-                        else assets.containerSounds().playClick();
+                        if (opened) assets.combatSounds().playContainerOpen();
+                        else assets.combatSounds().playContainerPress();
                         Gdx.app.log("AutoPress", target.id() + " " + result
                             + " " + target.presses() + "/" + target.requiredPresses());
                     }
                 }
             }
-            int uiFrame = autoPress ? 38 : 30;      // 연타 직후(펄스 진행 중) 프레임을 저장
+            // LAB_AUTO_DASH=1: 실제 돌진을 발동해 이동·쿨다운 HUD를 렌더 프레임으로 검증한다.
+            if ("1".equals(System.getenv("LAB_AUTO_DASH"))) {
+                if (autoCaptureFrame == 20) {
+                    float beforeX = player.feetX(), beforeY = player.feetY();
+                    if (dash.tryStart(1f, 0f, player.facing()))
+                        Gdx.app.log("AutoDash", "started at " + beforeX + "," + beforeY);
+                }
+                if (autoCaptureFrame == 26) {
+                    Gdx.app.log("AutoDash", "now at " + player.feetX() + "," + player.feetY()
+                        + " cooldown=" + dash.cooldownRemaining());
+                    io.github.some_example_name.render.FrameCapture.capture(
+                        "lab_" + difficultyTag() + "_dash");
+                }
+            }
+            int uiFrame = autoPress ? 32 : 30;      // 4번째 연타 직후(개봉 전, 안내+카운트 표시 중)
             int debugOn = autoPress ? 52 : 32;
             int debugFrame = autoPress ? 62 : 42;
             int exitFrame = autoPress ? 100 : 46;   // 개봉 애니메이션/드롭까지 관찰
+            String exitOverride = System.getenv("LAB_EXIT_AFTER");
+            if (exitOverride != null) try { exitFrame = Integer.parseInt(exitOverride.trim()); }
+                catch (NumberFormatException ignored) { }
             if (autoCaptureFrame == uiFrame)
                 io.github.some_example_name.render.FrameCapture.capture("lab_" + difficultyTag() + "_ui");
             if (autoPress && autoCaptureFrame == 90)
@@ -344,13 +434,24 @@ public class LaboratoryScreen extends BaseScreen {
     private void updateLoot(float delta, boolean interactPressed, boolean dropPressed) {
         for (LootContainer chest : lootContainers) {
             LootItem reward=chest.update(delta);
-            if(reward!=null) lootDrops.add(new LootDrop(reward,chest.x(),chest.y()));
+            if(reward!=null) {
+                // 실제 드롭은 접근 가능한 바닥 지점에(벽 뒤/공중 금지), 공개 연출은 상자 위에.
+                // 연출용 아이콘과 드롭은 같은 reward 하나를 공유한다(중복 생성 없음).
+                Vector2 dropAt = findDropSpot(chest);
+                lootDrops.add(new LootDrop(reward, dropAt.x, dropAt.y));
+                float opaqueTop = containerDrawSize(chest.id())
+                    * assets.loot().opaqueTopRatio(chest.id());
+                containerFx.onReveal(assets.loot().itemFramed(reward), chest.x(),
+                    chest.y() + opaqueTop * .55f, chest.y() + opaqueTop + .25f);
+            }
         }
         if (!interactPressed && !dropPressed) return;
         float px=player.feetX(), py=player.feetY();
         // 대문 근처에서 SPACE: 닫힘↔열림 토글(열려야 남쪽 통로로 본부 복귀 가능).
         if (interactPressed && nearGate(px, py)) {
-            room.setGateClosed(!room.gateClosed());
+            boolean wasClosed = room.gateClosed();
+            room.setGateClosed(!wasClosed);
+            if (wasClosed) assets.combatSounds().playDoorOpen(); // 닫힘→열림에만 1회
             return;
         }
         // 연타 개봉: 바라보는 가장 가까운 미개봉 컨테이너 하나에만 입력이 들어간다.
@@ -363,8 +464,8 @@ public class LaboratoryScreen extends BaseScreen {
                 containerGlowHeight = containerDrawSize(target.id());
                 boolean opened = result == LootContainer.PressResult.OPENED;
                 containerFx.onValidPress(target, opened);
-                if (opened) assets.containerSounds().playUnlock();
-                else assets.containerSounds().playClick();
+                if (opened) assets.combatSounds().playContainerOpen();
+                else assets.combatSounds().playContainerPress();
             }
             return;
         }
@@ -376,7 +477,12 @@ public class LaboratoryScreen extends BaseScreen {
         if(nearest==null) {
             if (interactPressed) {
                 Door door = room.nearestDoor(px, py, 1.45f);
-                if (door != null) door.toggle();
+                if (door != null) {
+                    boolean wasClosed = door.state() == DoorState.CLOSED;
+                    door.toggle();
+                    // 닫힘→열림 전환에만 재생(같은 문 상태 갱신마다 반복하지 않는다).
+                    if (wasClosed) assets.combatSounds().playDoorOpen();
+                }
             }
             return;
         }
@@ -396,6 +502,64 @@ public class LaboratoryScreen extends BaseScreen {
         }
         lootDrops.removeIf(LootDrop::collected);
 
+    }
+
+    /**
+     * 돌진 이동: 설정된 최대 하위 단계 길이(dashSubstepLength)로 나눠 이동·충돌·타격을
+     * 반복한다 — 벽/닫힌 문/가구를 관통하지 않고, 이동 구간 중간의 몬스터도 건너뛰지 않는다.
+     * 몬스터는 충돌 대상이 아니라 통과하며(돌진 관통), 대상당 1회만 피해를 받는다.
+     * 돌진 무적은 별도 요구가 없어 추가하지 않았다.
+     */
+    private void performDashMovement(float distance) {
+        int substeps = Math.max(1, (int) Math.ceil(distance / config.dashSubstepLength));
+        float sub = distance / substeps;
+        float dirX = dash.dirX(), dirY = dash.dirY();
+        for (int i = 0; i < substeps; i++) {
+            io.github.some_example_name.collision.CollisionResult result =
+                dashCollision.resolve(player.bounds(), dirX * sub, dirY * sub, room);
+            player.bounds().setPosition(result.x, result.y);
+            applyDashHits();
+            boolean blockedX = result.hitX && dirX != 0f, blockedY = result.hitY && dirY != 0f;
+            // 정면이 완전히 막히면 종료(쿨다운 유지). 대각선은 한 축이 열려 있으면 미끄러진다.
+            if ((dirY == 0f && blockedX) || (dirX == 0f && blockedY) || (blockedX && blockedY)) {
+                dash.interrupt();
+                return;
+            }
+        }
+    }
+
+    /** 돌진 경로 위 몬스터 타격: 일반 공격과 같은 피해·넉백·사망·처치 회복 경로를 쓴다. */
+    private void applyDashHits() {
+        float pad = config.dashHitPadding;
+        Rectangle b = player.bounds();
+        dashHitArea.set(b.x - pad, b.y - pad, b.width + pad * 2f, b.height + pad * 2f);
+        for (Monster monster : monsters) {
+            if (!monster.isAlive() || !dashHitArea.overlaps(monster.bounds())) continue;
+            if (!dash.markHit(monster.id())) continue; // 한 돌진에서 같은 몬스터는 1회만
+            combatSystem.applyPlayerStrike(player, monster, dash.dirX(), dash.dirY());
+        }
+    }
+
+    /**
+     * 개봉 보상이 떨어질 접근 가능한 바닥 지점. 컨테이너 주변 8방을 돌며 플레이어 크기의
+     * 몸체가 설 수 있는(벽/가구/컨테이너 footprint 밖) 첫 지점을 고른다 — 벽 뒤나 장애물
+     * 위에 떨어져 획득 불가가 되는 문제를 막는다. 모두 막히면 기존처럼 컨테이너 발밑.
+     */
+    private Vector2 findDropSpot(LootContainer chest) {
+        float[][] offsets = {{0f, -.95f}, {-.95f, 0f}, {.95f, 0f}, {0f, .95f},
+            {-.7f, -.7f}, {.7f, -.7f}, {-.7f, .7f}, {.7f, .7f}};
+        for (float[] offset : offsets) {
+            float x = chest.x() + offset[0], y = chest.y() + offset[1];
+            if (!room.blocksActorAt(x, y, .5f, .4f)) return new Vector2(x, y);
+        }
+        return new Vector2(chest.x(), chest.y());
+    }
+
+    /** SPACE 안내 간격: 화면 6px(4~8px 시작값)를 현재 카메라 배율로 환산한 월드 거리. */
+    private float promptGapWorld() {
+        int screenWidth = viewport.getScreenWidth();
+        if (screenWidth <= 0) return 0.1f;
+        return 6f * camera.viewportWidth / screenWidth;
     }
 
     private boolean hasNearbyInteractable() {
@@ -477,6 +641,7 @@ public class LaboratoryScreen extends BaseScreen {
         debugRenderer.dispose();
         tileDebugRenderer.dispose();
         hud.dispose();
+        combatHud.dispose();
         navigationRenderer.dispose();
         exteriorWalls.dispose();
         containerFx.dispose();

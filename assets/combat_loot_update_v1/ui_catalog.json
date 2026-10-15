@@ -1,0 +1,90 @@
+{
+  "textureFilter": "Nearest",
+  "files": [
+    {
+      "file": "runtime/ui/key_f_64.png",
+      "size": [
+        64,
+        64
+      ],
+      "origin": "top-left",
+      "sourceRegion": [
+        0,
+        0,
+        639,
+        550
+      ],
+      "sourceContentBBox": [
+        166,
+        114,
+        558,
+        500
+      ]
+    },
+    {
+      "file": "runtime/ui/key_blank_64.png",
+      "size": [
+        64,
+        64
+      ],
+      "origin": "top-left",
+      "sourceRegion": [
+        639,
+        0,
+        1278,
+        550
+      ],
+      "sourceContentBBox": [
+        83,
+        114,
+        474,
+        500
+      ]
+    },
+    {
+      "file": "runtime/ui/dash_icon_128.png",
+      "size": [
+        128,
+        128
+      ],
+      "origin": "top-left",
+      "sourceRegion": [
+        0,
+        550,
+        639,
+        1230
+      ],
+      "sourceContentBBox": [
+        74,
+        37,
+        608,
+        558
+      ]
+    },
+    {
+      "file": "runtime/ui/attack_icon_128.png",
+      "size": [
+        128,
+        128
+      ],
+      "origin": "top-left",
+      "sourceRegion": [
+        639,
+        550,
+        1278,
+        1230
+      ],
+      "sourceContentBBox": [
+        32,
+        37,
+        566,
+        558
+      ]
+    }
+  ],
+  "dashKey": "F",
+  "returnRouteKey": "H",
+  "attackKey": "resolve existing binding, draw label over key_blank_64.png",
+  "dashCooldownSeconds": 3,
+  "cooldownRendering": "Runtime overlay and countdown text on dash icon; do not bake fixed numeric textures."
+}

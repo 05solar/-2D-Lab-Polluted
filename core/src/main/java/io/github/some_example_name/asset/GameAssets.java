@@ -41,7 +41,8 @@ public class GameAssets implements Disposable {
     private final PlayerHudAssets hudAssets;
     private final ExteriorWallAssets exteriorWalls;
     private final LaboratoryStructureV4Assets structureV4;
-    private final ContainerSoundAssets containerSounds;
+    private final CombatSoundAssets combatSounds;
+    private final CombatUiAssets combatUi;
     private final Texture minimapFrameTex, footprintsTex, returnButtonTex;
     private final TextureRegion minimapFrame, footprints, returnButton;
     private final Texture fadePixel;
@@ -79,7 +80,8 @@ public class GameAssets implements Disposable {
         hudAssets = new PlayerHudAssets();
         exteriorWalls = new ExteriorWallAssets();
         structureV4 = new LaboratoryStructureV4Assets();
-        containerSounds = new ContainerSoundAssets();
+        combatSounds = new CombatSoundAssets();
+        combatUi = new CombatUiAssets();
         minimapFrameTex = loadTile(AssetPaths.NAV_MINIMAP_FRAME);
         footprintsTex = loadTile(AssetPaths.NAV_FOOTPRINTS);
         returnButtonTex = loadTile(AssetPaths.NAV_RETURN_BUTTON);
@@ -203,7 +205,8 @@ public class GameAssets implements Disposable {
     public PlayerHudAssets hud() { return hudAssets; }
     public ExteriorWallAssets exteriorWalls() { return exteriorWalls; }
     public LaboratoryStructureV4Assets structureV4() { return structureV4; }
-    public ContainerSoundAssets containerSounds() { return containerSounds; }
+    public CombatSoundAssets combatSounds() { return combatSounds; }
+    public CombatUiAssets combatUi() { return combatUi; }
     public TextureRegion minimapFrame() { return minimapFrame; }
     public TextureRegion footprints() { return footprints; }
     public TextureRegion returnRouteButton() { return returnButton; }
@@ -225,7 +228,8 @@ public class GameAssets implements Disposable {
         hudAssets.dispose();
         exteriorWalls.dispose();
         structureV4.dispose();
-        containerSounds.dispose();
+        combatSounds.dispose();
+        combatUi.dispose();
         minimapFrameTex.dispose();
         footprintsTex.dispose();
         returnButtonTex.dispose();

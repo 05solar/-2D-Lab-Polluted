@@ -20,6 +20,20 @@ public class BalanceConfig {
     public float playerAttackWidth = 0.8f;
     public float playerBoundsWidth = 0.6f;        // [임시값] 충돌 박스 폭(월드 단위)
     public float playerBoundsHeight = 0.5f;       // [임시값] 충돌 박스 높이(발밑 기준)
+    /** 몬스터 처치 1마리당 HP 회복량(최대 HP 제한, 사망자 부활 없음). [확정] */
+    public int killHealHp = 20;
+
+    // --- 돌진(F) ---
+    public float dashDistanceTiles = 3f;          // [확정] 초기 돌진 거리(타일)
+    public float dashDurationSeconds = 0.18f;     // [확정] 돌진 지속 시간
+    public float dashCooldownSeconds = 3f;        // [확정] 발동 순간부터의 쿨다운
+    /** 돌진 타격 판정의 몸체 확장(월드 단위). 스치는 몬스터도 닿은 것으로 본다. */
+    public float dashHitPadding = 0.12f;
+    /** 돌진 하위 이동 단계의 최대 길이(월드 단위) — 벽/가구 관통·중간 몬스터 건너뜀 방지. */
+    public float dashSubstepLength = 0.3f;
+
+    // --- 효과음 ---
+    public float sfxMasterVolume = 1f;            // 전체 효과음 음량(0..1)
 
     // --- 몬스터(확정 HP / 임시 그 외) : 2단계 이후 사용, 확정값 중앙 관리용 ---
     public int slimeMaxHp = 20;                   // [확정]
@@ -46,11 +60,20 @@ public class BalanceConfig {
     public float knockbackSeconds = 0.12f;
     public float playerKnockbackDistance = 0.28f;
     public float monsterKnockbackDistance = 0.2f;
-    public int slimeSpawnCount = 3;
-    public int researcherSpawnCount = 2;
-    public int guardSpawnCount = 1;
-    public int teamLeaderSpawnCount = 1;
-    public int monsterSpawnAttempts = 500;
+    // EASY 종류별 "기준" 생성 수(변경 전 원본값 — 배수 계산의 단일 근거).
+    // applyDifficulty(EASY)는 항상 기준값×easyMonsterMultiplier로 다시 계산하므로
+    // 입장/재생성을 반복해도 이미 늘린 수에 다시 곱해지지 않는다.
+    public int easySlimeBaseCount = 3;            // [확정]
+    public int easyResearcherBaseCount = 2;       // [확정]
+    public int easyGuardBaseCount = 1;            // [확정]
+    public int easyTeamLeaderBaseCount = 1;       // [확정]
+    /** EASY 전용 몬스터 생성 배수. NORMAL/HARD에는 적용하지 않는다. [확정] */
+    public int easyMonsterMultiplier = 8;
+    public int slimeSpawnCount = easySlimeBaseCount * easyMonsterMultiplier;
+    public int researcherSpawnCount = easyResearcherBaseCount * easyMonsterMultiplier;
+    public int guardSpawnCount = easyGuardBaseCount * easyMonsterMultiplier;
+    public int teamLeaderSpawnCount = easyTeamLeaderBaseCount * easyMonsterMultiplier;
+    public int monsterSpawnAttempts = 5000;
     public long monsterSpawnSeed = System.nanoTime();
     public float monsterSpawnExclusionRadius = 4f;
     public float monsterBoundsWidth = 0.62f;
@@ -85,7 +108,14 @@ public class BalanceConfig {
 
     public void applyDifficulty(io.github.some_example_name.world.GameDifficulty difficulty) {
         switch (difficulty) {
-            case EASY: slimeSpawnCount=3; researcherSpawnCount=2; guardSpawnCount=1; teamLeaderSpawnCount=1; break;
+            // EASY만 기준값×배수(3/2/1/1 × 8 = 24/16/8/8). 항상 기준값에서 다시 계산한다.
+            case EASY:
+                slimeSpawnCount = easySlimeBaseCount * easyMonsterMultiplier;
+                researcherSpawnCount = easyResearcherBaseCount * easyMonsterMultiplier;
+                guardSpawnCount = easyGuardBaseCount * easyMonsterMultiplier;
+                teamLeaderSpawnCount = easyTeamLeaderBaseCount * easyMonsterMultiplier;
+                break;
+            // NORMAL/HARD 생성 수·주기는 이번 변경에서 바꾸지 않는다.
             case NORMAL: slimeSpawnCount=5; researcherSpawnCount=3; guardSpawnCount=2; teamLeaderSpawnCount=1; break;
             case HARD: slimeSpawnCount=7; researcherSpawnCount=5; guardSpawnCount=3; teamLeaderSpawnCount=1; break;
             default: throw new IllegalArgumentException("difficulty");

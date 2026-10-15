@@ -161,3 +161,23 @@ PNG 알파(`LaboratoryTileCatalogV2Test`): 벽/구조물/오버레이의 알파 
 - `LootContainerTest.multiPressOpensExactlyAtRequiredCountAndOnlyOnce` — 1/5/8회 개봉, 진행도 저장, 도달 입력 1회 개봉, 개봉 후 재입력 무시. `balanceConfigMapsContainerIdsToPressCounts` — 설정 매핑.
 - 실행 검증(실프레임): `LAB_AUTO_CAPTURE=1 LAB_AUTO_PRESS=1 LAB_START_ROOM=LIBRARY` — 1/5→5/5 로그, 보라 발광 펄스 프레임(`library_glow_ui.png`), 개봉+프롬프트 소멸(`library_opened.png`), 클릭/해제음 재생 호출.
 - 수동(사용자): 길게 누르면 1회만 증가, 거리 이탈 후 재접근 시 진행 유지, 두 캐비넷 사이에서 바라보는 대상만 카운트 증가, 가방 가득 시 D 교체, 소리 겹침 체감.
+
+## 전투·전리품 업데이트 V1 테스트 (2026-10-15)
+
+자동(core:test, 133개 통과 / lwjgl3:build 성공):
+- `combat/PlayerDashStateTest` — 이동 입력/바라본 방향 폴백, 대각선 정규화, 홀드·쿨다운 중 재발동 금지, 프레임 분할 누적 이동 = 정확히 3타일, 발동 순간 쿨다운 3초 시작, 대상당 1회 타격(markHit), interrupt 후 이동 없음·쿨다운 유지.
+- `combat/KillHealTest` — HP90 처치→100 제한, HP30 처치→50, 비처치 타격 회복 없음, 3마리 동시 처치 마리당 20·최대 제한, 사망 몬스터 재타격 무보상, 죽은 플레이어 늦은 보상 부활 금지, StrikeListener는 실제 피해에만 발화.
+- `world/DifficultyLayoutTest` — applyDifficulty(EASY)=기준×8(24/16/8/8)·재적용 멱등, NORMAL 5/3/2/1·HARD 7/5/3/1 유지. `spawnedMonsterCountsMatchConfigExactlyPerDifficulty` — 실제 난이도 맵에서 종류별 스폰 수 정확 일치(조용한 감소 금지), 문 위·옆 미생성, 최소 간격(중첩 금지). 팀장 8마리 전원 구석 후보.
+- `world/ContainerPlacementTest` — easy/normal/hard 전 컨테이너: 접근 가능한 서기 지점 존재, 문 주변 2칸 비움, footprint 바닥 안, 정중앙 고정점 제거(0.75칸 이내 1/3 미만), 벽면/구석 배치 ≥2, 캐비넷 벽 배치는 북쪽 벽만, 간격 2.2, 시작 지점 3칸 회피(변형 맵).
+- 기존 `EasyLaboratoryLayoutTest`(개수 23=14/7/2·간격·가구 비겹침), `LootContainerTest`(1/5/8 연타) 그대로 통과.
+
+실행 검증(실제 GL 렌더 프레임, 합성 미리보기 아님):
+- EASY 전체 맵: `spawned SLIME=24 RESEARCHER=16 GUARD=8 TEAM_LEADER=8` 로그 + `frame_001_lab_w128h96_ui.png`.
+- 성능(LAB_PERF=1, 400프레임): monsters=56 avgFrame 16.68~17.59ms, maxFrame 17.7~82.3ms(최초 로딩 프레임 제외 시 ~27ms), 약 60fps(vsync) — 공간 분할 추가 불필요 판단(장애물 스냅샷 캐시 적용).
+- 컨테이너: `combat_update_press_prompt.png` — SPACE 안내가 캐비넷 불투명 상단 바로 위(화면 6px 환산), "4 / 5" 카운트, 보라 발광, 우하단 전투 HUD(SPACE 라벨+F 키캡). `combat_update_reveal_opened.png` — 2배 등급 테두리 아이콘이 상자 위로 상승, 실제 드롭은 옆 바닥에 분리 생성.
+- 돌진: LAB_AUTO_DASH 훅 — "started at 37.5,46.5" → 0.1초 뒤 "now at 39.17"(3타일/0.18s 등속 일치), cooldown=2.9 진행, `combat_update_dash_cooldown.png` — 돌진 아이콘 어둡기+남은 2.8초 표시.
+
+수동 확인 항목(미자동화 — 사용자 핸즈온 권장):
+- 효과음 9종의 실제 청취(음량 밸런스·타격음 겹침 체감) — 재생 호출은 실행 중 예외 없이 동작했으나 소리 자체는 미청취.
+- 키보드 실입력: F 돌진 방향(8방)·벽/닫힌 문 차단 체감, H 귀환 경로 토글, 가방/일시정지 중 F 차단, Shift 달리기와 돌진 혼용 시 팀장 소음 정상.
+- HP 90/30에서 실제 전투 처치 회복 HUD 반영(로직은 KillHealTest로 검증 완료).

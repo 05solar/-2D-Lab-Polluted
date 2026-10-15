@@ -50,6 +50,8 @@ public class LaboratoryGame extends Game {
         }
         String wallTest = System.getenv("LAB_WALL_TEST");
         boolean startInLaboratory = wallTest != null || "1".equals(System.getenv("LAB_START_LAB"));
+        // 개발용 직행 입장도 선택 난이도의 스폰 수(EASY=기준×8)를 정확히 쓴다.
+        config.applyDifficulty(difficulty);
         laboratory = "1".equals(wallTest) ? LaboratoryLayout.wallConnectionGallery()
             : "2".equals(wallTest) ? LaboratoryLayout.wallDoorAssemblyTestRoom()
             : "3".equals(wallTest) ? LaboratoryLayout.structureAtlasGallery()

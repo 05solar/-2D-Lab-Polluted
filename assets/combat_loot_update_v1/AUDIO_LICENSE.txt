@@ -1,0 +1,8 @@
+Original procedural sound effects in runtime/audio/ and preview/sfx_demo.wav
+are offered under CC0 1.0 Universal (CC0-1.0).
+
+No third-party recordings, samples, speech, music, or sound libraries were used.
+Attribution is not required. Use, modification, and redistribution are permitted.
+
+Generation source: source/generate_sfx.py
+License reference: https://creativecommons.org/publicdomain/zero/1.0/

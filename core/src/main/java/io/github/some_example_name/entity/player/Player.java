@@ -52,6 +52,16 @@ public class Player {
         if (state != PlayerState.DEAD) hp = maxHp;
     }
 
+    /**
+     * 처치 보상 등 부분 회복. 최대 HP를 넘지 않으며, 이미 죽은 플레이어는
+     * 늦게 도착한 회복 이벤트로도 되살아나지 않는다(무시).
+     */
+    public void heal(int amount) {
+        if (amount < 0) throw new IllegalArgumentException("heal");
+        if (state == PlayerState.DEAD) return;
+        hp = Math.min(maxHp, hp + amount);
+    }
+
     public void takeDamage(int amount) {
         if (amount < 0) throw new IllegalArgumentException("damage");
         if (state == PlayerState.DEAD) return;

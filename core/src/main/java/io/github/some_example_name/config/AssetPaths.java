@@ -47,9 +47,25 @@ public final class AssetPaths {
     public static final String SPACE_PROMPT_IMAGE = "ui/interaction/spacebar_prompt_sheet_128x64.png";
     public static final String SPACE_PROMPT_JSON = "ui/interaction/spacebar_prompt.json";
 
-    /** 컨테이너 개봉 효과음(직접 합성 — assets/sounds/README.md 참고). */
-    public static final String SOUND_CONTAINER_CLICK = "sounds/container_click.wav";
-    public static final String SOUND_CONTAINER_UNLOCK = "sounds/container_unlock.wav";
+    /**
+     * 전투·전리품 업데이트 V1 팩: 돌진/공격 HUD 아이콘 + 합성 효과음 9종(CC0).
+     * 좌표·권장 음량은 ui_catalog.json / audio_catalog.json 참고.
+     */
+    public static final String COMBAT_PACK_DIR = "combat_loot_update_v1/";
+    public static final String COMBAT_UI_KEY_F = COMBAT_PACK_DIR + "runtime/ui/key_f_64.png";
+    public static final String COMBAT_UI_KEY_BLANK = COMBAT_PACK_DIR + "runtime/ui/key_blank_64.png";
+    public static final String COMBAT_UI_DASH_ICON = COMBAT_PACK_DIR + "runtime/ui/dash_icon_128.png";
+    public static final String COMBAT_UI_ATTACK_ICON = COMBAT_PACK_DIR + "runtime/ui/attack_icon_128.png";
+    public static final String COMBAT_AUDIO_DIR = COMBAT_PACK_DIR + "runtime/audio/";
+    public static final String SOUND_CONTAINER_PRESS = COMBAT_AUDIO_DIR + "container_press_low.wav";
+    public static final String SOUND_CONTAINER_OPEN = COMBAT_AUDIO_DIR + "container_open_heavy.wav";
+    public static final String SOUND_MONSTER_HIT_1 = COMBAT_AUDIO_DIR + "monster_hit_01.wav";
+    public static final String SOUND_MONSTER_HIT_2 = COMBAT_AUDIO_DIR + "monster_hit_02.wav";
+    public static final String SOUND_PLAYER_HURT = COMBAT_AUDIO_DIR + "player_hurt.wav";
+    public static final String SOUND_PLAYER_DEATH = COMBAT_AUDIO_DIR + "player_death.wav";
+    public static final String SOUND_DOOR_OPEN = COMBAT_AUDIO_DIR + "door_open_metal.wav";
+    public static final String SOUND_ATTACK_SWING = COMBAT_AUDIO_DIR + "attack_swing.wav";
+    public static final String SOUND_DASH_WHOOSH = COMBAT_AUDIO_DIR + "dash_whoosh.wav";
 
     /** 플레이어 HP HUD + 8칸 가방 UI 팩(런타임 PNG + 배치 좌표 JSON). */
     public static final String HUD_DIR = "ui/player_hud_inventory_v1/";

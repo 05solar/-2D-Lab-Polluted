@@ -100,6 +100,10 @@ public class CombatSystemTest {
 
     @Test public void spawnsAreSeededSafeSeparatedAndMatchConfiguredCounts() {
         BalanceConfig c = new BalanceConfig();
+        // 이 테스트는 "설정된 수와 정확히 일치"가 핵심이므로 작은 테스트 방에 맞는 수를 명시한다.
+        // (EASY 8배 기본값 검증은 DifficultyLayoutTest가 실제 난이도 맵에서 수행한다.)
+        c.slimeSpawnCount = 3; c.researcherSpawnCount = 2;
+        c.guardSpawnCount = 1; c.teamLeaderSpawnCount = 1;
         LaboratoryRoom room = LaboratoryLayout.testRoom().room();
         MonsterSpawnSystem spawns = new MonsterSpawnSystem(c);
         List<Monster> a = spawns.spawn(room, 12345L);

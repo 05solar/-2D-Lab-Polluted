@@ -150,6 +150,9 @@ public class LaboratoryRoom implements ObstacleGrid {
         return copy;
     }
 
+    /** 정적 장애물 수(스냅샷 캐시 무효화 판정용 — 맵 구성 후에는 변하지 않는다). */
+    public int obstacleCount() { return propObstacles.size(); }
+
     /** 위험 종류(독성/감전). 데이터가 없거나 범위 밖이면 NONE. */
     public Hazard hazardAt(int tileX, int tileY) {
         if (hazards == null || tileX < 0 || tileY < 0 || tileX >= widthInTiles || tileY >= heightInTiles) {

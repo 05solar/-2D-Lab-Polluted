@@ -1,22 +1,15 @@
-# sounds — 컨테이너 상호작용 효과음
+# sounds — (구) 컨테이너 상호작용 효과음 [대체됨]
 
-| 파일 | 용도 | 길이 |
-|---|---|---|
-| `container_click.wav` | 캐비넷/상자에 유효한 SPACE 개봉 입력이 들어갈 때의 금속 잠금장치 "찰칵" | ~55ms |
-| `container_unlock.wav` | 필요 횟수를 채워 컨테이너가 실제로 열리는 순간의 잠금 해제음(클릭음과 구분) | ~240ms |
+2026-10-15 `combat_loot_update_v1` 적용으로 이 폴더의 음원은 더 이상 게임에서 사용하지 않는다.
 
-## 출처·라이선스
+- `container_click.wav` → `combat_loot_update_v1/runtime/audio/container_press_low.wav` (낮고 둔탁한 연타 조작음)
+- `container_unlock.wav` → `combat_loot_update_v1/runtime/audio/container_open_heavy.wav` (개봉 완료음)
+
+전투·문·피격 등 전체 효과음 카탈로그와 라이선스(CC0)는
+`assets/combat_loot_update_v1/audio_catalog.json`, `AUDIO_LICENSE.txt` 참고.
+
+## (기록) 출처·라이선스
 
 두 음원 모두 이 프로젝트에서 **직접 합성**했다(2026-10-14). 외부 샘플을 사용하지 않았으며,
 Python 표준 라이브러리(wave/math/random)만으로 노이즈 트랜지언트 + 금속 공진 모드(사인 합성)를
-믹스해 생성했다. 저작권 제약 없음 — 프로젝트와 함께 자유롭게 재배포 가능(CC0 상당).
-
-재생성 스크립트 요지: 44.1kHz 모노 16-bit.
-- click = 짧은 저역통과 노이즈(18ms) + 3.15k/4.78kHz 금속 핑 + 1.89kHz 바디.
-- unlock = 저역 철컥(420/640Hz) + 볼트 슬라이드 노이즈 + 1.24k/1.86k/2.48kHz 해제 벨.
-
-## 재생 규칙(코드)
-
-- 유효한 개봉 입력(엣지)마다 click 1회. 홀드/거리 밖/이미 열린 컨테이너에는 재생하지 않는다.
-- 실제 개봉 순간에는 unlock만 재생(마지막 입력의 click과 겹치지 않음).
-- 동시 재생 제한: 같은 음원은 최소 40ms 간격, 연타 시 음량 0.7로 제한.
+믹스해 생성했다. 저작권 제약 없음 — CC0 상당.

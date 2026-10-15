@@ -41,6 +41,16 @@ public final class ContainerInteractionRenderer implements Disposable {
     private boolean finalPulse;
     private float pressedAge = Float.MAX_VALUE;
 
+    // 아이템 공개 연출: 큰(기존 2배) 등급 테두리 아이콘이 상자 상단 위로 짧게 올라온 뒤 멈춘다.
+    // 시각 연출일 뿐이며 실제 드롭(LootDrop)과 분리되어 아이템이 중복 생성되지 않는다.
+    private static final float REVEAL_SIZE = 1.12f;              // 바닥 드롭(0.56)의 2배
+    private static final float REVEAL_RISE_SECONDS = 0.35f;
+    private static final float REVEAL_HOLD_SECONDS = 0.95f;
+    private static final float REVEAL_FADE_SECONDS = 0.3f;
+    private TextureRegion revealIcon;
+    private float revealX, revealStartY, revealTopY;
+    private float revealAge = Float.MAX_VALUE;
+
     public ContainerInteractionRenderer() {
         glowTexture = createRadialGlow(128);
         font.setUseIntegerPositions(false);
@@ -78,6 +88,41 @@ public final class ContainerInteractionRenderer implements Disposable {
     public void update(float delta) {
         if (pulseAge != Float.MAX_VALUE) pulseAge += delta;
         if (pressedAge != Float.MAX_VALUE) pressedAge += delta;
+        if (revealAge != Float.MAX_VALUE) revealAge += delta;
+    }
+
+    /**
+     * 개봉 보상 공개 연출 시작. icon은 등급 테두리가 포함된 프레임 아이콘(파랑/보라/금 유지),
+     * startY→topY로 짧게 상승한 뒤 멈추고 서서히 사라진다. topY는 컨테이너의 불투명 상단보다
+     * 위여서 상자 윗부분을 넘어 보인다.
+     */
+    public void onReveal(TextureRegion icon, float centerX, float startY, float topY) {
+        revealIcon = icon;
+        revealX = centerX;
+        revealStartY = startY;
+        revealTopY = topY;
+        revealAge = 0f;
+    }
+
+    /** 공개 연출을 컨테이너/가구 위 월드 효과 레이어에 그린다(HUD보다 아래). */
+    public void renderReveal(SpriteBatch batch) {
+        if (revealIcon == null) return;
+        float total = REVEAL_RISE_SECONDS + REVEAL_HOLD_SECONDS + REVEAL_FADE_SECONDS;
+        if (revealAge >= total) return;
+        float y;
+        if (revealAge < REVEAL_RISE_SECONDS) {
+            float t = revealAge / REVEAL_RISE_SECONDS;
+            float ease = 1f - (1f - t) * (1f - t);               // easeOut: 짧게 올라온 뒤 멈춤
+            y = revealStartY + (revealTopY - revealStartY) * ease;
+        } else {
+            y = revealTopY;
+        }
+        float alpha = 1f;
+        float fadeStart = REVEAL_RISE_SECONDS + REVEAL_HOLD_SECONDS;
+        if (revealAge > fadeStart) alpha = 1f - (revealAge - fadeStart) / REVEAL_FADE_SECONDS;
+        batch.setColor(1f, 1f, 1f, alpha);
+        batch.draw(revealIcon, revealX - REVEAL_SIZE / 2f, y, REVEAL_SIZE, REVEAL_SIZE);
+        batch.setColor(Color.WHITE);
     }
 
     /** 발광(컨테이너 스프라이트 위, 가산 블렌딩). 그린 뒤 상태를 복원한다. */
@@ -111,15 +156,19 @@ public final class ContainerInteractionRenderer implements Disposable {
 
     /**
      * 상호작용 대상 위 SPACE 안내 + (캐비넷) 연타 카운트. target이 null이거나 이미 열려 있으면
-     * 아무것도 그리지 않는다. promptInteractable/pressed는 기존 spacebar 시트의 두 상태다.
+     * 아무것도 그리지 않는다(개봉 완료 후에는 공개 연출과 겹치지 않도록 자동으로 숨는다).
+     *
+     * @param opaqueTopHeight 컨테이너의 "실제 불투명 그림 상단" 높이(월드 단위, 바닥 앵커 기준)
+     *                        — PNG 전체 캔버스가 아니라 측정된 알파 상단을 기준으로 띄운다.
+     * @param gapWorld        화면 4~8px를 카메라 배율로 환산한 표시 간격(월드 단위)
      */
-    public void renderPrompt(SpriteBatch batch, LootContainer target, float containerDrawHeight,
-                             TextureRegion promptInteractable, TextureRegion promptPressed) {
+    public void renderPrompt(SpriteBatch batch, LootContainer target, float opaqueTopHeight,
+                             float gapWorld, TextureRegion promptInteractable, TextureRegion promptPressed) {
         if (target == null || target.opened()) return;
         boolean pressed = pressedAge < PRESSED_FRAME_SECONDS;
         TextureRegion frame = pressed && pulseContainer == target ? promptPressed : promptInteractable;
         float w = 1.3f, h = 0.65f; // 128x64 비율. 20x15 뷰에서도 읽히는 크기.
-        float x = target.x() - w / 2f, y = target.y() + containerDrawHeight + 0.18f;
+        float x = target.x() - w / 2f, y = target.y() + opaqueTopHeight + gapWorld;
         batch.draw(frame, x, y, w, h);
         if (target.requiredPresses() > 1) {
             layout.setText(font, target.presses() + " / " + target.requiredPresses());

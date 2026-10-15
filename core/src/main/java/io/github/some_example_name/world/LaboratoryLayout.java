@@ -185,19 +185,21 @@ public final class LaboratoryLayout {
         for (RoomPlan plan : plans) addRoomFurniture(props, plan, coverage, logical);
         validateFurniturePlacements(props, plans, logical);
         // 컨테이너 분산 배치: 등급별 개수는 config로 관리하고(비율 wood>epic>legendary 유지),
-        // 대부분의 방에 최소 하나, 보관실·표본실·주요 연구실(도서관)은 복수 배치. 출입구 앞과
-        // 주요 통로는 비운다(findContainer가 문 주변 2.5칸·가구·기존 컨테이너를 피해서 고른다).
+        // 대부분의 방에 최소 하나, 보관실·표본실·주요 연구실(도서관)은 복수 배치. 방 안 위치는
+        // 벽면/구석/가구 옆/중앙 가중 추첨(placeContainer)으로 다양화하되 문 접근·가구·기존
+        // 컨테이너를 피한다. 시드 고정 Random이라 빌드마다 결정적이다.
         String[] woodenRooms={"RESTROOM","LOCKER","SHOWER","LOUNGE","SLEEPING","PANTRY","ENTRANCE",
             "GENERAL LAB","STORAGE ANNEX","WASHROOM","GUARD POST","WEST CLOSET","NORTH STORE",
             "CHEMISTRY","SERVER ANNEX"};
         String[] epicRooms={"CHEMISTRY","BIOLOGY","PREP ROOM","INFORMATION","CCTV","RECORDS","LIBRARY"};
         String[] legendaryRooms={"LIBRARY","SPECIMEN"};
+        java.util.Random containerRandom=new java.util.Random(20261015L);
         for(int i=0;i<Math.min(config.woodenChestCount,woodenRooms.length);i++)
-            containers.add(findContainer("wooden_chest",woodenRooms[i],plans,props,logical,containers));
+            containers.add(findContainer("wooden_chest",woodenRooms[i],plans,props,logical,containers,containerRandom));
         for(int i=0;i<Math.min(config.epicCabinetCount,epicRooms.length);i++)
-            containers.add(findContainer("epic_cabinet",epicRooms[i],plans,props,logical,containers));
+            containers.add(findContainer("epic_cabinet",epicRooms[i],plans,props,logical,containers,containerRandom));
         for(int i=0;i<Math.min(config.legendaryCabinetCount,legendaryRooms.length);i++)
-            containers.add(findContainer("legendary_cabinet",legendaryRooms[i],plans,props,logical,containers));
+            containers.add(findContainer("legendary_cabinet",legendaryRooms[i],plans,props,logical,containers,containerRandom));
         Vector2 spawn = new Vector2(63.5f, 3.2f);
         LaboratoryRoom room = new LaboratoryRoom(logical, spawn, null, resolved.doors, props);
         // 2타일 개구부(y0,1)를 지나 바깥 경계(y=1)를 남쪽으로 넘을 때 복귀가 트리거된다.
@@ -358,38 +360,164 @@ public final class LaboratoryLayout {
         return new Rectangle(x - .42f * scale, y, .84f * scale, .48f * scale);
     }
 
+    // ----- 컨테이너 배치 다양화 ---------------------------------------------------------
+    // "방 중앙의 정해진 점"이 아니라 벽면/접근 가능한 구석/가구 옆/중앙·보조 공간을 후보로
+    // 만들고 가중치(벽 45%·구석 25%·가구 옆 20%·중앙 10%)로 추첨한다. 방 형태상 비어 있는
+    // 분류의 가중치는 남은 분류로 재배분된다(비지 않은 분류끼리 정규화).
+    private static final float CONTAINER_WALL_WEIGHT = 45f;
+    private static final float CONTAINER_CORNER_WEIGHT = 25f;
+    private static final float CONTAINER_FURNITURE_WEIGHT = 20f;
+    private static final float CONTAINER_CENTER_WEIGHT = 10f;
+
     private static LootContainerPlacement findContainer(String id,String roomName,
             List<RoomPlan> plans,List<LaboratoryProp> props,TileType[][] map,
-            List<LootContainerPlacement> placed) {
+            List<LootContainerPlacement> placed,java.util.Random random) {
         RoomPlan plan=null;
         for(RoomPlan candidate:plans)if(candidate.name.equals(roomName)){plan=candidate;break;}
         if(plan==null)throw new IllegalArgumentException("missing room "+roomName);
-        float bestScore=Float.POSITIVE_INFINITY,bestX=Float.NaN,bestY=Float.NaN;
-        for(int y=plan.y+1;y<plan.y+plan.h-1;y++)for(int x=plan.x+1;x<plan.x+plan.w-1;x++) {
+        LootContainerPlacement result=placeContainer(id,plan.x+1,plan.y+1,
+            plan.x+plan.w-2,plan.y+plan.h-2,map,props,placed,random,Float.NaN,Float.NaN);
+        if(result==null)throw new IllegalStateException("no reachable container cell in "+roomName);
+        return result;
+    }
+
+    /**
+     * interior(포함 범위) 안에서 벽면/구석/가구 옆/중앙 후보를 모아 가중 추첨한다.
+     * 모든 후보는 공통으로: FLOOR 셀, 문 주변 제외(문/대문 접근 확보), footprint가 바닥 안이며
+     * 가구·기존 컨테이너와 겹치지 않음(같은 위치 중복 금지, 간격 2.2), 플레이어가 서서
+     * SPACE를 누를 수 있는 접근 지점 존재(가구 뒤·벽 안 금지)를 만족해야 한다.
+     *
+     * 방향별 이미지 규칙: 캐비넷(키 큰 가구)은 정면 스프라이트만 있으므로 벽/구석 후보를
+     * 북쪽 벽(등을 벽에, 정면이 방 안쪽)에만 허용하고, 다른 벽에 붙는 후보는 제외한다 —
+     * 없는 방향을 90도 회전으로 만들지 않는다. 나무 상자는 낮은 상자라 모든 벽면을 허용한다.
+     *
+     * @return 유효 후보가 전혀 없으면 null
+     */
+    private static LootContainerPlacement placeContainer(String id,int minX,int minY,
+            int maxX,int maxY,TileType[][] map,List<LaboratoryProp> props,
+            List<LootContainerPlacement> placed,java.util.Random random,
+            float avoidX,float avoidY) {
+        boolean frontOnly=id.endsWith("_cabinet");
+        List<float[]> wallCells=new ArrayList<>(),cornerCells=new ArrayList<>(),
+            furnitureCells=new ArrayList<>(),centerCells=new ArrayList<>();
+        // 캐비넷 footprint(0.48×1.4=0.672 깊이)가 셀 위 벽 타일을 침범하지 않게,
+        // 기준점 y를 "footprint가 한 셀 안에 들어가는" 값으로 내린다(나무 상자는 그대로 0.5).
+        float anchorY=Math.min(.5f,1f-.48f*containerScale(id)-.02f);
+        for(int y=minY;y<=maxY;y++)for(int x=minX;x<=maxX;x++) {
             if(map[y][x]!=TileType.FLOOR)continue;
-            float cx=x+.5f,cy=y+.5f;
-            float doorDx=cx-(plan.doorX+.5f),doorDy=cy-(plan.doorY+.5f);
-            if(doorDx*doorDx+doorDy*doorDy<6.25f)continue;
-            Rectangle bounds=containerFootprint(id,cx,y+.08f);
-            boolean occupied=false;
-            for(LaboratoryProp prop:props) {
-                Rectangle collision=prop.collision();
-                if(collision!=null&&bounds.overlaps(collision)){occupied=true;break;}
+            float cx=x+.5f,cy=y+anchorY;
+            if(!Float.isNaN(avoidX)) { // 플레이어 시작 지점 안전 영역
+                float sdx=cx-avoidX,sdy=cy-avoidY;
+                if(sdx*sdx+sdy*sdy<9f)continue;
             }
-            if(occupied)continue;
-            // 같은 방 복수 배치: 기존 컨테이너와 2.2칸 이상 띄워 접근로를 확보한다.
-            boolean nearPlaced=false;
+            if(nearDoorway(map,x,y,2))continue; // 문/대문 앞 접근로는 비운다
+            Rectangle footprint=containerFootprint(id,cx,cy);
+            if(!footprintOnFloor(map,footprint))continue;
+            if(overlapsProp(props,footprint))continue;
+            boolean tooClose=false;
             for(LootContainerPlacement other:placed) {
                 float odx=cx-other.x(),ody=cy-other.y();
-                if(odx*odx+ody*ody<2.2f*2.2f){nearPlaced=true;break;}
+                if(odx*odx+ody*ody<2.2f*2.2f){tooClose=true;break;}
+                if(containerFootprint(other.id(),other.x(),other.y()).overlaps(footprint)){tooClose=true;break;}
             }
-            if(nearPlaced)continue;
-            float dx=cx-(plan.x+plan.w/2f),dy=cy-(plan.y+plan.h/2f);
-            float score=dx*dx+dy*dy;
-            if(score<bestScore){bestScore=score;bestX=x+.5f;bestY=y+.5f;}
+            if(tooClose)continue;
+            if(!hasStandingSpot(map,props,placed,footprint,cx,cy))continue;
+            boolean wallN=solidAt(map,x,y+1),wallS=solidAt(map,x,y-1),
+                wallE=solidAt(map,x+1,y),wallW=solidAt(map,x-1,y);
+            boolean corner=(wallN||wallS)&&(wallE||wallW);
+            boolean wall=(wallN||wallS||wallE||wallW)&&!corner;
+            if(frontOnly&&(wall||corner)&&!wallN)continue; // 캐비넷은 북쪽 벽 수납만
+            if(corner)cornerCells.add(new float[]{cx,cy});
+            else if(wall)wallCells.add(new float[]{cx,cy});
+            else if(besideFurniture(props,cx,cy))furnitureCells.add(new float[]{cx,cy});
+            // 중앙 반경 안이든 작은 보조 공간이든 "열린 바닥"은 중앙 분류(가중치 10)로 묶는다.
+            else centerCells.add(new float[]{cx,cy});
         }
-        if(Float.isNaN(bestX))throw new IllegalStateException("no reachable container cell in "+roomName);
-        return new LootContainerPlacement(id,bestX,bestY);
+        List<List<float[]>> buckets=new ArrayList<>();
+        List<Float> weights=new ArrayList<>();
+        if(!wallCells.isEmpty()){buckets.add(wallCells);weights.add(CONTAINER_WALL_WEIGHT);}
+        if(!cornerCells.isEmpty()){buckets.add(cornerCells);weights.add(CONTAINER_CORNER_WEIGHT);}
+        if(!furnitureCells.isEmpty()){buckets.add(furnitureCells);weights.add(CONTAINER_FURNITURE_WEIGHT);}
+        if(!centerCells.isEmpty()){buckets.add(centerCells);weights.add(CONTAINER_CENTER_WEIGHT);}
+        if(buckets.isEmpty())return null;
+        float total=0f;for(float weight:weights)total+=weight;
+        float roll=random.nextFloat()*total;
+        List<float[]> chosen=buckets.get(buckets.size()-1);
+        for(int i=0;i<buckets.size();i++){roll-=weights.get(i);if(roll<0f){chosen=buckets.get(i);break;}}
+        float[] cell=chosen.get(random.nextInt(chosen.size()));
+        return new LootContainerPlacement(id,cell[0],cell[1]);
+    }
+
+    private static boolean solidAt(TileType[][] map,int x,int y) {
+        if(y<0||x<0||y>=map.length||x>=map[0].length)return true;
+        return map[y][x]==TileType.WALL;
+    }
+
+    /** 체비쇼프 거리 radius 안에 문/개구부 마커가 있으면 true(문 접근로 확보). */
+    private static boolean nearDoorway(TileType[][] map,int x,int y,int radius) {
+        for(int dy=-radius;dy<=radius;dy++)for(int dx=-radius;dx<=radius;dx++) {
+            int nx=x+dx,ny=y+dy;
+            if(nx<0||ny<0||ny>=map.length||nx>=map[0].length)continue;
+            TileType t=map[ny][nx];
+            if(t==TileType.DOORWAY_OPEN||t==TileType.DOOR_CLOSED)return true;
+        }
+        return false;
+    }
+
+    private static boolean footprintOnFloor(TileType[][] map,Rectangle footprint) {
+        int minX=(int)Math.floor(footprint.x+.0001f),minY=(int)Math.floor(footprint.y+.0001f);
+        int maxX=(int)Math.floor(footprint.x+footprint.width-.0001f);
+        int maxY=(int)Math.floor(footprint.y+footprint.height-.0001f);
+        for(int y=minY;y<=maxY;y++)for(int x=minX;x<=maxX;x++)
+            if(y<0||x<0||y>=map.length||x>=map[0].length||map[y][x]!=TileType.FLOOR)return false;
+        return true;
+    }
+
+    private static boolean overlapsProp(List<LaboratoryProp> props,Rectangle area) {
+        for(LaboratoryProp prop:props) {
+            Rectangle collision=prop.collision();
+            if(collision!=null&&area.overlaps(collision))return true;
+        }
+        return false;
+    }
+
+    /** 가구 footprint를 1.1칸 넓힌 "가구 옆 수납 구역" 안인지. */
+    private static boolean besideFurniture(List<LaboratoryProp> props,float cx,float cy) {
+        for(LaboratoryProp prop:props) {
+            Rectangle c=prop.collision();
+            if(c==null)continue;
+            if(cx>=c.x-1.1f&&cx<=c.x+c.width+1.1f&&cy>=c.y-1.1f&&cy<=c.y+c.height+1.1f)return true;
+        }
+        return false;
+    }
+
+    /**
+     * 플레이어(0.6×0.5 몸체)가 컨테이너 옆에 서서 SPACE를 누를 수 있는 지점이 있는지.
+     * 네 방향 1.0~1.1칸 지점 중 하나라도 벽/가구/컨테이너 footprint에 막히지 않으면 된다.
+     */
+    private static boolean hasStandingSpot(TileType[][] map,List<LaboratoryProp> props,
+            List<LootContainerPlacement> placed,Rectangle candidateFootprint,float cx,float cy) {
+        float[][] offsets={{0f,-1.1f},{0f,1.0f},{-1.1f,0f},{1.1f,0f}};
+        for(float[] offset:offsets) {
+            float sx=cx+offset[0],sy=cy+offset[1];
+            Rectangle body=new Rectangle(sx-.3f,sy,.6f,.5f);
+            int minX=(int)Math.floor(body.x+.0001f),minY=(int)Math.floor(body.y+.0001f);
+            int maxX=(int)Math.floor(body.x+body.width-.0001f);
+            int maxY=(int)Math.floor(body.y+body.height-.0001f);
+            boolean blocked=false;
+            for(int y=minY;y<=maxY&&!blocked;y++)for(int x=minX;x<=maxX;x++) {
+                if(y<0||x<0||y>=map.length||x>=map[0].length
+                    ||(map[y][x]!=TileType.FLOOR&&map[y][x]!=TileType.DOORWAY_OPEN)){blocked=true;break;}
+            }
+            if(blocked)continue;
+            if(body.overlaps(candidateFootprint))continue;
+            if(overlapsProp(props,body))continue;
+            boolean onPlaced=false;
+            for(LootContainerPlacement other:placed)
+                if(body.overlaps(containerFootprint(other.id(),other.x(),other.y()))){onPlaced=true;break;}
+            if(!onPlaced)return true;
+        }
+        return false;
     }
     private static boolean adjacentToFloor(TileType[][] map,int x,int y) {
         for(int dy=-1;dy<=1;dy++)for(int dx=-1;dx<=1;dx++) {
@@ -736,20 +864,22 @@ public final class LaboratoryLayout {
         addProp(props,hard?"server_rack_north":"archive_shelf_north",4.5f,h-4f,1.8f,.55f);
         addProp(props,"experiment_island",w/2f,h/2f+1f,1.4f,.6f);
         Vector2 spawn=new Vector2(3.5f,2f);
-        // 컨테이너: 2배(normal 3→6, hard 3→8). 등급 비율 유지, 구획별 분산, 문 주변 비움.
+        // 컨테이너: 개수·등급 비율·구획 배정은 유지(normal 6, hard 8). 구획 안 위치는
+        // 더 이상 구획 중앙 고정점이 아니라 벽면/구석/가구 옆/중앙 가중 추첨으로 고른다.
+        // 시작 지점 주변 3칸은 피하고, 문 접근로·가구·기존 컨테이너와 겹치지 않는다.
         List<LootContainerPlacement> containers = new ArrayList<>();
-        float[] cxs={ (vx[0]+1)/2f, (vx[0]+vx[1])/2f+.5f, (vx[1]+w-1)/2f+.5f };
-        float[] cys={ (hy[0]+1)/2f+.5f, (hy[0]+hy[1])/2f+.5f, (hy[1]+h-1)/2f+.5f };
-        containers.add(new LootContainerPlacement("wooden_chest", cxs[0], cys[0]));
-        containers.add(new LootContainerPlacement("wooden_chest", cxs[1], cys[2]));
-        containers.add(new LootContainerPlacement("wooden_chest", cxs[2], cys[0]));
-        containers.add(new LootContainerPlacement("epic_cabinet", cxs[1]+1.6f, cys[0]));
-        containers.add(new LootContainerPlacement("epic_cabinet", cxs[0], cys[2]));
-        containers.add(new LootContainerPlacement("legendary_cabinet", cxs[2], cys[2]));
-        if (hard) {
-            containers.add(new LootContainerPlacement("wooden_chest", cxs[0], cys[1]-1.5f));
-            containers.add(new LootContainerPlacement("epic_cabinet", cxs[2], cys[1]-1.5f));
-        }
+        int[] colMin={1,vx[0]+1,vx[1]+1}, colMax={vx[0]-1,vx[1]-1,w-2};
+        int[] rowMin={1,hy[0]+1,hy[1]+1}, rowMax={hy[0]-1,hy[1]-1,h-2};
+        java.util.Random containerRandom=new java.util.Random(20261015L+w);
+        int[][] woodCells=hard?new int[][]{{0,0},{1,2},{2,0},{0,1}}:new int[][]{{0,0},{1,2},{2,0}};
+        int[][] epicCells=hard?new int[][]{{1,0},{0,2},{2,1}}:new int[][]{{1,0},{0,2}};
+        int[][] legendaryCells={{2,2}};
+        addVariantContainers(containers,"wooden_chest",woodCells,colMin,colMax,rowMin,rowMax,
+            logical,props,containerRandom,spawn);
+        addVariantContainers(containers,"epic_cabinet",epicCells,colMin,colMax,rowMin,rowMax,
+            logical,props,containerRandom,spawn);
+        addVariantContainers(containers,"legendary_cabinet",legendaryCells,colMin,colMax,rowMin,rowMax,
+            logical,props,containerRandom,spawn);
         LaboratoryRoom room=new LaboratoryRoom(logical,spawn,null,doors,props);
         for (LootContainerPlacement placement : containers)
             room.addWorldObstacle(containerFootprint(placement.id(), placement.x(), placement.y()));
@@ -762,6 +892,19 @@ public final class LaboratoryLayout {
         // 벽·문 스킨 레이어는 비운다(V4가 직접 그림). 문은 room.doors()로만 전달한다.
         String[][] overlay=new String[h][w],wall=new String[h][w],structure=new String[h][w];
         return new LaboratoryLayout(room,new RoomVisuals(floor,overlay,wall,structure,null,props),containers);
+    }
+
+    /** normal/hard 3×3 구획 배치: 각 (col,row) 구획 안에서 가중 추첨으로 컨테이너를 놓는다. */
+    private static void addVariantContainers(List<LootContainerPlacement> out,String id,
+            int[][] cells,int[] colMin,int[] colMax,int[] rowMin,int[] rowMax,
+            TileType[][] map,List<LaboratoryProp> props,java.util.Random random,Vector2 spawn) {
+        for(int[] cell:cells) {
+            LootContainerPlacement placement=placeContainer(id,colMin[cell[0]],rowMin[cell[1]],
+                colMax[cell[0]],rowMax[cell[1]],map,props,out,random,spawn.x,spawn.y);
+            if(placement==null)throw new IllegalStateException(
+                "no container cell in sector "+cell[0]+","+cell[1]);
+            out.add(placement);
+        }
     }
 
     private static void addProp(List<LaboratoryProp> props, String id, float x, float y,
