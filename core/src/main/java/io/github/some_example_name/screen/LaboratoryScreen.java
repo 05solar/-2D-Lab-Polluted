@@ -90,10 +90,19 @@ public class LaboratoryScreen extends BaseScreen {
     private boolean tileDebugEnabled;
     private boolean backpackOpen;
     private boolean routeEnabled;
+    // 개발용 자동 캡처: LAB_AUTO_CAPTURE 설정 시 몇 프레임 뒤 UI/충돌 프레임을 저장하고 종료한다.
+    private final boolean autoCapture = System.getenv("LAB_AUTO_CAPTURE") != null;
+    private int autoCaptureFrame;
+    // LAB_WALL_TEST=3: V4 벽 47종 + 가로/세로 방문 4종을 격자로 직접 그려 한 번씩 확인.
+    private final boolean v4AtlasView = "3".equals(System.getenv("LAB_WALL_TEST"));
     private List<RoomPathfinder.Cell> exitPath = java.util.Collections.emptyList();
     private final List<LootContainer> lootContainers = new ArrayList<>();
     private final List<LootDrop> lootDrops = new ArrayList<>();
     private final Random lootRandom = new Random();
+    private final io.github.some_example_name.render.ContainerInteractionRenderer containerFx =
+        new io.github.some_example_name.render.ContainerInteractionRenderer();
+    private LootContainer promptTarget;        // 이번 프레임 상호작용 대상(안내 표시용)
+    private float containerGlowHeight = 1f;    // 마지막 유효 입력 대상의 표시 높이(발광 반경 기준)
 
     public LaboratoryScreen(LaboratoryGame game, GameAssets assets, LaboratoryLayout layout,
                             PlayerSessionState session, List<Monster> monsters, BalanceConfig config) {
@@ -108,7 +117,8 @@ public class LaboratoryScreen extends BaseScreen {
             overviewMode ? room.heightInTiles() : VIEW_HEIGHT, camera);
         viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
         for (LootContainerPlacement placement : layout.lootContainers())
-            lootContainers.add(assets.loot().newContainer(placement.id(), placement.x(), placement.y()));
+            lootContainers.add(assets.loot().newContainer(placement.id(), placement.x(), placement.y(),
+                config.requiredPresses(placement.id())));
         this.monsters = monsters;
         RunStartDetector runStartDetector = new RunStartDetector();
         movementSystem = new MovementSystem(new CollisionSystem(),
@@ -126,8 +136,9 @@ public class LaboratoryScreen extends BaseScreen {
         monsterRenderer = new MonsterRenderer(assets.monsterAnimations());
         exteriorRing = layout.hasExteriorRing();
         exteriorWalls = new io.github.some_example_name.render.ExteriorWallRenderer(assets.exteriorWalls());
-        if (exteriorRing) worldRenderer.setInteriorWalls(
-            new io.github.some_example_name.render.InteriorWallRenderer(assets.exteriorWalls()), room);
+        // 모든 난이도 맵의 벽·문을 V4 규격으로 논리 점유에서 직접 그린다(구형 스킨/Interior/Exterior 링 대체).
+        worldRenderer.setLaboratoryStructureV4(
+            new io.github.some_example_name.render.LaboratoryStructureRendererV4(assets.structureV4()), room);
         dumpResolvedGridIfRequested();
         updateCamera();
     }
@@ -161,6 +172,8 @@ public class LaboratoryScreen extends BaseScreen {
         }
         if (active && Gdx.input.isKeyJustPressed(Input.Keys.F1)) debugEnabled = !debugEnabled;
         if (active && Gdx.input.isKeyJustPressed(Input.Keys.F2)) tileDebugEnabled = !tileDebugEnabled;
+        // F12: 현재 프레임을 PNG로 저장(실제 렌더 검증). F1 켜면 충돌 디버그 포함 프레임이 저장된다.
+        boolean captureRequested = active && Gdx.input.isKeyJustPressed(Input.Keys.F12);
         if (active && Gdx.input.isKeyJustPressed(Input.Keys.F)) routeEnabled = !routeEnabled;
         // 미니맵 아래 귀환 버튼 클릭도 F와 동일하게 대문 발자국 경로를 토글한다.
         if (active && !backpackOpen && !paused && Gdx.input.justTouched()
@@ -198,6 +211,11 @@ public class LaboratoryScreen extends BaseScreen {
             player.setMoving(false);
         }
 
+        // 상호작용 안내 대상: 플레이 가능한 상태에서만 선택(가방/일시정지/사망/전환 중엔 없음).
+        promptTarget = (!paused && !transitionLocked && !backpackOpen && !player.isDead())
+            ? selectContainerTarget() : null;
+        containerFx.update(animDelta);
+
         updateCamera();
         playerGrid.forPlayer(monsters);
         if (routeEnabled && !player.isDead())
@@ -215,18 +233,28 @@ public class LaboratoryScreen extends BaseScreen {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         worldRenderer.render(batch, visuals, camera, player.feetY());
-        for (LootContainer chest : lootContainers)
-            batch.draw(assets.loot().chest(chest.id(),chest.frame()),chest.x()-.5f,chest.y(),1f,1f);
+        if (v4AtlasView) drawV4AtlasGallery();
+        // 캐비넷은 1.4배(설정값), 나무 상자는 1배. 닫힘·진행·열림 전 프레임이 같은
+        // 하단-중앙 기준점을 쓰므로 배율만 키워도 기준이 어긋나지 않는다.
+        for (LootContainer chest : lootContainers) {
+            float s = containerDrawSize(chest.id());
+            batch.draw(assets.loot().chest(chest.id(), chest.frame()),
+                chest.x() - s / 2f, chest.y(), s, s);
+        }
+        containerFx.renderGlow(batch, containerGlowHeight);
         for (LootDrop drop : lootDrops) if(!drop.collected())
             batch.draw(assets.loot().itemBase(drop.item()),drop.x()-.28f,drop.y()+.18f,.56f,.56f);
         monsterRenderer.render(batch, monsters);
         entityRenderer.render(batch, player, animDelta, playerCombat.attack(),
             config.playerAttackCooldownSeconds);
         worldRenderer.renderForegroundProps(batch, visuals, camera, player.feetY());
+        // SPACE 안내는 가구/플레이어 위에 그려 항상 읽히게 한다(열린 컨테이너는 표시 안 함).
+        if (promptTarget != null)
+            containerFx.renderPrompt(batch, promptTarget, containerDrawSize(promptTarget.id()),
+                assets.headquarters().promptFrame(1), assets.headquarters().promptFrame(2));
         batch.end();
         if (exteriorRing)
-            exteriorWalls.render(camera, room.widthInTiles(), room.heightInTiles(),
-                room.southExitCenterX() + 0.5f, !room.gateClosed());
+            exteriorWalls.renderGate(camera, room.southExitCenterX() + 0.5f, !room.gateClosed());
         if (!overviewMode)
             navigationRenderer.render(camera, room, player.feetX(), player.feetY(),
                 player.bounds().width, player.bounds().height, exitPath, monsters,
@@ -250,6 +278,67 @@ public class LaboratoryScreen extends BaseScreen {
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glColorMask(true, true, true, true);
+        if (captureRequested)
+            io.github.some_example_name.render.FrameCapture.capture(
+                "lab_" + difficultyTag() + (debugEnabled ? "_collision" : "_ui"));
+        if (autoCapture) {
+            autoCaptureFrame++;
+            // LAB_AUTO_PRESS=1: 근처 컨테이너에 유효 입력을 주기적으로 시뮬레이션해
+            // 연타 발광/카운트/개봉/드롭을 실제 렌더 프레임으로 검증한다(개발 전용).
+            boolean autoPress = "1".equals(System.getenv("LAB_AUTO_PRESS"));
+            if (autoPress && autoCaptureFrame >= 12 && autoCaptureFrame % 6 == 0) {
+                LootContainer target = selectContainerTarget();
+                if (target != null) {
+                    LootContainer.PressResult result = target.press(assets.loot().catalog(), lootRandom);
+                    if (result != LootContainer.PressResult.ALREADY_OPEN) {
+                        containerGlowHeight = containerDrawSize(target.id());
+                        boolean opened = result == LootContainer.PressResult.OPENED;
+                        containerFx.onValidPress(target, opened);
+                        if (opened) assets.containerSounds().playUnlock();
+                        else assets.containerSounds().playClick();
+                        Gdx.app.log("AutoPress", target.id() + " " + result
+                            + " " + target.presses() + "/" + target.requiredPresses());
+                    }
+                }
+            }
+            int uiFrame = autoPress ? 38 : 30;      // 연타 직후(펄스 진행 중) 프레임을 저장
+            int debugOn = autoPress ? 52 : 32;
+            int debugFrame = autoPress ? 62 : 42;
+            int exitFrame = autoPress ? 100 : 46;   // 개봉 애니메이션/드롭까지 관찰
+            if (autoCaptureFrame == uiFrame)
+                io.github.some_example_name.render.FrameCapture.capture("lab_" + difficultyTag() + "_ui");
+            if (autoPress && autoCaptureFrame == 90)
+                io.github.some_example_name.render.FrameCapture.capture("lab_" + difficultyTag() + "_opened");
+            if (autoCaptureFrame == debugOn) debugEnabled = true;
+            if (autoCaptureFrame == debugFrame)
+                io.github.some_example_name.render.FrameCapture.capture("lab_" + difficultyTag() + "_collision");
+            if (autoCaptureFrame == debugFrame + 1) debugEnabled = false;
+            if (autoCaptureFrame >= exitFrame) Gdx.app.exit();
+        }
+    }
+
+    private String difficultyTag() {
+        if (v4AtlasView) return "v4atlas";
+        return "w" + room.widthInTiles() + "h" + room.heightInTiles();
+    }
+
+    /** 47종 V4 벽 타일(8열)과 가로/세로 방문 닫힘/열림을 월드 좌표 격자로 그린다(확인용). */
+    private void drawV4AtlasGallery() {
+        io.github.some_example_name.asset.LaboratoryStructureV4Assets a = assets.structureV4();
+        float x0 = 1.5f, yTop = room.heightInTiles() - 2f, size = 1.4f, gap = 0.2f;
+        for (int i = 0; i < io.github.some_example_name.world.WallMaskV4.VARIANT_COUNT; i++) {
+            int col = i % io.github.some_example_name.world.WallMaskV4.ATLAS_COLUMNS;
+            int row = i / io.github.some_example_name.world.WallMaskV4.ATLAS_COLUMNS;
+            float x = x0 + col * (size + gap);
+            float y = yTop - row * (size + gap);
+            batch.draw(a.wall(i), x, y, size, size);
+        }
+        // 방문 4종: 가로(닫힘/열림) 4x1.5, 세로(닫힘/열림) 1.5x4.
+        float doorY = 1.5f;
+        batch.draw(a.horizontalDoor(false), x0, doorY + 1.5f, 4f, 1.5f);
+        batch.draw(a.horizontalDoor(true), x0 + 4.5f, doorY + 1.5f, 4f, 1.5f);
+        batch.draw(a.verticalDoor(false), x0 + 9.5f, doorY, 1.5f, 4f);
+        batch.draw(a.verticalDoor(true), x0 + 11.5f, doorY, 1.5f, 4f);
     }
 
     private void updateLoot(float delta, boolean interactPressed, boolean dropPressed) {
@@ -264,13 +353,20 @@ public class LaboratoryScreen extends BaseScreen {
             room.setGateClosed(!room.gateClosed());
             return;
         }
-        LootContainer nearestChest=null; float nearestChestD=1.45f*1.45f;
-        for(LootContainer chest:lootContainers) {
-            float dx=px-chest.x(),dy=py-chest.y(); float d=dx*dx+dy*dy;
-            if(d<nearestChestD){nearestChestD=d;nearestChest=chest;}
-        }
-        if(interactPressed&&nearestChest!=null&&!nearestChest.opened()) {
-            nearestChest.open(assets.loot().catalog(),lootRandom); return;
+        // 연타 개봉: 바라보는 가장 가까운 미개봉 컨테이너 하나에만 입력이 들어간다.
+        // 입력은 isKeyJustPressed 엣지이므로 길게 눌러도 1회다. 필요 횟수 도달 입력에서만
+        // 열림 애니메이션+추첨이 실행되고, 같은 입력으로 수집/방문 개폐가 중복 실행되지 않는다.
+        LootContainer target = selectContainerTarget();
+        if (interactPressed && target != null) {
+            LootContainer.PressResult result = target.press(assets.loot().catalog(), lootRandom);
+            if (result != LootContainer.PressResult.ALREADY_OPEN) {
+                containerGlowHeight = containerDrawSize(target.id());
+                boolean opened = result == LootContainer.PressResult.OPENED;
+                containerFx.onValidPress(target, opened);
+                if (opened) assets.containerSounds().playUnlock();
+                else assets.containerSounds().playClick();
+            }
+            return;
         }
         LootDrop nearest=null; float nearestD=1.45f*1.45f;
         for(LootDrop drop:lootDrops) if(!drop.collected()) {
@@ -316,6 +412,41 @@ public class LaboratoryScreen extends BaseScreen {
         return room.nearestDoor(px, py, 1.45f) != null;
     }
 
+    /** 컨테이너 표시 크기: 캐비넷은 설정 배율(기본 1.4), 나무 상자는 1. */
+    private float containerDrawSize(String id) {
+        return id.endsWith("_cabinet") ? config.cabinetRenderScale : 1f;
+    }
+
+    /**
+     * 상호작용 거리 안의 미개봉 컨테이너 중 "플레이어가 바라보는 가장 가까운" 하나를 고른다.
+     * 거리에서 바라보는 방향 정합(내적)을 빼서 정면의 대상을 우선하되, 등 뒤의 더 가까운
+     * 대상만 있으면 그것을 고른다. 여러 대상의 진행도가 동시에 오르는 일이 없도록 단일 선택.
+     */
+    private LootContainer selectContainerTarget() {
+        float px = player.feetX(), py = player.feetY();
+        float maxD2 = config.containerInteractRadius * config.containerInteractRadius;
+        float fx = 0f, fy = 0f;
+        switch (player.facing()) {
+            case UP: fy = 1f; break;
+            case DOWN: fy = -1f; break;
+            case LEFT: fx = -1f; break;
+            default: fx = 1f; break;
+        }
+        LootContainer best = null;
+        float bestScore = Float.MAX_VALUE;
+        for (LootContainer chest : lootContainers) {
+            if (chest.opened()) continue;
+            float dx = chest.x() - px, dy = chest.y() - py;
+            float d2 = dx * dx + dy * dy;
+            if (d2 > maxD2) continue;
+            float dist = (float) Math.sqrt(d2);
+            float dot = dist < 0.001f ? 1f : (dx * fx + dy * fy) / dist;
+            float score = dist - 0.75f * dot;
+            if (score < bestScore) { bestScore = score; best = chest; }
+        }
+        return best;
+    }
+
     /** 남쪽 대문 통로 접근 범위(SPACE로 대문 토글). */
     private boolean nearGate(float px, float py) {
         return exteriorRing && room.hasGate() && py < 5f
@@ -348,5 +479,6 @@ public class LaboratoryScreen extends BaseScreen {
         hud.dispose();
         navigationRenderer.dispose();
         exteriorWalls.dispose();
+        containerFx.dispose();
     }
 }

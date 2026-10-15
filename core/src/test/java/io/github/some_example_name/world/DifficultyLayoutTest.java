@@ -13,7 +13,7 @@ public class DifficultyLayoutTest {
         LaboratoryLayout hard=LaboratoryLayout.forDifficulty(GameDifficulty.HARD);
         assertEquals(128,easy.room().widthInTiles());
         assertEquals(96,easy.room().heightInTiles());
-        assertEquals(16,easy.roomAreas().size());
+        assertEquals(26,easy.roomAreas().size()); // 기존 16 + 보조실 10(+62%)
         assertEquals(28,normal.room().widthInTiles());
         assertEquals(38,hard.room().widthInTiles());
         assertFalse(normal.room().isSolid(3,0)); assertFalse(hard.room().isSolid(3,0));
@@ -41,7 +41,10 @@ public class DifficultyLayoutTest {
             distance(leader.feetX(),leader.feetY(),right,bottom)),
             Math.min(distance(leader.feetX(),leader.feetY(),left,top),
                 distance(leader.feetX(),leader.feetY(),right,top)));
-        assertTrue("leader near a room corner",nearest<5.5f);
+        // 압축 캠퍼스(.55 간격)에선 통행 가능 bbox 모서리가 비플레이 검은 영역에 걸려,
+        // 3x3 안전 스폰이 가능한 가장 가까운 방 셀이 모서리에서 ~12타일 안쪽이다.
+        // "구석 방에서 생성" 의도는 유지하되 임계값만 새 지오메트리에 맞춘다(중앙까지는 ~45).
+        assertTrue("leader near a room corner (was "+nearest+")",nearest<13.5f);
     }
 
     private static float distance(float x,float y,float a,float b){float dx=x-a,dy=y-b;return (float)Math.sqrt(dx*dx+dy*dy);}

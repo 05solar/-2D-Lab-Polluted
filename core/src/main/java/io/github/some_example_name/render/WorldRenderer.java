@@ -24,14 +24,17 @@ public class WorldRenderer {
     private final LaboratoryTileSetV2 tileSet;
     private final RoomKitAssets roomKits;
     private final LaboratoryFurnitureAssets furniture;
-    private InteriorWallRenderer interiorWalls;          // 내부 벽 직선을 새 에셋으로 덧그림(easy 맵)
-    private io.github.some_example_name.world.LaboratoryRoom interiorRoom;
+    private LaboratoryStructureRendererV4 structureV4; // V4 벽/문을 논리 점유에서 직접 그림
+    private io.github.some_example_name.world.LaboratoryRoom structureRoom;
 
-    /** 내부 직선 벽을 새 외벽 에셋으로 덧그리도록 설정(가구/플레이어보다 먼저, WALL 레이어 직후). */
-    public void setInteriorWalls(InteriorWallRenderer renderer,
-                                 io.github.some_example_name.world.LaboratoryRoom room) {
-        this.interiorWalls = renderer;
-        this.interiorRoom = room;
+    /**
+     * 연구소 벽·문을 V4 규격으로 논리 점유에서 직접 그리도록 설정(가구/플레이어보다 먼저).
+     * 설정되면 구형 WALL/STRUCTURE 스킨 레이어는 비어 있고 벽·문은 모두 V4가 담당한다.
+     */
+    public void setLaboratoryStructureV4(LaboratoryStructureRendererV4 renderer,
+                                         io.github.some_example_name.world.LaboratoryRoom room) {
+        this.structureV4 = renderer;
+        this.structureRoom = room;
     }
 
     public WorldRenderer(LaboratoryTileSetV2 tileSet) {
@@ -78,8 +81,12 @@ public class WorldRenderer {
 
         drawLayer(batch, visuals, Layer.OVERLAY, minX, maxX, minY, maxY);
         drawLayer(batch, visuals, Layer.WALL, minX, maxX, minY, maxY);
-        // 내부 직선 벽을 새 금속 직선으로 덧그린다(접합부 v3 타일 위, 가구/플레이어 아래).
-        if (interiorWalls != null && interiorRoom != null) interiorWalls.draw(batch, interiorRoom);
+        // V4 벽·문: 논리 점유에서 직접 그린다(구형 스킨 레이어는 V4 맵에서 비어 있음).
+        // 벽을 먼저 그린 뒤 문짝/문틀을 그 위에 올려 벽선과 시각적으로 잇는다.
+        if (structureV4 != null && structureRoom != null) {
+            structureV4.drawWalls(batch, structureRoom, camera);
+            structureV4.drawDoors(batch, structureRoom, camera);
+        }
         drawLayer(batch, visuals, Layer.STRUCTURE, minX, maxX, minY, maxY);
         if (roomKits != null) {
             for (LaboratoryProp prop : visuals.props()) {

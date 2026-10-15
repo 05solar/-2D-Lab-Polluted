@@ -42,11 +42,18 @@ public class LaboratoryGame extends Game {
     public void create() {
         assets = new GameAssets();
         headquarters = HeadquartersLayout.create();
+        // 개발용: LAB_DIFFICULTY=EASY|NORMAL|HARD 로 직접 난이도 맵을 띄운다(기본 EASY).
+        String difficultyEnv = System.getenv("LAB_DIFFICULTY");
+        if (difficultyEnv != null) {
+            try { difficulty = GameDifficulty.valueOf(difficultyEnv.trim().toUpperCase()); }
+            catch (IllegalArgumentException ignored) { }
+        }
         String wallTest = System.getenv("LAB_WALL_TEST");
         boolean startInLaboratory = wallTest != null || "1".equals(System.getenv("LAB_START_LAB"));
         laboratory = "1".equals(wallTest) ? LaboratoryLayout.wallConnectionGallery()
             : "2".equals(wallTest) ? LaboratoryLayout.wallDoorAssemblyTestRoom()
-            : LaboratoryLayout.forDifficulty(difficulty);
+            : "3".equals(wallTest) ? LaboratoryLayout.structureAtlasGallery()
+            : LaboratoryLayout.forDifficulty(difficulty, config);
         MapId initial = startInLaboratory ? MapId.LABORATORY : MapId.HEADQUARTERS;
         Vector2 spawn = initial == MapId.HEADQUARTERS
             ? headquarters.room().spawnPoint() : laboratory.room().spawnPoint();
@@ -115,7 +122,7 @@ public class LaboratoryGame extends Game {
     public void selectDifficulty(GameDifficulty selected) {
         if (selected == null) throw new IllegalArgumentException("difficulty");
         difficulty=selected; config.applyDifficulty(selected);
-        laboratory=LaboratoryLayout.forDifficulty(selected); laboratoryMonsters=null;
+        laboratory=LaboratoryLayout.forDifficulty(selected, config); laboratoryMonsters=null;
     }
     public GameDifficulty difficulty() { return difficulty; }
     private static boolean monstersEnabled() { return !"1".equals(System.getenv("LAB_DISABLE_MONSTERS")); }

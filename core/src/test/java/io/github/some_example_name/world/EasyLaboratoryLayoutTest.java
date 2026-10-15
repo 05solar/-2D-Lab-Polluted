@@ -12,10 +12,10 @@ public class EasyLaboratoryLayoutTest {
         LaboratoryRoom room = layout.room();
         assertEquals(128, room.widthInTiles());
         assertEquals(96, room.heightInTiles());
-        assertFalse("main cross corridor keeps its two tile minimum", room.isSolid(55, 35));
-        assertFalse("main cross corridor keeps its two tile minimum", room.isSolid(55, 36));
-        assertTrue("cross corridor was narrowed from three to two", room.isSolid(55, 34));
-        assertTrue("cross corridor was narrowed from three to two", room.isSolid(55, 37));
+        assertFalse("main cross corridor keeps its two tile minimum", room.isSolid(43, 28));
+        assertFalse("main cross corridor keeps its two tile minimum", room.isSolid(43, 29));
+        assertTrue("cross corridor stays two tiles", room.isSolid(43, 27));
+        assertTrue("cross corridor stays two tiles", room.isSolid(43, 30));
         assertTrue(room.spawnPoint().x > 2f && room.spawnPoint().y > 1f);
         boolean[][] seen = reachable(room);
         for (LaboratoryRoomArea area : layout.roomAreas()) {
@@ -35,10 +35,26 @@ public class EasyLaboratoryLayoutTest {
         assertTrue("rooms use clustered V7 furniture", layout.visuals().props().size() >= 64);
         for (LaboratoryProp prop : layout.visuals().props())
             assertTrue("all easy-map furniture comes from orthographic views v7", prop.id().startsWith("v7:"));
-        assertEquals("one wood, one epic, one legendary container", 3, layout.lootContainers().size());
-        assertEquals("wood container in chemistry", "wooden_chest", layout.lootContainers().get(0).id());
-        assertEquals("epic container in information room", "epic_cabinet", layout.lootContainers().get(1).id());
-        assertEquals("legendary container in library", "legendary_cabinet", layout.lootContainers().get(2).id());
+        // 컨테이너: 설정 기반 분산 배치(wood 14 / epic 7 / legendary 2 = 23), 대부분의 방에 ≥1.
+        int wood=0,epic=0,legendary=0;
+        for(LootContainerPlacement p:layout.lootContainers()) {
+            if("wooden_chest".equals(p.id()))wood++;
+            else if("epic_cabinet".equals(p.id()))epic++;
+            else if("legendary_cabinet".equals(p.id()))legendary++;
+        }
+        io.github.some_example_name.config.BalanceConfig defaults=
+            new io.github.some_example_name.config.BalanceConfig();
+        assertEquals(defaults.woodenChestCount,wood);
+        assertEquals(defaults.epicCabinetCount,epic);
+        assertEquals(defaults.legendaryCabinetCount,legendary);
+        assertTrue("grade ratio preserved: wood > epic > legendary",wood>epic&&epic>legendary);
+        // 컨테이너끼리 접근로 확보(2.2칸 간격).
+        for(int i=0;i<layout.lootContainers().size();i++)
+            for(int j=i+1;j<layout.lootContainers().size();j++) {
+                LootContainerPlacement a=layout.lootContainers().get(i),b=layout.lootContainers().get(j);
+                float dx=a.x()-b.x(),dy=a.y()-b.y();
+                assertTrue("containers keep spacing",dx*dx+dy*dy>=2.2f*2.2f-.001f);
+            }
         assertNull("map padding is outside the built facility", layout.visuals().floorAt(0, 40));
         for (LaboratoryRoomArea area : layout.roomAreas())
             for (int y = area.y() + 1; y < area.y() + area.height() - 1; y++)
@@ -51,18 +67,19 @@ public class EasyLaboratoryLayoutTest {
             if (door == null) continue;
             doorCount++;
             assertFalse("easy room doors start passable", room.isSolid(x, y));
-            assertEquals(door.visualId(), layout.visuals().structureAt(x, y));
+            // V4: 문은 Door 객체에서 직접 그린다. 구형 structure/wall 스킨은 남지 않는다.
+            assertNull("V4 draws doors; no structure skin", layout.visuals().structureAt(x, y));
             assertNull(layout.visuals().wallAt(x, y));
             if (door.orientation() == Door.Orientation.HORIZONTAL) {
-                assertEquals("door_jamb_left", layout.visuals().structureAt(x - 1, y));
-                assertEquals("door_jamb_right", layout.visuals().structureAt(x + 1, y));
+                assertEquals("horizontal door jambs are walls", TileType.WALL, room.rawTileAt(x - 1, y));
+                assertEquals(TileType.WALL, room.rawTileAt(x + 1, y));
             } else {
-                assertEquals("vertical_door_jamb_bottom", layout.visuals().structureAt(x, y - 1));
-                assertEquals("vertical_door_jamb_top", layout.visuals().structureAt(x, y + 1));
+                assertEquals("vertical door jambs are walls", TileType.WALL, room.rawTileAt(x, y - 1));
+                assertEquals(TileType.WALL, room.rawTileAt(x, y + 1));
             }
         }
-        assertEquals("one authored door per room", 16, doorCount);
-        assertEquals(16, layout.roomAreas().size());
+        assertEquals("one authored door per room (16 themed + 10 annex)", 26, doorCount);
+        assertEquals(26, layout.roomAreas().size());
         int minWidth=Integer.MAX_VALUE,maxWidth=0;
         for (LaboratoryRoomArea area : layout.roomAreas()) {
             minWidth=Math.min(minWidth,area.width());
@@ -71,9 +88,9 @@ public class EasyLaboratoryLayoutTest {
         }
         assertTrue("small rooms retained",minWidth<=7);
         assertTrue("larger rooms retained within half-scale bounds",maxWidth<=11);
-        assertTrue("sleeping room notch remains",room.isSolid(45,23));
-        assertTrue("chemistry room recess remains",room.isSolid(30,53));
-        assertTrue("archive room recess remains",room.isSolid(90,41));
+        assertTrue("sleeping room notch remains",room.isSolid(49,20));
+        assertTrue("chemistry room recess remains",room.isSolid(37,44));
+        assertTrue("library recess remains",room.isSolid(84,33));
         Door firstDoor = null;
         for (int y = 0; y < room.heightInTiles() && firstDoor == null; y++)
             for (int x = 0; x < room.widthInTiles() && firstDoor == null; x++)
@@ -149,20 +166,27 @@ public class EasyLaboratoryLayoutTest {
         }
     }
 
-    @Test public void easyWallVisualsUseConnectedCornersJunctionsAndSparseSupports() {
+    @Test public void easyWallsUseConnectedV4MasksWithNoLegacySkin() {
         LaboratoryLayout layout=LaboratoryLayout.easyRoom();
-        new WallTopologyValidator().validateWallTopology(layout.room(),layout.visuals());
-        new WallTopologyValidator().validateVisualConnections(layout.room(),layout.visuals());
-        java.util.Set<String> ids=new java.util.HashSet<>();
-        for(int y=0;y<layout.room().heightInTiles();y++) for(int x=0;x<layout.room().widthInTiles();x++) {
-            String id=layout.visuals().wallAt(x,y);
-            if(id!=null) ids.add(id);
+        LaboratoryRoom room=layout.room();
+        // 구형 벽/문 스킨 레이어는 완전히 비어 있다(혼재 금지). 벽은 V4가 논리 점유에서 그린다.
+        for(int y=0;y<room.heightInTiles();y++) for(int x=0;x<room.widthInTiles();x++) {
+            assertNull("no legacy wall skin remains", layout.visuals().wallAt(x,y));
+            assertNull("no legacy structure skin remains", layout.visuals().structureAt(x,y));
         }
-        assertTrue("corners use dedicated tiles", ids.contains("wall_outer_nw") || ids.contains("wall_inner_nw"));
-        assertTrue("T junctions use dedicated tiles", ids.contains("wall_t_open_north")
-            || ids.contains("wall_t_open_south") || ids.contains("wall_t_open_east") || ids.contains("wall_t_open_west"));
-        assertTrue("straight reinforced supports are used sparingly", ids.contains("wall_support_horizontal")
-            || ids.contains("wall_support_vertical"));
+        java.util.Set<Integer> indices=new java.util.HashSet<>();
+        for(int y=0;y<room.heightInTiles();y++) for(int x=0;x<room.widthInTiles();x++) {
+            if(room.rawTileAt(x,y)!=TileType.WALL) continue;
+            int idx=WallMaskV4.atlasIndex(room,x,y); // 지원하지 않는 마스크면 throw
+            assertTrue("valid V4 atlas index", idx>=0 && idx<WallMaskV4.VARIANT_COUNT);
+            indices.add(idx);
+        }
+        // 직선/코너/T/십자/채움 등 다양한 연결 형태가 실제로 쓰인다.
+        assertTrue("straight walls present",
+            indices.contains(WallMaskV4.atlasIndex(WallMaskV4.E|WallMaskV4.W))
+            || indices.contains(WallMaskV4.atlasIndex(WallMaskV4.N|WallMaskV4.S)));
+        assertTrue("solid fill interior present", indices.contains(WallMaskV4.atlasIndex(255)));
+        assertTrue("connected variety is used", indices.size()>=6);
     }
 
     private static boolean insideNamedRoomFloor(LaboratoryLayout layout,

@@ -1,0 +1,153 @@
+{
+  "origin": "top-left",
+  "textureFilter": "Nearest",
+  "records": [
+    {
+      "id": "horizontal_closed",
+      "file": "runtime/doors/door_horizontal_closed.png",
+      "size": [
+        256,
+        96
+      ],
+      "passageRect": [
+        58,
+        0,
+        140,
+        96
+      ],
+      "jambCollisionRects": [
+        [
+          0,
+          0,
+          58,
+          96
+        ],
+        [
+          198,
+          0,
+          58,
+          96
+        ]
+      ],
+      "closedLeafCollisionRect": [
+        58,
+        0,
+        140,
+        96
+      ],
+      "orientationMeaning": "wall runs east-west; actor travels north-south",
+      "recommendedRenderCells": [
+        4,
+        1.5
+      ]
+    },
+    {
+      "id": "horizontal_open",
+      "file": "runtime/doors/door_horizontal_open.png",
+      "size": [
+        256,
+        96
+      ],
+      "passageRect": [
+        58,
+        0,
+        140,
+        96
+      ],
+      "jambCollisionRects": [
+        [
+          0,
+          0,
+          58,
+          96
+        ],
+        [
+          198,
+          0,
+          58,
+          96
+        ]
+      ],
+      "closedLeafCollisionRect": null,
+      "orientationMeaning": "wall runs east-west; actor travels north-south",
+      "recommendedRenderCells": [
+        4,
+        1.5
+      ]
+    },
+    {
+      "id": "vertical_closed",
+      "file": "runtime/doors/door_vertical_closed.png",
+      "size": [
+        96,
+        256
+      ],
+      "passageRect": [
+        0,
+        54,
+        96,
+        148
+      ],
+      "jambCollisionRects": [
+        [
+          0,
+          0,
+          96,
+          54
+        ],
+        [
+          0,
+          202,
+          96,
+          54
+        ]
+      ],
+      "closedLeafCollisionRect": [
+        0,
+        54,
+        96,
+        148
+      ],
+      "orientationMeaning": "wall runs north-south; actor travels west-east",
+      "recommendedRenderCells": [
+        1.5,
+        4
+      ]
+    },
+    {
+      "id": "vertical_open",
+      "file": "runtime/doors/door_vertical_open.png",
+      "size": [
+        96,
+        256
+      ],
+      "passageRect": [
+        0,
+        54,
+        96,
+        148
+      ],
+      "jambCollisionRects": [
+        [
+          0,
+          0,
+          96,
+          54
+        ],
+        [
+          0,
+          202,
+          96,
+          54
+        ]
+      ],
+      "closedLeafCollisionRect": null,
+      "orientationMeaning": "wall runs north-south; actor travels west-east",
+      "recommendedRenderCells": [
+        1.5,
+        4
+      ]
+    }
+  ],
+  "note": "Collision rectangles are conservative guides; threshold rails remain walkable. Open and closed states share one placement and size. Wall recess must match render bounds."
+}

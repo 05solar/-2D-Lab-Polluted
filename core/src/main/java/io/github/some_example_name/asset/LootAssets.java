@@ -53,9 +53,13 @@ public final class LootAssets implements Disposable {
     /** Backwards-compatible framed item accessor. */
     public TextureRegion item(LootItem item){return itemFramed(item);}
     public LootContainer newContainer(String id,float x,float y) {
+        return newContainer(id,x,y,1);
+    }
+    /** requiredPresses: 개봉에 필요한 SPACE 입력 횟수(BalanceConfig.requiredPresses). */
+    public LootContainer newContainer(String id,float x,float y,int requiredPresses) {
         Clip clip=containers.get(id); int[] sequence=new int[clip.frames.length];
         for(int i=0;i<sequence.length;i++) sequence[i]=i;
-        return new LootContainer(id,x,y,clip.duration,sequence,clip.rewardFrame);
+        return new LootContainer(id,x,y,clip.duration,sequence,clip.rewardFrame,requiredPresses);
     }
     @Override public void dispose(){for(Texture t:textures.values())t.dispose();}
 }

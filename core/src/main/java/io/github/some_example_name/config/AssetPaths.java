@@ -26,6 +26,19 @@ public final class AssetPaths {
     public static final String EXTERIOR_DIR = "exterior_walls_gate_v3/";
     public static final String EXTERIOR_LAYOUT_JSON = EXTERIOR_DIR + "layout.json";
 
+    /** 연구소 구조 통일 V4: 47종 연결 벽 아틀라스 + 가로/세로 방문(닫힘/열림). */
+    public static final String STRUCTURE_V4_DIR = "laboratory_structure_v4/";
+    public static final String STRUCTURE_V4_WALL_ATLAS =
+        STRUCTURE_V4_DIR + "runtime/walls/walls_blob47_atlas_128.png";
+    public static final String STRUCTURE_V4_DOOR_H_CLOSED =
+        STRUCTURE_V4_DIR + "runtime/doors/door_horizontal_closed.png";
+    public static final String STRUCTURE_V4_DOOR_H_OPEN =
+        STRUCTURE_V4_DIR + "runtime/doors/door_horizontal_open.png";
+    public static final String STRUCTURE_V4_DOOR_V_CLOSED =
+        STRUCTURE_V4_DIR + "runtime/doors/door_vertical_closed.png";
+    public static final String STRUCTURE_V4_DOOR_V_OPEN =
+        STRUCTURE_V4_DIR + "runtime/doors/door_vertical_open.png";
+
     /** 미니맵 프레임·발자국·귀환(대문) 버튼 UI 에셋. */
     public static final String NAV_MINIMAP_FRAME = "ui/navigation/minimap_frame_256.png";
     public static final String NAV_FOOTPRINTS = "ui/navigation/footprints_pair_64.png";
@@ -33,6 +46,10 @@ public final class AssetPaths {
 
     public static final String SPACE_PROMPT_IMAGE = "ui/interaction/spacebar_prompt_sheet_128x64.png";
     public static final String SPACE_PROMPT_JSON = "ui/interaction/spacebar_prompt.json";
+
+    /** 컨테이너 개봉 효과음(직접 합성 — assets/sounds/README.md 참고). */
+    public static final String SOUND_CONTAINER_CLICK = "sounds/container_click.wav";
+    public static final String SOUND_CONTAINER_UNLOCK = "sounds/container_unlock.wav";
 
     /** 플레이어 HP HUD + 8칸 가방 UI 팩(런타임 PNG + 배치 좌표 JSON). */
     public static final String HUD_DIR = "ui/player_hud_inventory_v1/";

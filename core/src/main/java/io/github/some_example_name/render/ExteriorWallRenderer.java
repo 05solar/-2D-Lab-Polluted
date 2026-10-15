@@ -45,5 +45,19 @@ public final class ExteriorWallRenderer {
         batch.end();
     }
 
+    /**
+     * 본부↔연구소 대문(8x4, V3)만 그린다. 외벽 링 자체는 V4 벽이 담당하므로 더 이상 그리지 않는다.
+     * anchorPx 하단-중앙 → base y=0, center x=gateCenterX. 닫힘=통로 차단, 열림=통로 투명.
+     */
+    public void renderGate(Camera worldCamera, float gateCenterX, boolean gateOpen) {
+        float gw = a.gateWorldWidthTiles, gh = a.gateWorldHeightTiles; // 8 x 4
+        batch.setProjectionMatrix(worldCamera.combined);
+        batch.enableBlending();
+        batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        batch.begin();
+        batch.draw(a.gate(gateOpen), gateCenterX - gw / 2f, 0f, gw, gh);
+        batch.end();
+    }
+
     public void dispose() { batch.dispose(); }
 }

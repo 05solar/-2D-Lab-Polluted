@@ -154,3 +154,10 @@ PNG 알파(`LaboratoryTileCatalogV2Test`): 벽/구조물/오버레이의 알파 
 ## 외벽·대문 V3 테스트
 - EasyLaboratoryLayoutTest: 남쪽 복귀 개구부 통행 가능, crossedSouthExit 경계(y=1) 트리거(기존 유지), 16방 연결.
 - 수동(실행 창): 외벽 네 방향·모서리 연속, 대문 닫힘 통행 불가→SPACE로 열림→중앙 통로 통행→남쪽 복귀, 문틀 통과 불가, 미니맵/충돌 디버그 반영.
+
+## V4 구조·컨테이너 개편 테스트 (2026-10-14)
+- `WallMaskV4` 매핑: `EasyLaboratoryLayoutTest.easyWallsUseConnectedV4MasksWithNoLegacySkin` — 전 벽 셀 유효 인덱스(0..46), 구형 스킨 레이어 완전 비움, 연결 다양성.
+- `LaboratoryMetricsTest` — 방 수·문 사이 평균 BFS 거리·등급별 컨테이너 수를 출력하고 전 문 쌍 연결을 단언(전후 비교 근거).
+- `LootContainerTest.multiPressOpensExactlyAtRequiredCountAndOnlyOnce` — 1/5/8회 개봉, 진행도 저장, 도달 입력 1회 개봉, 개봉 후 재입력 무시. `balanceConfigMapsContainerIdsToPressCounts` — 설정 매핑.
+- 실행 검증(실프레임): `LAB_AUTO_CAPTURE=1 LAB_AUTO_PRESS=1 LAB_START_ROOM=LIBRARY` — 1/5→5/5 로그, 보라 발광 펄스 프레임(`library_glow_ui.png`), 개봉+프롬프트 소멸(`library_opened.png`), 클릭/해제음 재생 호출.
+- 수동(사용자): 길게 누르면 1회만 증가, 거리 이탈 후 재접근 시 진행 유지, 두 캐비넷 사이에서 바라보는 대상만 카운트 증가, 가방 가득 시 D 교체, 소리 겹침 체감.

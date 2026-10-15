@@ -12,13 +12,16 @@ import java.util.List;
  */
 public final class LaboratoryLayout {
 
-    private static final float PLAN_SPACING_SCALE = .70f;
+    // 방 간격 압축(.70→.55): 문 사이 평균 이동 거리를 줄이기 위해 캠퍼스를 중앙으로 모은다.
+    // 128x96 맵 크기는 유지하고 바깥은 비플레이 검은 영역으로 남긴다.
+    private static final float PLAN_SPACING_SCALE = .55f;
     private static final float ROOM_SIZE_SCALE = .55f;
     private static final int MAIN_SPINE_X = 63;
-    private static final int MAIN_CROSS_Y = 35;
-    private static final int WEST_SPINE_X = 21;
-    private static final int EAST_SPINE_X = 102;
+    private static final int MAIN_CROSS_Y = 28;
+    private static final int WEST_SPINE_X = 29;
+    private static final int EAST_SPINE_X = 94;
     private static final int SOUTH_SPINE_Y = 5;
+    private static final int NORTH_RING_Y = 53;
     private static final float WALL_FURNITURE_HEIGHT = 2.45f;
     private static final float WALL_FURNITURE_GAP = .05f;
     /** 정면/뒷모습 가구의 바닥 접촉(footprint) 깊이. 높은 입면 상단은 충돌로 잡지 않는다. */
@@ -88,8 +91,17 @@ public final class LaboratoryLayout {
         return fromRows(TEST_ROOM);
     }
 
-    /** Easy campaign: a large, irregular campus connected by a cross-spine and short branches. */
     public static LaboratoryLayout easyRoom() {
+        return easyRoom(new io.github.some_example_name.config.BalanceConfig());
+    }
+
+    /**
+     * Easy campaign: a large, irregular campus connected by a cross-spine, an outer ring and
+     * short branches. 기존 16개 테마 방 + 복도 주변 빈 공간의 보조실 9개(일부는 기존 방과 직접
+     * 연결). 외곽 순환 복도(서/동 세로 연장 + 북쪽 가로 + 남쪽 연장)로 이동 거리를 줄인다.
+     * 컨테이너 수·배치는 config(등급별 개수)로 관리한다.
+     */
+    public static LaboratoryLayout easyRoom(io.github.some_example_name.config.BalanceConfig config) {
         final int w = 128, h = 96;
         TileType[][] logical = new TileType[h][w];
         LaboratoryZone[][] zones = new LaboratoryZone[h][w];
@@ -120,12 +132,37 @@ public final class LaboratoryLayout {
         plans.add(new RoomPlan("PANTRY", 96, 29, 9, 12, Side.NORTH, 5, 0, 0, 0, 0));
         plans.add(new RoomPlan("ENTRANCE", 68, 8, 17, 14, Side.SOUTH, 9, 0, 0, 0, 0));
 
-        // Main and branch corridors are two tiles wide. The previous three-tile
-        // branches are reduced by 25%; the two-tile minimum keeps player movement clear.
-        hall(logical, MAIN_SPINE_X, 0, 2, 72);
-        hall(logical, 19, MAIN_CROSS_Y, 90, 2);
-        hall(logical, WEST_SPINE_X, SOUTH_SPINE_Y, 56, 2);
-        hall(logical, WEST_SPINE_X, SOUTH_SPINE_Y, 2, 32);
+        // Main and branch corridors are two tiles wide. The two-tile minimum keeps
+        // player movement clear; outer ring + short branches replace the old long spines.
+        hall(logical, MAIN_SPINE_X, 0, 2, 56);                       // 중앙 세로 x63-64, y0..55
+        hall(logical, WEST_SPINE_X, MAIN_CROSS_Y, 67, 2);            // 십자 가로 y28-29, x29..95
+        // 순환 복도(외곽 링): 서/동 세로 + 북쪽 가로 + 남쪽 가로 → 순환 동선.
+        hall(logical, WEST_SPINE_X, SOUTH_SPINE_Y, 2, 50);           // 서쪽 세로 x29-30, y5..54
+        hall(logical, EAST_SPINE_X, SOUTH_SPINE_Y, 2, 50);           // 동쪽 세로 x94-95, y5..54
+        hall(logical, WEST_SPINE_X, NORTH_RING_Y, 67, 2);            // 북쪽 가로 y53-54, x29..95
+        hall(logical, WEST_SPINE_X, SOUTH_SPINE_Y, 67, 2);           // 남쪽 가로 y5-6, x29..95
+        // 서버 별관 전용 남쪽 접근(십자 복도 → 방문 앞 지지 구간).
+        hall(logical, 75, 30, 5, 2);                                 // x75..79, y30-31
+        // 중간 지름길(짧은 연결 구간, 1타일 폭): 방 사이 좁은 틈을 세로/가로로 꿰어
+        // 남↔북, 동↔서 이동이 외곽 링까지 돌지 않게 한다.
+        hall(logical, 31, 16, 32, 1);                                // y16, x31..62 (남쪽 중간 가로)
+        hall(logical, 45, 30, 1, 24);                                // x45, y30..53 (십자↔북쪽 링, 서측)
+        hall(logical, 91, 7, 1, 21);                                 // x91, y7..27 (남쪽↔십자, 동측)
+        hall(logical, 82, 30, 1, 23);                                // x82, y30..52 (십자↔북쪽 링, 동측)
+
+        // 복도 주변 빈 공간의 보조실 10개. 기존 방 형태·테마는 유지하고, 작은 창고/설비실을
+        // 복도·이웃 방에 붙여 방 밀도를 높인다(경비초소→입구, 전기실→경비초소, 창고→휴게실 직접 연결).
+        plans.add(RoomPlan.absolute("STORAGE ANNEX", 56, 8, 7, 7, Side.EAST, 3));      // doorE(62,11)→MAIN
+        plans.add(RoomPlan.absolute("STORE ROOM", 41, 18, 7, 8, Side.WEST, 3));        // doorW(41,21)→LOUNGE 직접
+        plans.add(RoomPlan.absolute("GUARD POST", 74, 8, 8, 7, Side.WEST, 3));         // doorW(74,11)→ENTRANCE 직접
+        plans.add(RoomPlan.absolute("ELECTRICAL", 74, 14, 8, 7, Side.SOUTH, 4));       // doorS(78,14)→GUARD POST 직접
+        plans.add(RoomPlan.absolute("QUARANTINE", 75, 46, 7, 7, Side.NORTH, 3));       // doorN(78,52)→북쪽 링
+        plans.add(RoomPlan.absolute("SERVER ANNEX", 74, 32, 8, 7, Side.SOUTH, 3));     // doorS(77,32)→십자 접근
+        plans.add(RoomPlan.absoluteNotched("NORTH STORE", 40, 55, 8, 7, Side.SOUTH, 3,
+            41, 59, 2, 2));                                                             // doorS(43,55)→링, L자
+        plans.add(RoomPlan.absolute("SPECIMEN ANNEX", 76, 55, 8, 7, Side.SOUTH, 3));   // doorS(79,55)→링
+        plans.add(RoomPlan.absolute("WASHROOM", 22, 18, 7, 7, Side.EAST, 3));          // doorE(28,21)→서쪽 링
+        plans.add(RoomPlan.absolute("WEST CLOSET", 22, 32, 7, 7, Side.EAST, 3));       // doorE(28,35)→서쪽 링
         // Open door markers sit in the same logical boundary cells later used by
         // DoorPlacementResolver for visual jambs and collision state.
         for (RoomPlan plan : plans) {
@@ -147,9 +184,20 @@ public final class LaboratoryLayout {
         List<WallFurnitureCoverageReport> coverage = new ArrayList<>();
         for (RoomPlan plan : plans) addRoomFurniture(props, plan, coverage, logical);
         validateFurniturePlacements(props, plans, logical);
-        containers.add(findContainer("wooden_chest","CHEMISTRY",plans,props,logical));
-        containers.add(findContainer("epic_cabinet","INFORMATION",plans,props,logical));
-        containers.add(findContainer("legendary_cabinet","LIBRARY",plans,props,logical));
+        // 컨테이너 분산 배치: 등급별 개수는 config로 관리하고(비율 wood>epic>legendary 유지),
+        // 대부분의 방에 최소 하나, 보관실·표본실·주요 연구실(도서관)은 복수 배치. 출입구 앞과
+        // 주요 통로는 비운다(findContainer가 문 주변 2.5칸·가구·기존 컨테이너를 피해서 고른다).
+        String[] woodenRooms={"RESTROOM","LOCKER","SHOWER","LOUNGE","SLEEPING","PANTRY","ENTRANCE",
+            "GENERAL LAB","STORAGE ANNEX","WASHROOM","GUARD POST","WEST CLOSET","NORTH STORE",
+            "CHEMISTRY","SERVER ANNEX"};
+        String[] epicRooms={"CHEMISTRY","BIOLOGY","PREP ROOM","INFORMATION","CCTV","RECORDS","LIBRARY"};
+        String[] legendaryRooms={"LIBRARY","SPECIMEN"};
+        for(int i=0;i<Math.min(config.woodenChestCount,woodenRooms.length);i++)
+            containers.add(findContainer("wooden_chest",woodenRooms[i],plans,props,logical,containers));
+        for(int i=0;i<Math.min(config.epicCabinetCount,epicRooms.length);i++)
+            containers.add(findContainer("epic_cabinet",epicRooms[i],plans,props,logical,containers));
+        for(int i=0;i<Math.min(config.legendaryCabinetCount,legendaryRooms.length);i++)
+            containers.add(findContainer("legendary_cabinet",legendaryRooms[i],plans,props,logical,containers));
         Vector2 spawn = new Vector2(63.5f, 3.2f);
         LaboratoryRoom room = new LaboratoryRoom(logical, spawn, null, resolved.doors, props);
         // 2타일 개구부(y0,1)를 지나 바깥 경계(y=1)를 남쪽으로 넘을 때 복귀가 트리거된다.
@@ -157,31 +205,27 @@ public final class LaboratoryLayout {
         // 대문 통로(x62~65, y0~2): 기본 닫힘으로 통행 차단. SPACE로 열면 통행 가능.
         room.setGatePassage(new Rectangle(62f, 0f, 3f, 2f));
         for (LootContainerPlacement placement : containers)
-            room.addWorldObstacle(new Rectangle(placement.x() - .42f, placement.y(), .84f, .48f));
+            room.addWorldObstacle(containerFootprint(placement.id(), placement.x(), placement.y()));
         OverlayResolver.Result overlays = new OverlayResolver(OverlayResolver.DEFAULT_SEED + 100)
             .resolve(logical, zones);
         String[][] floor = new FloorVariantResolver(FloorVariantResolver.DEFAULT_SEED + 100)
             .resolve(logical, zones);
-        String[][] wall = new String[h][w], structure = resolved.structure;
-        WallAutotiler autotiler = new WallAutotiler();
+        // 벽·문 스킨 레이어는 비운다. 벽·문은 모두 V4 렌더러가 논리 점유에서 직접 그린다.
+        String[][] wall = new String[h][w], structure = new String[h][w];
+        boolean[][] forced = new boolean[h][w];
         for (int y = 0; y < h; y++) for (int x = 0; x < w; x++) {
             boolean occupied = logical[y][x] != TileType.WALL || adjacentToFloor(logical, x, y);
-            if (!occupied) {
+            if (!occupied) {                 // 방 사이 깊은 벽 덩어리: 비플레이 검은 영역
                 floor[y][x] = null;
                 overlays.overlay[y][x] = null;
-                structure[y][x] = null;
-                continue;
             }
-            if (logical[y][x] == TileType.WALL)
-                wall[y][x] = autotiler.tileId(room, x, y);
-            if (structure[y][x] != null) wall[y][x] = null;
-            // 외곽 2타일 링은 새 exterior_walls_gate_v3 외벽 스프라이트가 대체하므로
-            // 기존 autotile 스킨을 지운다(중복 렌더 방지). 충돌(WALL)은 그대로 유지된다.
-            if (x <= 1 || y <= 1 || x >= w - 2 || y >= h - 2) wall[y][x] = null;
+            // 2타일 외벽 링은 바닥에 노출되지 않아도 V4가 반드시 그린다(충돌 WALL은 그대로).
+            if (x <= 1 || y <= 1 || x >= w - 2 || y >= h - 2) forced[y][x] = true;
         }
-        RoomVisuals visuals = new RoomVisuals(floor, overlays.overlay, wall, structure,
-            resolved.doors, props);
-        new WallTopologyValidator().validateDoorPlacement(room, visuals);
+        room.setForcedWallMask(forced);
+        // 문은 V4 렌더러가 room.doors()로 그린다. RoomVisuals에는 문을 넘기지 않아 구형
+        // structure 스킨(door.visualId())이 덧그려지지 않게 한다.
+        RoomVisuals visuals = new RoomVisuals(floor, overlays.overlay, wall, structure, null, props);
         LaboratoryLayout layout = new LaboratoryLayout(room, visuals, containers, roomAreas, coverage);
         layout.exteriorRing = true; // easy 맵은 2타일 외벽 링 + 8x4 대문을 쓴다
         return layout;
@@ -192,9 +236,12 @@ public final class LaboratoryLayout {
         final String name; final int x, y, w, h; final Side side; final int offset;
         final int notchX, notchY, notchW, notchH;
         final int doorX, doorY;
+        final boolean absolute; // true면 보조실: 좌표를 그대로 쓰고 복도 접근 통로를 따로 파지 않는다
+
         RoomPlan(String name,int x,int y,int w,int h,Side side,int offset,
                  int notchX,int notchY,int notchW,int notchH) {
             this.name=name;
+            this.absolute=false;
             this.x=compactX(x);this.y=compactY(y);
             this.w=Math.max(7,Math.round(w*ROOM_SIZE_SCALE));
             this.h=Math.max(7,Math.round(h*ROOM_SIZE_SCALE));
@@ -208,6 +255,27 @@ public final class LaboratoryLayout {
             this.notchH=notchH==0?0:Math.max(1,Math.round(notchH*ROOM_SIZE_SCALE));
             doorX=side==Side.WEST?this.x:side==Side.EAST?this.x+this.w-1:this.x+this.offset;
             doorY=side==Side.SOUTH?this.y:side==Side.NORTH?this.y+this.h-1:this.y+this.offset;
+        }
+
+        private RoomPlan(String name,int x,int y,int w,int h,Side side,int offset,
+                         int notchX,int notchY,int notchW,int notchH,boolean absolute) {
+            this.name=name; this.absolute=absolute;
+            this.x=x; this.y=y; this.w=w; this.h=h; this.side=side;
+            int openingLength=(side==Side.NORTH||side==Side.SOUTH)?w:h;
+            this.offset=Math.max(3,Math.min(openingLength-4,offset));
+            this.notchX=notchX; this.notchY=notchY;
+            this.notchW=notchW; this.notchH=notchH;
+            doorX=side==Side.WEST?x:side==Side.EAST?x+w-1:x+this.offset;
+            doorY=side==Side.SOUTH?y:side==Side.NORTH?y+h-1:y+this.offset;
+        }
+
+        /** 최종 타일 좌표를 그대로 쓰는 보조실. 문은 기존 복도/이웃 방 바닥에 바로 접해야 한다. */
+        static RoomPlan absolute(String name,int x,int y,int w,int h,Side side,int offset) {
+            return new RoomPlan(name,x,y,w,h,side,offset,0,0,0,0,true);
+        }
+        static RoomPlan absoluteNotched(String name,int x,int y,int w,int h,Side side,int offset,
+                                        int notchX,int notchY,int notchW,int notchH) {
+            return new RoomPlan(name,x,y,w,h,side,offset,notchX,notchY,notchW,notchH,true);
         }
     }
 
@@ -235,6 +303,7 @@ public final class LaboratoryLayout {
         // Two-tile travel corridors begin outside a short five-cell door vestibule,
         // preserving the wall support required around each one-cell opening.
         for(RoomPlan p:plans) {
+            if (p.absolute) continue; // 보조실은 문이 기존 복도/이웃 방 바닥에 직접 접한다
             switch(p.side) {
                 case EAST:
                     int eastSpine=(p.name.equals("CCTV")||p.name.equals("LIBRARY"))
@@ -280,8 +349,18 @@ public final class LaboratoryLayout {
         for(RoomPlan p:plans)out.add(new LaboratoryRoomArea(p.name,p.x,p.y,p.w,p.h));
         return out;
     }
+    /** 캐비넷(일반/고급)의 표시·바닥 점유 배율. 나무 상자는 1. BalanceConfig.cabinetRenderScale과 일치. */
+    static float containerScale(String id) { return id.endsWith("_cabinet") ? 1.4f : 1f; }
+
+    /** 컨테이너 바닥 점유(충돌·접근 검사 공용): 하단 중앙 기준, 캐비넷은 1.4배. */
+    static Rectangle containerFootprint(String id, float x, float y) {
+        float scale = containerScale(id);
+        return new Rectangle(x - .42f * scale, y, .84f * scale, .48f * scale);
+    }
+
     private static LootContainerPlacement findContainer(String id,String roomName,
-            List<RoomPlan> plans,List<LaboratoryProp> props,TileType[][] map) {
+            List<RoomPlan> plans,List<LaboratoryProp> props,TileType[][] map,
+            List<LootContainerPlacement> placed) {
         RoomPlan plan=null;
         for(RoomPlan candidate:plans)if(candidate.name.equals(roomName)){plan=candidate;break;}
         if(plan==null)throw new IllegalArgumentException("missing room "+roomName);
@@ -291,13 +370,20 @@ public final class LaboratoryLayout {
             float cx=x+.5f,cy=y+.5f;
             float doorDx=cx-(plan.doorX+.5f),doorDy=cy-(plan.doorY+.5f);
             if(doorDx*doorDx+doorDy*doorDy<6.25f)continue;
-            Rectangle bounds=new Rectangle(x+.08f,y+.08f,.84f,.48f);
+            Rectangle bounds=containerFootprint(id,cx,y+.08f);
             boolean occupied=false;
             for(LaboratoryProp prop:props) {
                 Rectangle collision=prop.collision();
                 if(collision!=null&&bounds.overlaps(collision)){occupied=true;break;}
             }
             if(occupied)continue;
+            // 같은 방 복수 배치: 기존 컨테이너와 2.2칸 이상 띄워 접근로를 확보한다.
+            boolean nearPlaced=false;
+            for(LootContainerPlacement other:placed) {
+                float odx=cx-other.x(),ody=cy-other.y();
+                if(odx*odx+ody*ody<2.2f*2.2f){nearPlaced=true;break;}
+            }
+            if(nearPlaced)continue;
             float dx=cx-(plan.x+plan.w/2f),dy=cy-(plan.y+plan.h/2f);
             float score=dx*dx+dy*dy;
             if(score<bestScore){bestScore=score;bestX=x+.5f;bestY=y+.5f;}
@@ -332,10 +418,23 @@ public final class LaboratoryLayout {
             {"restroom_shower/shower_stall/front","restroom_shower/sink_counter/left_side","restroom_shower/shower_stall/right_side","restroom_shower/shower_stall/front"},
             {"archive_library/filing_cabinet/front","archive_library/archive_shelf/left_side","archive_library/filing_cabinet/right_side","archive_library/archive_shelf/front"},
             {"pantry/kitchenette/front","pantry/refrigerator/left_side","pantry/coffee_station/right_side","pantry/microwave_cabinet/front"},
-            {"information_cctv/computer_workstation/front","information_cctv/server_rack/left_side","pantry/refrigerator/right_side","information_cctv/computer_workstation/front"}
+            {"information_cctv/computer_workstation/front","information_cctv/server_rack/left_side","pantry/refrigerator/right_side","information_cctv/computer_workstation/front"},
+            // 보조실 10종(용도별 구성 — 같은 목록 반복 금지)
+            {"general_lab/storage_cabinet/front","archive_library/archive_shelf/left_side","general_lab/storage_cabinet/right_side","general_lab/workbench/front"},        // STORAGE ANNEX
+            {"lounge_sleeping/locker_bank/front","archive_library/archive_shelf/left_side","general_lab/storage_cabinet/right_side","lounge_sleeping/locker_bank/front"},  // STORE ROOM
+            {"information_cctv/server_rack/front","general_lab/workbench/left_side","information_cctv/server_rack/right_side","general_lab/storage_cabinet/front"},        // ELECTRICAL
+            {"science_lab/biosafety_cabinet/front","science_lab/specimen_cabinet/left_side","restroom_shower/sink_counter/right_side","science_lab/specimen_cabinet/front"},// QUARANTINE
+            {"restroom_shower/sink_counter/front","restroom_shower/shower_stall/left_side","restroom_shower/sink_counter/right_side","restroom_shower/shower_stall/front"},// WASHROOM
+            {"information_cctv/cctv_console/front","lounge_sleeping/locker_bank/left_side","information_cctv/computer_workstation/right_side","lounge_sleeping/locker_bank/front"}, // GUARD POST
+            {"information_cctv/server_rack/front","information_cctv/server_rack/left_side","information_cctv/computer_workstation/right_side","general_lab/workbench/front"},      // SERVER ANNEX
+            {"general_lab/storage_cabinet/front","general_lab/storage_cabinet/left_side","archive_library/filing_cabinet/right_side","archive_library/archive_shelf/front"},       // NORTH STORE
+            {"science_lab/specimen_cabinet/front","science_lab/biosafety_cabinet/left_side","science_lab/specimen_cabinet/right_side","general_lab/storage_cabinet/front"},        // SPECIMEN ANNEX
+            {"lounge_sleeping/locker_bank/front","lounge_sleeping/locker_bank/left_side","general_lab/storage_cabinet/right_side","lounge_sleeping/locker_bank/front"}             // WEST CLOSET
         };
-        String[] names={"CHEMISTRY","BIOLOGY","GENERAL LAB","PREP ROOM","INFORMATION","CCTV","SPECIMEN","LIBRARY","LOUNGE","SLEEPING","RESTROOM","LOCKER","SHOWER","RECORDS","PANTRY","ENTRANCE"};
+        String[] names={"CHEMISTRY","BIOLOGY","GENERAL LAB","PREP ROOM","INFORMATION","CCTV","SPECIMEN","LIBRARY","LOUNGE","SLEEPING","RESTROOM","LOCKER","SHOWER","RECORDS","PANTRY","ENTRANCE",
+            "STORAGE ANNEX","STORE ROOM","ELECTRICAL","QUARANTINE","WASHROOM","GUARD POST","SERVER ANNEX","NORTH STORE","SPECIMEN ANNEX","WEST CLOSET"};
         int index=0;while(index<names.length&&!names[index].equals(p.name))index++;
+        String[] kit=kits[index];
         // Fill all four wall runs before creating center islands. Wall slots use
         // measured opaque alpha spans, so transparent canvas margins do not create
         // fake coverage or visible gaps. Door cells, jambs, corners and recesses are
@@ -343,13 +442,13 @@ public final class LaboratoryLayout {
         // Wall-mounted artwork is anchored at its visible alpha edge against the
         // room-facing wall boundary. Wall cells themselves are never used as floor.
         addWallFurniture(out, coverage, p, map, "NORTH", p.x + 1, p.x + p.w - 1,
-            p.y + p.h - 1, true, kits[index][0], kits[index][1]);
+            p.y + p.h - 1, true, kit[0], kit[1]);
         addWallFurniture(out, coverage, p, map, "SOUTH", p.x + 1, p.x + p.w - 1,
-            p.y + 1, true, kits[index][1], kits[index][0]);
+            p.y + 1, true, kit[1], kit[0]);
         addWallFurniture(out, coverage, p, map, "WEST", p.y + 1, p.y + p.h - 1,
-            p.x + 1, false, kits[index][2], kits[index][0]);
+            p.x + 1, false, kit[2], kit[0]);
         addWallFurniture(out, coverage, p, map, "EAST", p.y + 1, p.y + p.h - 1,
-            p.x + p.w - 1, false, kits[index][3], kits[index][1]);
+            p.x + p.w - 1, false, kit[3], kit[1]);
         // Compact central equipment islands are offset from the doorway and from
         // one another; small rooms keep a clear center lane.
         if(p.w>=9&&p.h>=8) {
@@ -360,7 +459,7 @@ public final class LaboratoryLayout {
                 for(int col=0;col<columns;col++) {
                     float x=p.x+p.w*(columns==2?(col==0?.34f:.66f):(.30f+col*.20f));
                     if(!insideNotch(p,x,y))
-                        addV7(out,kits[index][(row+col)%4],x,y,1.85f,.34f,p,map);
+                        addV7(out,kit[(row+col)%4],x,y,1.85f,.34f,p,map);
                 }
             }
         }
@@ -373,7 +472,7 @@ public final class LaboratoryLayout {
         int runStart = -1;
         float usable = 0f, covered = 0f;
         for (int cell = firstCell; cell <= endCell; cell++) {
-            boolean available = cell < endCell && wallCellAvailable(plan, wall, cell);
+            boolean available = cell < endCell && wallCellAvailable(plan, wall, cell, map);
             if (available) {
                 if (runStart < 0) runStart = cell;
                 continue;
@@ -390,13 +489,26 @@ public final class LaboratoryLayout {
         reports.add(new WallFurnitureCoverageReport(plan.name, wall, usable, covered));
     }
 
-    private static boolean wallCellAvailable(RoomPlan p, String wall, int along) {
+    private static boolean wallCellAvailable(RoomPlan p, String wall, int along, TileType[][] map) {
         float doorAlong = "NORTH".equals(wall) || "SOUTH".equals(wall) ? p.doorX : p.doorY;
         boolean doorOnThisWall = ("NORTH".equals(wall) && p.side == Side.NORTH)
             || ("SOUTH".equals(wall) && p.side == Side.SOUTH)
             || ("EAST".equals(wall) && p.side == Side.EAST)
             || ("WEST".equals(wall) && p.side == Side.WEST);
         if (doorOnThisWall && Math.abs(along - doorAlong) <= 1) return false;
+        // 이웃 방과 직접 연결되는 문 등 "다른 벽면의 문"도 가구로 막지 않는다:
+        // 이 벽 슬롯이 덮는 실제 벽 셀 ±1 범위에 문 마커가 있으면 사용 불가.
+        int wallX = "EAST".equals(wall) ? p.x + p.w - 1 : "WEST".equals(wall) ? p.x : along;
+        int wallY = "NORTH".equals(wall) ? p.y + p.h - 1 : "SOUTH".equals(wall) ? p.y : along;
+        boolean horizontalWall = "NORTH".equals(wall) || "SOUTH".equals(wall);
+        for (int offset = -1; offset <= 1; offset++) {
+            int cx = horizontalWall ? wallX + offset : wallX;
+            int cy = horizontalWall ? wallY : wallY + offset;
+            if (cy >= 0 && cx >= 0 && cy < map.length && cx < map[0].length) {
+                TileType t = map[cy][cx];
+                if (t == TileType.DOORWAY_OPEN || t == TileType.DOOR_CLOSED) return false;
+            }
+        }
         float x = "EAST".equals(wall) ? p.x + p.w - 2
             : "WEST".equals(wall) ? p.x + 1 : along + .5f;
         float y = "NORTH".equals(wall) ? p.y + p.h - 2
@@ -583,46 +695,72 @@ public final class LaboratoryLayout {
 
 
     public static LaboratoryLayout forDifficulty(GameDifficulty difficulty) {
-        if(difficulty==GameDifficulty.EASY) return easyRoom();
-        return variantRoom(difficulty==GameDifficulty.NORMAL?28:38,
-            difficulty==GameDifficulty.NORMAL?20:28,difficulty==GameDifficulty.HARD);
+        return forDifficulty(difficulty, new io.github.some_example_name.config.BalanceConfig());
     }
 
-    private static LaboratoryLayout variantRoom(int w,int h,boolean hard) {
+    public static LaboratoryLayout forDifficulty(GameDifficulty difficulty,
+            io.github.some_example_name.config.BalanceConfig config) {
+        if(difficulty==GameDifficulty.EASY) return easyRoom(config);
+        return variantRoom(difficulty==GameDifficulty.NORMAL?28:38,
+            difficulty==GameDifficulty.NORMAL?20:28,difficulty==GameDifficulty.HARD,config);
+    }
+
+    private static LaboratoryLayout variantRoom(int w,int h,boolean hard,
+            io.github.some_example_name.config.BalanceConfig config) {
         TileType[][] logical=new TileType[h][w]; LaboratoryZone[][] zones=new LaboratoryZone[h][w];
         for(int y=0;y<h;y++)for(int x=0;x<w;x++){
             logical[y][x]=x==0||y==0||x==w-1||y==h-1?TileType.WALL:TileType.FLOOR;
             zones[y][x]=LaboratoryZone.CENTRAL;
         }
+        // 3x3 구획(방 9개, 기존 6개 대비 +50%). 복도 없이 방끼리 문으로 직접 연결되어
+        // 문 사이 이동 거리가 짧다. 각 인접 구획 경계마다 문을 둬 순환 동선을 만든다.
         int[] vx=hard?new int[]{12,25}:new int[]{9,18};
-        for(int wallX:vx)for(int y=1;y<h-1;y++)if(y<6||y>8)logical[y][wallX]=TileType.WALL;
-        int dividerY=hard?14:10;
-        for(int x=1;x<w-1;x++)if(x<5||x>7)logical[dividerY][x]=TileType.WALL;
-        logical[0][2]=logical[0][3]=logical[0][4]=TileType.DOORWAY_OPEN;
-        for(int wallX:vx) { logical[7][wallX]=TileType.DOORWAY_OPEN; logical[h-4][wallX]=TileType.DOORWAY_OPEN; }
-        logical[dividerY][6]=TileType.DOORWAY_OPEN;
-        logical[dividerY][14]=TileType.DOORWAY_OPEN;
-        if(hard) logical[dividerY][31]=TileType.DOORWAY_OPEN;
-        else logical[dividerY][22]=TileType.DOORWAY_OPEN;
+        int[] hy=hard?new int[]{9,18}:new int[]{6,13};
+        for(int wallX:vx)for(int y=1;y<h-1;y++)logical[y][wallX]=TileType.WALL;
+        for(int wallY:hy)for(int x=1;x<w-1;x++)logical[wallY][x]=TileType.WALL;
+        logical[0][2]=logical[0][3]=logical[0][4]=TileType.DOORWAY_OPEN; // 북쪽 복귀 개구부
+        // 세로 벽 문(각 가로 밴드 중앙), 가로 벽 문(각 세로 밴드 중앙).
+        int[] bandCentersY=hard?new int[]{4,13,22}:new int[]{3,10,16};
+        int[] bandCentersX=hard?new int[]{6,18,31}:new int[]{4,13,22};
+        Door[][] doors = new Door[h][w];
+        for(int wallX:vx) for(int cy:bandCentersY) {
+            logical[cy][wallX]=TileType.DOORWAY_OPEN;
+            doors[cy][wallX]=new Door(wallX,cy,Door.Orientation.VERTICAL,DoorState.OPEN);
+        }
+        for(int wallY:hy) for(int cx:bandCentersX) {
+            logical[wallY][cx]=TileType.DOORWAY_OPEN;
+            doors[wallY][cx]=new Door(cx,wallY,Door.Orientation.HORIZONTAL,DoorState.OPEN);
+        }
         List<LaboratoryProp> props=new ArrayList<>();
         addProp(props,hard?"biosafety_cabinet_left":"chemistry_bench_north",w-4.5f,h-4f,1.7f,.55f);
         addProp(props,hard?"server_rack_north":"archive_shelf_north",4.5f,h-4f,1.8f,.55f);
         addProp(props,"experiment_island",w/2f,h/2f+1f,1.4f,.6f);
         Vector2 spawn=new Vector2(3.5f,2f);
+        // 컨테이너: 2배(normal 3→6, hard 3→8). 등급 비율 유지, 구획별 분산, 문 주변 비움.
         List<LootContainerPlacement> containers = new ArrayList<>();
-        containers.add(new LootContainerPlacement("wooden_chest", w / 2f + .5f, 4.5f));
-        containers.add(new LootContainerPlacement("epic_cabinet", w - 3.5f, h - 3.5f));
-        containers.add(new LootContainerPlacement("legendary_cabinet", w - 4f, 7f));
-        LaboratoryRoom room=new LaboratoryRoom(logical,spawn,null,null,props);
-        for (LootContainerPlacement placement : containers)
-            room.addWorldObstacle(new Rectangle(placement.x() - .42f, placement.y(), .84f, .48f));
-        String[][] floor=new FloorVariantResolver(FloorVariantResolver.DEFAULT_SEED+w).resolve(logical,zones);
-        String[][] overlay=new String[h][w],wall=new String[h][w],structure=new String[h][w];
-        WallAutotiler auto=new WallAutotiler();
-        for(int y=0;y<h;y++)for(int x=0;x<w;x++){
-            if(logical[y][x]==TileType.WALL)wall[y][x]=auto.tileId(room,x,y);
-            else if(logical[y][x]==TileType.DOORWAY_OPEN) structure[y][x]=(x==vx[0]||x==vx[1])?"vertical_door_open":"horizontal_door_open";
+        float[] cxs={ (vx[0]+1)/2f, (vx[0]+vx[1])/2f+.5f, (vx[1]+w-1)/2f+.5f };
+        float[] cys={ (hy[0]+1)/2f+.5f, (hy[0]+hy[1])/2f+.5f, (hy[1]+h-1)/2f+.5f };
+        containers.add(new LootContainerPlacement("wooden_chest", cxs[0], cys[0]));
+        containers.add(new LootContainerPlacement("wooden_chest", cxs[1], cys[2]));
+        containers.add(new LootContainerPlacement("wooden_chest", cxs[2], cys[0]));
+        containers.add(new LootContainerPlacement("epic_cabinet", cxs[1]+1.6f, cys[0]));
+        containers.add(new LootContainerPlacement("epic_cabinet", cxs[0], cys[2]));
+        containers.add(new LootContainerPlacement("legendary_cabinet", cxs[2], cys[2]));
+        if (hard) {
+            containers.add(new LootContainerPlacement("wooden_chest", cxs[0], cys[1]-1.5f));
+            containers.add(new LootContainerPlacement("epic_cabinet", cxs[2], cys[1]-1.5f));
         }
+        LaboratoryRoom room=new LaboratoryRoom(logical,spawn,null,doors,props);
+        for (LootContainerPlacement placement : containers)
+            room.addWorldObstacle(containerFootprint(placement.id(), placement.x(), placement.y()));
+        // 1타일 외벽 테두리는 바닥 비노출이라도 V4가 반드시 그린다.
+        boolean[][] forced = new boolean[h][w];
+        for (int y = 0; y < h; y++) for (int x = 0; x < w; x++)
+            if (x == 0 || y == 0 || x == w - 1 || y == h - 1) forced[y][x] = true;
+        room.setForcedWallMask(forced);
+        String[][] floor=new FloorVariantResolver(FloorVariantResolver.DEFAULT_SEED+w).resolve(logical,zones);
+        // 벽·문 스킨 레이어는 비운다(V4가 직접 그림). 문은 room.doors()로만 전달한다.
+        String[][] overlay=new String[h][w],wall=new String[h][w],structure=new String[h][w];
         return new LaboratoryLayout(room,new RoomVisuals(floor,overlay,wall,structure,null,props),containers);
     }
 
@@ -670,6 +808,23 @@ public final class LaboratoryLayout {
                 if (wall[y][x] != null) logical[y][x] = TileType.WALL;
         return new LaboratoryLayout(new LaboratoryRoom(logical, new Vector2(4.5f, 3.5f)),
             new RoomVisuals(floor, overlay, wall, structure));
+    }
+
+    /**
+     * V4 아틀라스 갤러리: 평평한 바닥 방. 47종 연결 벽 타일과 가로/세로 방문 닫힘/열림을
+     * {@link io.github.some_example_name.render.LaboratoryStructureRendererV4}와 별개로
+     * LaboratoryScreen에서 직접 그려 한 번씩 눈으로 확인한다(LAB_WALL_TEST=3).
+     */
+    public static LaboratoryLayout structureAtlasGallery() {
+        final int w = 26, h = 18;
+        TileType[][] logical = new TileType[h][w];
+        String[][] floor = new String[h][w];
+        for (int y = 0; y < h; y++) for (int x = 0; x < w; x++) {
+            logical[y][x] = TileType.FLOOR;
+            floor[y][x] = "floor_clean_a";
+        }
+        return new LaboratoryLayout(new LaboratoryRoom(logical, new Vector2(w / 2f, h / 2f)),
+            new RoomVisuals(floor, new String[h][w], new String[h][w], new String[h][w]));
     }
 
     /** Live 9x9 assembly check: a closed horizontal door and an open vertical door. */

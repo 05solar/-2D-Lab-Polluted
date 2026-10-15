@@ -23,6 +23,8 @@ public class LaboratoryRoom implements ObstacleGrid {
     private final int heightInTiles;
     private final Vector2 spawnPoint;
     private final List<Rectangle> propObstacles = new ArrayList<>();
+    // V4 벽 렌더 시 "바닥에 노출되지 않아도 반드시 그리는" 셀(예: 2타일 외벽 링). null이면 모두 false.
+    private boolean[][] forcedWall;
     private boolean southExitFired;
     private float southExitMinX = 2f, southExitMaxX = 5f, southExitBoundaryY = 1f;
 
@@ -58,10 +60,30 @@ public class LaboratoryRoom implements ObstacleGrid {
         return door == null ? tiles[tileY][tileX] : door.tileType();
     }
 
+    /**
+     * 문 개폐와 무관한 "원시 논리 점유"(벽 마스크 계산용). 문 셀은 열림/닫힘과 상관없이 항상
+     * 벽선에 연결된 개구부로 취급되도록 마커(DOOR_CLOSED/DOORWAY_OPEN)를 그대로 돌려준다.
+     */
+    public TileType rawTileAt(int tileX, int tileY) {
+        if (tileX < 0 || tileY < 0 || tileX >= widthInTiles || tileY >= heightInTiles) {
+            return TileType.WALL;
+        }
+        return tiles[tileY][tileX];
+    }
+
     public Door doorAt(int tileX, int tileY) {
         if (doors == null || tileX < 0 || tileY < 0 ||
             tileX >= widthInTiles || tileY >= heightInTiles) return null;
         return doors[tileY][tileX];
+    }
+
+    /** 모든 내부 문(V4 문 렌더/동기화용). 없으면 빈 리스트. */
+    public List<Door> doors() {
+        List<Door> out = new ArrayList<>();
+        if (doors == null) return out;
+        for (int y = 0; y < heightInTiles; y++) for (int x = 0; x < widthInTiles; x++)
+            if (doors[y][x] != null) out.add(doors[y][x]);
+        return out;
     }
 
     /** Nearest internal door within radius, used for one-target interaction. */
@@ -146,6 +168,13 @@ public class LaboratoryRoom implements ObstacleGrid {
 
     @Override
     public int heightInTiles() { return heightInTiles; }
+
+    /** V4 벽 렌더: 바닥 비노출이라도 강제로 그릴 셀 마스크(외벽 링 등). */
+    public void setForcedWallMask(boolean[][] mask) { this.forcedWall = mask; }
+    public boolean forcedWall(int tileX, int tileY) {
+        return forcedWall != null && tileY >= 0 && tileX >= 0
+            && tileY < forcedWall.length && tileX < forcedWall[0].length && forcedWall[tileY][tileX];
+    }
 
     public Vector2 spawnPoint() { return spawnPoint; }
     public void addWorldObstacle(Rectangle obstacle) {

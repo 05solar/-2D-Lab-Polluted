@@ -1,0 +1,613 @@
+{
+  "tilePixels": [
+    128,
+    128
+  ],
+  "logicalCellPixels": 64,
+  "worldScale": 0.5,
+  "atlasColumns": 8,
+  "origin": "top-left",
+  "neighborBits": {
+    "N": 1,
+    "NE": 2,
+    "E": 4,
+    "SE": 8,
+    "S": 16,
+    "SW": 32,
+    "W": 64,
+    "NW": 128
+  },
+  "canonicalRule": "Diagonal bit exists only when both adjacent cardinal bits exist.",
+  "maskToIndex": {
+    "0": 0,
+    "1": 1,
+    "4": 2,
+    "5": 3,
+    "7": 4,
+    "16": 5,
+    "17": 6,
+    "20": 7,
+    "21": 8,
+    "23": 9,
+    "28": 10,
+    "29": 11,
+    "31": 12,
+    "64": 13,
+    "65": 14,
+    "68": 15,
+    "69": 16,
+    "71": 17,
+    "80": 18,
+    "81": 19,
+    "84": 20,
+    "85": 21,
+    "87": 22,
+    "92": 23,
+    "93": 24,
+    "95": 25,
+    "112": 26,
+    "113": 27,
+    "116": 28,
+    "117": 29,
+    "119": 30,
+    "124": 31,
+    "125": 32,
+    "127": 33,
+    "193": 34,
+    "197": 35,
+    "199": 36,
+    "209": 37,
+    "213": 38,
+    "215": 39,
+    "221": 40,
+    "223": 41,
+    "241": 42,
+    "245": 43,
+    "247": 44,
+    "253": 45,
+    "255": 46
+  },
+  "aliases": {
+    "isolated": 0,
+    "end_n": 1,
+    "end_e": 4,
+    "end_s": 16,
+    "end_w": 64,
+    "straight_h": 68,
+    "straight_v": 17,
+    "turn_ne": 5,
+    "turn_se": 20,
+    "turn_sw": 80,
+    "turn_nw": 65,
+    "inner_ne": 253,
+    "inner_se": 247,
+    "inner_sw": 223,
+    "inner_nw": 127,
+    "t_missing_n": 84,
+    "t_missing_e": 81,
+    "t_missing_s": 69,
+    "t_missing_w": 21,
+    "cross": 85,
+    "solid_fill": 255
+  },
+  "records": [
+    {
+      "mask": 0,
+      "index": 0,
+      "file": "runtime/walls/wall_mask_000.png",
+      "rect": [
+        0,
+        0,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 1,
+      "index": 1,
+      "file": "runtime/walls/wall_mask_001.png",
+      "rect": [
+        128,
+        0,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 4,
+      "index": 2,
+      "file": "runtime/walls/wall_mask_004.png",
+      "rect": [
+        256,
+        0,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 5,
+      "index": 3,
+      "file": "runtime/walls/wall_mask_005.png",
+      "rect": [
+        384,
+        0,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 7,
+      "index": 4,
+      "file": "runtime/walls/wall_mask_007.png",
+      "rect": [
+        512,
+        0,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 16,
+      "index": 5,
+      "file": "runtime/walls/wall_mask_016.png",
+      "rect": [
+        640,
+        0,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 17,
+      "index": 6,
+      "file": "runtime/walls/wall_mask_017.png",
+      "rect": [
+        768,
+        0,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 20,
+      "index": 7,
+      "file": "runtime/walls/wall_mask_020.png",
+      "rect": [
+        896,
+        0,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 21,
+      "index": 8,
+      "file": "runtime/walls/wall_mask_021.png",
+      "rect": [
+        0,
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 23,
+      "index": 9,
+      "file": "runtime/walls/wall_mask_023.png",
+      "rect": [
+        128,
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 28,
+      "index": 10,
+      "file": "runtime/walls/wall_mask_028.png",
+      "rect": [
+        256,
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 29,
+      "index": 11,
+      "file": "runtime/walls/wall_mask_029.png",
+      "rect": [
+        384,
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 31,
+      "index": 12,
+      "file": "runtime/walls/wall_mask_031.png",
+      "rect": [
+        512,
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 64,
+      "index": 13,
+      "file": "runtime/walls/wall_mask_064.png",
+      "rect": [
+        640,
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 65,
+      "index": 14,
+      "file": "runtime/walls/wall_mask_065.png",
+      "rect": [
+        768,
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 68,
+      "index": 15,
+      "file": "runtime/walls/wall_mask_068.png",
+      "rect": [
+        896,
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 69,
+      "index": 16,
+      "file": "runtime/walls/wall_mask_069.png",
+      "rect": [
+        0,
+        256,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 71,
+      "index": 17,
+      "file": "runtime/walls/wall_mask_071.png",
+      "rect": [
+        128,
+        256,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 80,
+      "index": 18,
+      "file": "runtime/walls/wall_mask_080.png",
+      "rect": [
+        256,
+        256,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 81,
+      "index": 19,
+      "file": "runtime/walls/wall_mask_081.png",
+      "rect": [
+        384,
+        256,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 84,
+      "index": 20,
+      "file": "runtime/walls/wall_mask_084.png",
+      "rect": [
+        512,
+        256,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 85,
+      "index": 21,
+      "file": "runtime/walls/wall_mask_085.png",
+      "rect": [
+        640,
+        256,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 87,
+      "index": 22,
+      "file": "runtime/walls/wall_mask_087.png",
+      "rect": [
+        768,
+        256,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 92,
+      "index": 23,
+      "file": "runtime/walls/wall_mask_092.png",
+      "rect": [
+        896,
+        256,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 93,
+      "index": 24,
+      "file": "runtime/walls/wall_mask_093.png",
+      "rect": [
+        0,
+        384,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 95,
+      "index": 25,
+      "file": "runtime/walls/wall_mask_095.png",
+      "rect": [
+        128,
+        384,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 112,
+      "index": 26,
+      "file": "runtime/walls/wall_mask_112.png",
+      "rect": [
+        256,
+        384,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 113,
+      "index": 27,
+      "file": "runtime/walls/wall_mask_113.png",
+      "rect": [
+        384,
+        384,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 116,
+      "index": 28,
+      "file": "runtime/walls/wall_mask_116.png",
+      "rect": [
+        512,
+        384,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 117,
+      "index": 29,
+      "file": "runtime/walls/wall_mask_117.png",
+      "rect": [
+        640,
+        384,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 119,
+      "index": 30,
+      "file": "runtime/walls/wall_mask_119.png",
+      "rect": [
+        768,
+        384,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 124,
+      "index": 31,
+      "file": "runtime/walls/wall_mask_124.png",
+      "rect": [
+        896,
+        384,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 125,
+      "index": 32,
+      "file": "runtime/walls/wall_mask_125.png",
+      "rect": [
+        0,
+        512,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 127,
+      "index": 33,
+      "file": "runtime/walls/wall_mask_127.png",
+      "rect": [
+        128,
+        512,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 193,
+      "index": 34,
+      "file": "runtime/walls/wall_mask_193.png",
+      "rect": [
+        256,
+        512,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 197,
+      "index": 35,
+      "file": "runtime/walls/wall_mask_197.png",
+      "rect": [
+        384,
+        512,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 199,
+      "index": 36,
+      "file": "runtime/walls/wall_mask_199.png",
+      "rect": [
+        512,
+        512,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 209,
+      "index": 37,
+      "file": "runtime/walls/wall_mask_209.png",
+      "rect": [
+        640,
+        512,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 213,
+      "index": 38,
+      "file": "runtime/walls/wall_mask_213.png",
+      "rect": [
+        768,
+        512,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 215,
+      "index": 39,
+      "file": "runtime/walls/wall_mask_215.png",
+      "rect": [
+        896,
+        512,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 221,
+      "index": 40,
+      "file": "runtime/walls/wall_mask_221.png",
+      "rect": [
+        0,
+        640,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 223,
+      "index": 41,
+      "file": "runtime/walls/wall_mask_223.png",
+      "rect": [
+        128,
+        640,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 241,
+      "index": 42,
+      "file": "runtime/walls/wall_mask_241.png",
+      "rect": [
+        256,
+        640,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 245,
+      "index": 43,
+      "file": "runtime/walls/wall_mask_245.png",
+      "rect": [
+        384,
+        640,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 247,
+      "index": 44,
+      "file": "runtime/walls/wall_mask_247.png",
+      "rect": [
+        512,
+        640,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 253,
+      "index": 45,
+      "file": "runtime/walls/wall_mask_253.png",
+      "rect": [
+        640,
+        640,
+        128,
+        128
+      ]
+    },
+    {
+      "mask": 255,
+      "index": 46,
+      "file": "runtime/walls/wall_mask_255.png",
+      "rect": [
+        768,
+        640,
+        128,
+        128
+      ]
+    }
+  ],
+  "collision": "Each occupied wall cell is fully solid. Texture alpha is 255 for the full tile. The atlas final unused cell is transparent."
+}

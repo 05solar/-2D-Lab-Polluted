@@ -57,6 +57,28 @@ public class BalanceConfig {
     public float monsterBoundsHeight = 0.48f;
     public float monsterSpacing = 1.5f;
 
+    // --- 루트 컨테이너(상자/캐비넷) ---
+    /** 개봉에 필요한 SPACE 입력 횟수(키를 뗐다 다시 눌러야 1회). [확정] */
+    public int woodenChestPresses = 1;
+    public int epicCabinetPresses = 5;
+    public int legendaryCabinetPresses = 8;
+    /** 컨테이너 상호작용 거리(월드 단위). */
+    public float containerInteractRadius = 1.45f;
+    /** 캐비넷(일반/고급) 표시 배율. 닫힘·진행·열림 전 프레임 동일 기준점(하단 중앙). */
+    public float cabinetRenderScale = 1.4f;
+    /** easy 맵 컨테이너 수(등급 비율 wood>epic>legendary 유지, 대부분의 방에 ≥1 + 도서관/표본실 복수). */
+    public int woodenChestCount = 14;
+    public int epicCabinetCount = 7;
+    public int legendaryCabinetCount = 2;
+
+    /** 컨테이너 id → 개봉 필요 입력 횟수. */
+    public int requiredPresses(String containerId) {
+        if ("wooden_chest".equals(containerId)) return woodenChestPresses;
+        if ("epic_cabinet".equals(containerId)) return epicCabinetPresses;
+        if ("legendary_cabinet".equals(containerId)) return legendaryCabinetPresses;
+        throw new IllegalArgumentException("unknown container: " + containerId);
+    }
+
     // --- 시간 ---
     public float maxFrameDeltaSeconds = 1f / 30f; // delta 상한(저프레임 시 터널링/점프 방지)
     public float mapFadeSeconds = 0.35f;           // [임시값] 각 페이드 구간

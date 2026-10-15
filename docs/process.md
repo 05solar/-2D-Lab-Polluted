@@ -391,3 +391,94 @@ The requested archives are now extracted under `assets/laboratory_roomkits_v3/` 
 - Captured same-position CHEMISTRY normal/debug images: `docs/images/laboratory_collision_after_chemistry.png` and `docs/images/laboratory_collision_debug_chemistry.png`; F route image: `docs/images/laboratory_collision_froute.png`.
 - Latest verification after adding the collider snapshot to F-route search: `./gradlew.bat core:test lwjgl3:build` passed 113 tests with 0 failures. The desktop app started with `LAB_START_LAB=1`, `LAB_START_ROOM=CHEMISTRY`, and `LAB_DEBUG_COLLISION=1`; the F1-style overlay showed red solid cells, green walkable cells, cyan furniture AABBs, and the lime player body. Saved normal/debug images are `docs/images/laboratory_collision_after_chemistry.png` and `docs/images/laboratory_collision_debug_chemistry.png`.
 - I manually opened the chemistry chest with Space and observed the open animation/reward state; the F-route rendered from the player to the south exit in `docs/images/laboratory_collision_froute.png`. One directional movement input was also observed. I did not complete a hands-on traversal of three room types or test a closed/open internal door in this run, so those acceptance checks remain outstanding. Desktop captures also show an unrelated compositor/underlying-window artifact on the right side of the F1 screenshot; the normal image is clean.
+
+## V4 벽·문 통일 (laboratory_structure_v4) — 2026-10-14
+
+사용자 요청: 새 금속 직선 벽과 구형 보라색 접합부·문틀이 혼재하는 문제를, 서로 갈라진 렌더러/스킨
+경로를 단일 V4 규격으로 통합해 해결. 첨부 팩 `laboratory_structure_v4`(47종 연결 벽 + 가로/세로 방문).
+
+### 통합한 교체 경로(이전 → 이후)
+- 이전: WALL 레이어는 V2 타일셋 스킨(접합부=구형 보라 모서리/T/십자), `InteriorWallRenderer`가 직선 면만
+  v3 금속으로 덧그림, `ExteriorWallRenderer`가 외곽 2타일 링+대문을 별도로 그림, 문은
+  `DoorPlacementResolver`의 `door_jamb_*`/`*_door_*` structure 스킨 + `RoomVisuals.structureAt`가
+  `door.visualId()`를 덧그림. → 세 렌더러 + V2 스킨 + 구형 문이 혼재(일부만 교체).
+- 이후: **단일 논리 점유 그리드 → V4 8비트 마스크 렌더러 하나**로 수렴.
+  - `world/WallMaskV4`: N=1,NE=2,E=4,SE=8,S=16,SW=32,W=64,NW=128. 대각선은 양옆 직교 이웃이
+    모두 벽일 때만 유지(정규화). `maskToIndex`로 47종 아틀라스 인덱스(0..46) 선택. 월드 y-up(북=y+1).
+    연결 판정은 WALL/DOOR_CLOSED/DOORWAY_OPEN(문 개구부를 지나 벽선이 끊기지 않도록).
+  - `render/LaboratoryStructureRendererV4`: 벽 셀마다 마스크로 V4 타일을 1x1로 그리고(바닥/문 노출 셀
+    + 강제 외벽 링만; 방 사이 깊은 벽 덩어리는 비플레이 검은 영역으로 남김), 내부 문은 가로/세로 전용
+    스프라이트를 개구부에 맞춰 그린다(가로 4x1.5, 세로 1.5x4).
+  - `asset/LaboratoryStructureV4Assets`: 47종 아틀라스(8x6, 128px) + 문 4종. Nearest. `GameAssets` 소유.
+  - `WorldRenderer.setLaboratoryStructureV4(...)`로 바닥/오버레이 직후·가구/플레이어 이전에 그린다.
+  - `easyRoom`/`variantRoom`은 벽/문 스킨 레이어를 비우고(`wall/structure=null`), 문은 `Door` 객체로만
+    전달(`RoomVisuals`에 문 미전달 → 구형 structure 스킨 미생성). 외벽 링은 `setForcedWallMask`.
+  - 큰 대문은 기존 V3 유지(`ExteriorWallRenderer.renderGate` — 링은 더 이상 안 그림, 대문만).
+  - 충돌·경로·미니맵은 기존대로 `LaboratoryRoom`(tiles + Door 상태 + propObstacles + gatePassage) 단일
+    점유에서 파생 → 시각과 충돌이 같은 데이터. 문 토글·몬스터/F 경로 동기화 그대로.
+
+### 실제 렌더 검증 경로(합성 미리보기 아님)
+- `render/FrameCapture`: 렌더 완료 시점 백버퍼→PNG(상하 반전, 알파 255). F12 키 또는 `LAB_AUTO_CAPTURE`
+  (30프레임 UI, 42프레임 F1 충돌, 46프레임 종료). 저장 경로 `docs/images/frames/`.
+- `LAB_DIFFICULTY=EASY|NORMAL|HARD`로 직접 난이도 맵 기동. `LAB_WALL_TEST=3` → 47종+문4종 아틀라스 갤러리.
+- 캡처(실행 중 GL 렌더):
+  - `docs/images/frames/frame_001_lab_w128h96_ui.png` / `..._collision.png` — easy 전체. 외벽 링·내부 방·
+    복도·방문 모두 V4, 접합부 보라 없음. 충돌(green/red)과 시각 일치.
+  - `..._w28h20_*` / `..._w38h28_*` — NORMAL/HARD도 동일 V4 벽/문(테두리+칸막이+세로/가로 문).
+  - `frame_001_lab_v4atlas_ui.png` — 47종 연결 타일(끝/직선/양면/바깥·안쪽 코너/T/십자/채움) + 가로·세로
+    방문 닫힘/열림을 한 번씩 확인(연결 가장자리 방향 정합 확인).
+
+### 테스트
+- `EasyLaboratoryLayoutTest`의 구형 스킨 단언(`door_jamb_*`, `WallTopologyValidator`) 2건을 V4 모델로 교체:
+  문은 `Door` 객체(열림/닫힘 토글 solid 전이), 벽은 `WallMaskV4.atlasIndex`로 전 벽 셀 유효 인덱스 + 연결
+  다양성 + 스킨 레이어 완전 비움을 단언. `./gradlew.bat core:test lwjgl3:build` 통과(113 tests, 0 fail).
+
+### 남은 작업(미완)
+- NORMAL/HARD는 벽/문만 V4로 통일됨. 방 배치는 아직 균일 2×3 격자(section 2 다양화 미적용).
+- 가구 방향(북=정면/남=뒷모습/좌우=측면)은 정상 동작 확인. 중앙 섬 일부 배치 미세 조정 여지.
+- 내부 방문 닫힘→열림의 실게임 핸즈온(3방 이동·캐비넷·F경로)과 본부 복귀 왕복은 사용자 실행 확인 필요.
+
+## 방 26개·복도 단축·컨테이너 연타 개봉 개편 (2026-10-14)
+
+### 측정(전 → 후, LaboratoryMetricsTest, 문 전체 쌍 BFS 평균)
+| 항목 | 전 | 후 |
+|---|---|---|
+| EASY 방 수 | 16 | **26** (+62%) |
+| EASY 문간 평균 거리 | 66.53 | **52.04** (-21.8%) |
+| NORMAL 방/문 | 6구획/7문, 12.57 | **9구획/12문**, 14.30 |
+| HARD 방/문 | 6구획/7문, 21.43 | **9구획/12문**, 19.85 |
+| 컨테이너(easy/normal/hard) | 3/3/3 | **23/6/8** (wood14·epic7·leg2 등) |
+
+-40% 목표 분석: 압축 후 문 좌표의 맨해튼 하한이 41.77이라 BFS 평균 40 이하는 기하적으로 불가능.
+방 형태·테마·문 1개/방·5칸 직선 문틀 규칙을 유지한 채 하한 대비 +25%(52.0)까지 단축했다.
+수단: PLAN_SPACING_SCALE .70→.55 압축, 외곽 순환 링(서x29/동x94/북y53/남y5), 1타일 지름길
+(x42·x91 남측 세로, x45·x82 북측 세로, y16 남측 가로), 보조실 10개(복도 직결 + 직접 연결 3쌍).
+
+### 컨테이너 개편(설정·크기·연타·연출·소리)
+- `BalanceConfig`: woodenChestPresses 1 / epicCabinetPresses 5 / legendaryCabinetPresses 8,
+  containerInteractRadius 1.45, cabinetRenderScale 1.4, 개수 wood14/epic7/leg2(easy).
+- `LootContainer.press()`: 엣지 입력 1회 누적, requiredPresses 도달 입력에서만 open(추첨) 1회.
+  진행도는 인스턴스에 저장(이탈·복귀 유지), `ALREADY_OPEN`은 무음·무효과.
+- 대상 선택(`LaboratoryScreen.selectContainerTarget`): 반경 내 미개봉 중 score=dist-0.75·(시선 내적)
+  최소 1개 — 동시 진행 불가. 개봉 입력 후 즉시 return으로 수집/방문 중복 실행 금지.
+  가방/일시정지/사망/전환 중에는 updateLoot 자체가 호출되지 않는다.
+- `ContainerInteractionRenderer`: 방사형 발광 텍스처(코드 생성) 2겹(안=밝은색, 밖=짙은색)으로
+  등급 그라데이션(에픽 보라 E05CFF/8A27CC, 레전드 금 FFF08A/E8A921, 나무 파랑 59D9FF/2168E8).
+  진행률 비례 강도, 마지막 입력은 1.7→3.0배 반경의 밝은 펄스. 가산 블렌딩 후 상태 복원.
+  SPACE 안내는 기존 spacebar 시트(interactable/pressed) + "n / N" 카운트, 열린 컨테이너 제외.
+- 효과음 직접 합성(`assets/sounds/`, Python stdlib, CC0 상당 — README에 기록):
+  click 55ms(노이즈 트랜지언트+3.15k/4.78k 금속 핑), unlock 240ms(저역 철컥+볼트 슬라이드+해제 벨).
+  같은 음원 40ms 스로틀 + click 0.7/unlock 0.9 음량.
+
+### 실행 검증(실제 GL 프레임, docs/images/frames/)
+- `library_glow_ui.png`: 에픽 캐비넷 연타 중 보라 발광 펄스 + 1.4배 캐비넷 + 상단 "n/5" 카운트.
+- `library_opened.png`: 5회 도달 후 열림(문짝 개방·내부 드롭), 프롬프트 소멸.
+- `library_ui.png`: SPACE 안내 패널+카운트 표시. `frame_001_lab_w28h20/w38h28_ui.png`: 3×3 변형 맵.
+- `LAB_AUTO_PRESS=1` 자동 연타 로그: epic_cabinet PROGRESS 1/5→4/5 → OPENED 5/5(클릭음 4회+해제음 1회 재생 호출).
+- core:test 117 tests 0 fail, lwjgl3:build 성공.
+
+### 미확인(사용자 핸즈온 필요)
+- 소리의 실제 청감(재생 호출·스로틀 로직은 검증, 소리 자체는 들어봐야 함), 길게 누르기 1회 체감,
+  두 캐비넷 사이 시선 선택 체감, 가방 가득 D 교체와 연타의 상호작용 실플레이.
+- 실행 영상 녹화는 이 환경에서 불가(프레임 PNG로 대체). 재현:
+  `LAB_START_LAB=1 LAB_DIFFICULTY=EASY LAB_START_ROOM=LIBRARY ./gradlew.bat lwjgl3:run` 후 캐비넷 앞 SPACE 연타.
