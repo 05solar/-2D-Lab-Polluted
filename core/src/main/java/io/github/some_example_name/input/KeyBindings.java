@@ -14,8 +14,10 @@ public class KeyBindings {
     private final Map<GameAction, int[]> keysByAction = new EnumMap<>(GameAction.class);
 
     /**
-     * 기본 키맵(임시): 방향키/WASD 이동, Shift 달리기, Space 공격, F 돌진,
-     * E 상호작용, H 귀환 경로 토글(이전 F — 돌진과 분리), Esc 일시정지.
+     * 기본 키맵(2026-10-16 정리):
+     * 이동 = WASD/방향키 · 달리기 = Shift · 공격 = 마우스 클릭 전용(키 없음) ·
+     * 돌진 = F · 가방 = R(화면에서 직접 처리) · 상호작용(문/상자/수집) = Space ·
+     * 귀환 경로 = 미니맵 아래 버튼 클릭 토글(단축키 없음) · 일시정지 = Esc.
      */
     public static KeyBindings defaults() {
         KeyBindings b = new KeyBindings();
@@ -24,10 +26,9 @@ public class KeyBindings {
         b.bind(GameAction.MOVE_LEFT, Keys.A, Keys.LEFT);
         b.bind(GameAction.MOVE_RIGHT, Keys.D, Keys.RIGHT);
         b.bind(GameAction.RUN, Keys.SHIFT_LEFT, Keys.SHIFT_RIGHT);
-        b.bind(GameAction.ATTACK, Keys.SPACE);
+        // 공격은 마우스 왼쪽 버튼 전용(GdxPlayerInput이 매핑) — 키보드 바인딩 없음.
         b.bind(GameAction.DASH, Keys.F);
-        b.bind(GameAction.INTERACT, Keys.E);
-        b.bind(GameAction.RETURN_ROUTE, Keys.H);
+        b.bind(GameAction.INTERACT, Keys.SPACE);
         b.bind(GameAction.PAUSE, Keys.ESCAPE);
         return b;
     }

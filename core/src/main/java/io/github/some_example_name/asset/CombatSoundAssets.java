@@ -22,7 +22,7 @@ public final class CombatSoundAssets implements Disposable {
     private static final long HIT_WINDOW_NANOS = 80_000_000L;        // 타격음 동시 재생 판정 창
     private static final int HIT_MAX_IN_WINDOW = 3;                  // 창 안 최대 타격음 수
 
-    private final Sound containerPress, containerOpen, monsterHit1, monsterHit2,
+    private final Sound containerPress, containerOpen, itemPickup, monsterHit1, monsterHit2,
         playerHurt, playerDeath, doorOpen, attackSwing, dashWhoosh;
     private float masterVolume = 1f;
     // 효과음 켜기/끄기(sfx_toggle_ui_v1 버튼). 본부·연구소가 이 단일 인스턴스를 공유하므로
@@ -31,11 +31,12 @@ public final class CombatSoundAssets implements Disposable {
     private boolean hitVariantToggle;
     private final long[] hitPlayTimes = new long[HIT_MAX_IN_WINDOW];
     private int hitPlayIndex;
-    private long lastPress, lastOpen, lastHurt, lastDeath, lastDoor, lastSwing, lastDash;
+    private long lastPress, lastOpen, lastPickup, lastHurt, lastDeath, lastDoor, lastSwing, lastDash;
 
     public CombatSoundAssets() {
         containerPress = load(AssetPaths.SOUND_CONTAINER_PRESS);
         containerOpen = load(AssetPaths.SOUND_CONTAINER_OPEN);
+        itemPickup = load(AssetPaths.SOUND_ITEM_PICKUP);
         monsterHit1 = load(AssetPaths.SOUND_MONSTER_HIT_1);
         monsterHit2 = load(AssetPaths.SOUND_MONSTER_HIT_2);
         playerHurt = load(AssetPaths.SOUND_PLAYER_HURT);
@@ -66,6 +67,7 @@ public final class CombatSoundAssets implements Disposable {
         if (!enabled) {
             containerPress.stop();
             containerOpen.stop();
+            itemPickup.stop();
             monsterHit1.stop();
             monsterHit2.stop();
             playerHurt.stop();
@@ -85,8 +87,11 @@ public final class CombatSoundAssets implements Disposable {
     /** 유효한 개봉 연타 입력 1회(엣지)마다 — 경쾌한 나무 걸쇠 '탁!'(container_sfx_v2). */
     public void playContainerPress() { lastPress = throttled(containerPress, .5f, lastPress); }
 
-    /** 개봉 완료 순간 1회 — 걸쇠 팝+뚜껑 삐걱+상승 차임(container_sfx_v2). */
-    public void playContainerOpen() { lastOpen = throttled(containerOpen, .6f, lastOpen); }
+    /** 개봉 완료 순간 1회 — 묵직한 걸쇠+깊은 '쿵-텅'(container_sfx_v2 V4). */
+    public void playContainerOpen() { lastOpen = throttled(containerOpen, .65f, lastOpen); }
+
+    /** 아이템을 실제로 가방에 넣은 순간 1회 — 경쾌한 상승 차임. */
+    public void playItemPickup() { lastPickup = throttled(itemPickup, .5f, lastPickup); }
 
     /** 플레이어 HP가 실제로 감소한 프레임 1회(무적시간 거절 시 호출하지 않는다). */
     public void playPlayerHurt() { lastHurt = throttled(playerHurt, .6f, lastHurt); }
@@ -131,6 +136,7 @@ public final class CombatSoundAssets implements Disposable {
     @Override public void dispose() {
         containerPress.dispose();
         containerOpen.dispose();
+        itemPickup.dispose();
         monsterHit1.dispose();
         monsterHit2.dispose();
         playerHurt.dispose();

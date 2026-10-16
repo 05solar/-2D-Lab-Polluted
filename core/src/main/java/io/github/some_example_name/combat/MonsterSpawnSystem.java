@@ -57,8 +57,11 @@ public final class MonsterSpawnSystem {
                 if (attempts++ >= config.monsterSpawnAttempts || count == 0) break;
                 if (!separated(point, placed)) continue;
                 int hp = maxHp(type);
-                placed.add(new Monster(id++, type, point[0], point[1],
-                    config.monsterBoundsWidth, config.monsterBoundsHeight, hp));
+                Monster monster = new Monster(id++, type, point[0], point[1],
+                    config.monsterBoundsWidth, config.monsterBoundsHeight, hp);
+                // 배회 출발 시점을 개체마다 다르게 해 동시에 같은 행동을 하지 않게 한다.
+                monster.setRestTime(random.nextFloat() * 2f);
+                placed.add(monster);
                 count--;
             }
             if (count > 0) LOG.warning("Could not place " + count + " " + type + " monster(s)");

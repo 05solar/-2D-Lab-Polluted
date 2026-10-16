@@ -130,7 +130,8 @@ public final class HeadquartersScreen extends BaseScreen {
         waterAvailable &= waterPromptVisible;
         boolean promptIsWater = waterPromptVisible;
         float animDelta = paused || transitionLocked || backpackOpen ? 0f : dt;
-        boolean spacePressed = inputState.isPressed(GameAction.ATTACK);
+        // SPACE는 상호작용 전용 키(공격은 마우스 클릭 전용 — 2026-10-16 키 정리).
+        boolean spacePressed = inputState.isPressed(GameAction.INTERACT);
         boolean vendingFired = vendingInteraction.update(vendingPromptVisible,
             vendingAvailable && spacePressed, animDelta);
         boolean waterFired = waterInteraction.update(waterPromptVisible,

@@ -87,9 +87,26 @@ public final class CombatRenderer {
                 float r = config.teamLeaderHearingRadius;
                 shapes.circle(monster.feetX(), monster.feetY(), r, 40);
             } else {
+                // 안쪽 원=발견 거리(시야 필요), 바깥 원=추적 해제 거리(히스테리시스 경계).
                 shapes.setColor(monster.state() == MonsterState.CHASE ? Color.ORANGE : Color.CYAN);
                 float r = detectionRadius(monster.type(), config);
                 shapes.circle(monster.feetX(), monster.feetY(), r, 32);
+                shapes.setColor(0.55f, 0.55f, 0.55f, 1f);
+                shapes.circle(monster.feetX(), monster.feetY(),
+                    config.monsterChaseReleaseRadius, 40);
+            }
+            // 현재 목표: 배회/탐색/복귀 목적지(흰 선+사각 표식), 추적 중 마지막 목격 지점(보라).
+            if (monster.hasRoamTarget()) {
+                shapes.setColor(Color.WHITE);
+                shapes.line(monster.feetX(), monster.feetY(),
+                    monster.roamTargetX(), monster.roamTargetY());
+                shapes.rect(monster.roamTargetX() - .12f, monster.roamTargetY() - .12f, .24f, .24f);
+            }
+            if (monster.aggro() && !monster.seesPlayer() && monster.hasLastSeen()) {
+                shapes.setColor(Color.PURPLE);
+                shapes.line(monster.feetX(), monster.feetY(),
+                    monster.lastSeenX(), monster.lastSeenY());
+                shapes.rect(monster.lastSeenX() - .12f, monster.lastSeenY() - .12f, .24f, .24f);
             }
             if (monster.state() == MonsterState.ATTACK) {
                 shapes.setColor(Color.YELLOW);

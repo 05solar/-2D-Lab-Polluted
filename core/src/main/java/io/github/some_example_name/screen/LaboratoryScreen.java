@@ -173,7 +173,9 @@ public class LaboratoryScreen extends BaseScreen {
         });
         assets.combatSounds().setMasterVolume(config.sfxMasterVolume);
         // 공격 HUD 키캡 라벨은 실제 바인딩에서 읽는다(임의 재지정 금지).
-        attackKeyLabel = bindings.primaryKeyName(GameAction.ATTACK).toUpperCase();
+        // 키보드 바인딩이 없으면 마우스 클릭 전용이므로 CLICK으로 표기한다.
+        String attackKey = bindings.primaryKeyName(GameAction.ATTACK);
+        attackKeyLabel = attackKey.isEmpty() ? "CLICK" : attackKey.toUpperCase();
         dumpResolvedGridIfRequested();
         updateCamera();
     }
@@ -209,15 +211,17 @@ public class LaboratoryScreen extends BaseScreen {
         if (active && Gdx.input.isKeyJustPressed(Input.Keys.F2)) tileDebugEnabled = !tileDebugEnabled;
         // F12: 현재 프레임을 PNG로 저장(실제 렌더 검증). F1 켜면 충돌 디버그 포함 프레임이 저장된다.
         boolean captureRequested = active && Gdx.input.isKeyJustPressed(Input.Keys.F12);
-        // 귀환 경로 토글은 H(이전 F — F는 이제 돌진 전용이라 한 키에 두 기능이 겹치지 않는다).
-        if (active && inputState.isPressed(GameAction.RETURN_ROUTE)) routeEnabled = !routeEnabled;
-        // 버튼 클릭: 오디오 토글(HP 바 오른쪽 — 효과음+배경음악 세트 on/off) 또는
-        // 귀환 경로 토글(H와 동일).
+        // 버튼 클릭: 오디오 토글(HP 바 오른쪽) 또는 귀환 경로 토글(미니맵 아래 버튼 — 단축키 없음).
+        // UI 버튼을 클릭한 프레임은 같은 클릭이 공격(마우스 전용)으로 새지 않게 소비한다.
+        boolean uiClickConsumed = false;
         if (active && !backpackOpen && !paused && Gdx.input.justTouched()) {
-            if (sfxToggle.buttonHit(Gdx.input.getX(), Gdx.input.getY()))
+            if (sfxToggle.buttonHit(Gdx.input.getX(), Gdx.input.getY())) {
                 assets.toggleAudio();
-            else if (navigationRenderer.buttonHit(Gdx.input.getX(), Gdx.input.getY()))
+                uiClickConsumed = true;
+            } else if (navigationRenderer.buttonHit(Gdx.input.getX(), Gdx.input.getY())) {
                 routeEnabled = !routeEnabled;
+                uiClickConsumed = true;
+            }
         }
         // [임시] 월드 아이템 획득 시스템이 아직 없어, G로 테스트 물품을 회수해 8칸/가득참을 확인한다.
         if (active && !backpackOpen && Gdx.input.isKeyJustPressed(Input.Keys.G)
@@ -234,9 +238,9 @@ public class LaboratoryScreen extends BaseScreen {
                 player.takeDamage(player.hp());
             }
             PlayerIntent intent = controller.intentFrom(player, inputState);
-            boolean spaceInteract = Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
-                && hasNearbyInteractable();
-            if (spaceInteract && intent.attack)
+            // 공격은 마우스 클릭 전용(SPACE는 상호작용 전용이라 충돌 없음). UI 버튼을 누른
+            // 클릭은 공격으로 처리하지 않는다.
+            if (uiClickConsumed && intent.attack)
                 intent = new PlayerIntent(intent.moveX, intent.moveY, intent.run, false, intent.interact);
             // F 돌진: 엣지 입력만(누르고 있어도 재발동 없음). 쿨다운 중이면 tryStart가 거부해
             // 이동/피해/효과음이 모두 발생하지 않는다. 사망/일시정지/가방/전환 중에는 이
@@ -260,8 +264,7 @@ public class LaboratoryScreen extends BaseScreen {
             } else {
                 runStarted = movementSystem.update(player, intent, playerGrid, dt);
             }
-            updateLoot(animDelta, intent.interact || spaceInteract,
-                Gdx.input.isKeyJustPressed(Input.Keys.D));
+            updateLoot(animDelta, intent.interact, Gdx.input.isKeyJustPressed(Input.Keys.D));
             // 남쪽 복귀 트리거: 돌진으로 대문을 통과해도 걷기와 동일하게 1회 발동한다.
             float exitMoveY = dashStep > 0f ? dash.dirY() : intent.moveY;
             if (room.crossedSouthExit(previousFeetY, player.feetY(), player.feetX(), exitMoveY))
@@ -422,6 +425,21 @@ public class LaboratoryScreen extends BaseScreen {
                         "lab_" + difficultyTag() + "_dash");
                 }
             }
+            // LAB_CAPTURE_SERIES=1: 몬스터 이동 검증용 연속 캡처(2초 간격 3장).
+            if ("1".equals(System.getenv("LAB_CAPTURE_SERIES"))
+                && (autoCaptureFrame == 30 || autoCaptureFrame == 150 || autoCaptureFrame == 270))
+                io.github.some_example_name.render.FrameCapture.capture(
+                    "lab_series_f" + autoCaptureFrame);
+            // 개봉 드롭을 실제 수집 경로로 회수해 획득 토스트(이름+금액)를 렌더 프레임으로 검증.
+            if (autoPress && autoCaptureFrame == 85 && !lootDrops.isEmpty()) {
+                LootDrop drop = lootDrops.get(0);
+                if (!drop.collected() && session.backpack().collect(drop.item().id)) {
+                    drop.collect();
+                    hud.flashLoot(drop.item());
+                    assets.combatSounds().playItemPickup();
+                    Gdx.app.log("AutoPress", "collected " + drop.item().name + " +" + drop.item().price);
+                }
+            }
             int uiFrame = autoPress ? 32 : 30;      // 4번째 연타 직후(개봉 전, 안내+카운트 표시 중)
             int debugOn = autoPress ? 52 : 32;
             int debugFrame = autoPress ? 62 : 42;
@@ -524,6 +542,7 @@ public class LaboratoryScreen extends BaseScreen {
             if (session.backpack().collect(nearest.item().id)) {
                 nearest.collect();
                 hud.flashLoot(nearest.item());
+                assets.combatSounds().playItemPickup(); // 실제 획득에만 경쾌한 차임 1회
             }
         } else if(session.backpack().isFull()&&dropPressed) {
             String displaced=session.backpack().replaceLowestValue(nearest.item().id,assets.loot().prices());
@@ -532,6 +551,7 @@ public class LaboratoryScreen extends BaseScreen {
                 if(old!=null)lootDrops.add(new LootDrop(old,px,py));
                 nearest.collect();
                 hud.flashLoot(nearest.item());
+                assets.combatSounds().playItemPickup();
             }
         }
         lootDrops.removeIf(LootDrop::collected);
@@ -594,20 +614,6 @@ public class LaboratoryScreen extends BaseScreen {
         int screenWidth = viewport.getScreenWidth();
         if (screenWidth <= 0) return 0.1f;
         return 6f * camera.viewportWidth / screenWidth;
-    }
-
-    private boolean hasNearbyInteractable() {
-        float px = player.feetX(), py = player.feetY(), max = 1.45f * 1.45f;
-        for (LootContainer chest : lootContainers) {
-            float dx = px - chest.x(), dy = py - chest.y();
-            if (dx * dx + dy * dy <= max) return true;
-        }
-        for (LootDrop drop : lootDrops) if (!drop.collected()) {
-            float dx = px - drop.x(), dy = py - drop.y();
-            if (dx * dx + dy * dy <= max) return true;
-        }
-        if (nearGate(px, py)) return true;
-        return room.nearestDoor(px, py, 1.45f) != null;
     }
 
     /** 컨테이너 표시 크기: 캐비넷은 설정 배율(기본 1.4), 나무 상자는 1. */

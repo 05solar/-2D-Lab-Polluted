@@ -59,15 +59,27 @@ public class BalanceConfig {
     public float monsterAttackRange = 0.75f;
     public float teamLeaderAttackRange = 1.2f;
     public float monsterAttackCooldownSeconds = 0.75f;
-    // --- 몬스터 이동(추격 리시 + 자유 로밍, 2026-10-15) ---
-    /** 추격 포기 거리 = 감지 반경 × 이 배수. 넘어가면 추격을 멈추고 다른 공간으로 떠난다(팀장 제외). */
-    public float monsterChaseGiveUpFactor = 2.2f;
-    /** 자유 이동 목적지의 최소 거리(월드 단위) — 근처 배회가 아니라 다른 공간으로 이동. */
-    public float monsterRoamMinDistance = 6f;
-    /** 목적지에 오래 도달하지 못하면 재선정하는 시간(초). */
-    public float monsterRoamRetargetSeconds = 12f;
-    /** 목적지 도착 후 잠깐 쉬었다가 다음 목적지를 고르는 시간(초). */
-    public float monsterRoamRestSeconds = 1.2f;
+    // --- 몬스터 탐지·추적 해제·배회 (2026-10-16 개편) ---
+    // 발견 거리는 종류별 *DetectionRadius(슬라임 4 / 연구원 5 / 경비원 7 ≈ 기준 5타일)를 쓴다.
+    // 해제 거리를 발견 거리보다 크게 둬 경계에서 추적 상태가 반복 전환되지 않는다(히스테리시스).
+    /** 추적 해제 거리(타일). 이보다 멀어지면 추적을 멈춘다. */
+    public float monsterChaseReleaseRadius = 8f;
+    /** 시야를 잃은 뒤에도 마지막 목격 지점으로 추적을 유지하는 시간(초). */
+    public float monsterLostSightGraceSeconds = 2f;
+    /** 마지막 목격 지점 주변 탐색(SEARCH) 시간 범위(초). */
+    public float monsterSearchMinSeconds = 2f;
+    public float monsterSearchMaxSeconds = 4f;
+    /** 활동 구역(스폰 지점)에서 벗어날 수 있는 최대 거리(타일). 넘으면 복귀한다. */
+    public float monsterHomeLeashRadius = 12f;
+    /** 감지·경로 재평가 주기(초). 개체 id로 분산해 매 프레임 전체 몬스터가 검사하지 않는다. */
+    public float monsterSenseIntervalSeconds = 0.15f;
+    // 종류별 배회(이동 거리 범위 / 휴식 시간 범위, 초) — 서로 리듬이 다르게.
+    public float slimeWanderStepMin = 1f, slimeWanderStepMax = 2f;      // 짧게 이동, 자주 멈춤
+    public float slimeRestMin = 0.8f, slimeRestMax = 2f;
+    public float guardPatrolRadius = 4f;                                 // 홈 주변 순찰 지점 반경
+    public float guardRestMin = 0.5f, guardRestMax = 1f;                 // 순찰 지점 사이 짧은 대기
+    public float researcherWanderRadius = 2f;                            // 장비(홈) 주변 짧은 배회
+    public float researcherRestMin = 1.5f, researcherRestMax = 3f;       // 상대적으로 긴 대기
     public float knockbackSeconds = 0.12f;
     public float playerKnockbackDistance = 0.28f;
     public float monsterKnockbackDistance = 0.2f;

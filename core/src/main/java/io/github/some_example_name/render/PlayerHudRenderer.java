@@ -26,6 +26,7 @@ public final class PlayerHudRenderer {
     private final OrthographicCamera camera = new OrthographicCamera();
     private final BitmapFont font = new BitmapFont(); // ASCII 숫자/용량 텍스트용(한글 알림은 래스터 라벨 사용)
     private final GlyphLayout glyph = new GlyphLayout();
+    private final KoreanLabelCache lootLabels = new KoreanLabelCache(22);
     private float fullFlashTimer;
     private float lootFlashTimer;
     private LootItem recentLoot;
@@ -58,25 +59,30 @@ public final class PlayerHudRenderer {
             batch.setColor(Color.WHITE);
         }
         if (lootFlashTimer > 0f && recentLoot != null)
-            drawLootToast(loot, whitePixel, sw, sh);
+            drawLootToast(loot, whitePixel, L, sw, sh);
         batch.end();
     }
 
-    private void drawLootToast(LootAssets loot, Texture whitePixel, float sw, float sh) {
+    /**
+     * 획득 토스트: 화면 중앙 상단에 아이콘 + "아이템 이름 +금액"(한글 래스터 라벨).
+     * 상자 폭을 라벨 실측 폭에 맞춰 계산하므로 이름·금액이 잘리지 않는다.
+     */
+    private void drawLootToast(LootAssets loot, Texture whitePixel, HudLayout L,
+                               float sw, float sh) {
         float alpha = Math.min(1f, lootFlashTimer);
-        float x = sw - 198f, y = sh - 84f;
+        TextureRegion label = lootLabels.label(recentLoot.name + "  +" + recentLoot.price);
+        float icon = 44f, pad = 10f;
+        float boxW = pad + icon + 8f + label.getRegionWidth() + pad;
+        float boxH = Math.max(icon + pad * 2f, label.getRegionHeight() + pad * 2f);
+        // HP 바·오디오 버튼 줄 바로 아래 중앙 — 다른 HUD와 겹치지 않고 잘리지 않는다.
+        float x = (sw - boxW) / 2f, y = sh - (L.marginY + L.frameH + 12f) - boxH;
         batch.setColor(0.025f, 0.035f, 0.055f, .88f * alpha);
-        batch.draw(whitePixel, x, y, 176f, 58f);
+        batch.draw(whitePixel, x, y, boxW, boxH);
+        batch.setColor(1f, 1f, 1f, alpha);
+        batch.draw(loot.itemFramed(recentLoot), x + pad, y + (boxH - icon) / 2f, icon, icon);
+        batch.draw(label, x + pad + icon + 8f,
+            y + (boxH - label.getRegionHeight()) / 2f);
         batch.setColor(Color.WHITE);
-        batch.draw(loot.itemFramed(recentLoot), x + 7f, y + 7f, 44f, 44f);
-        font.getData().setScale(1f);
-        glyph.setText(font, "LOOT  +" + recentLoot.price);
-        float scale = 18f / glyph.height;
-        font.getData().setScale(scale);
-        glyph.setText(font, "LOOT  +" + recentLoot.price);
-        font.setColor(1f, 1f, 1f, alpha);
-        font.draw(batch, glyph, x + 58f, y + 36f);
-        font.setColor(Color.WHITE);
     }
 
     private void drawHealth(PlayerHudAssets hud, Player player, HudLayout L, float sh) {
@@ -146,5 +152,6 @@ public final class PlayerHudRenderer {
     public void dispose() {
         batch.dispose();
         font.dispose();
+        lootLabels.dispose();
     }
 }

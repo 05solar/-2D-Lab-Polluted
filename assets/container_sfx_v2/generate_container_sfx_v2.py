@@ -64,13 +64,50 @@ def noise_burst(seconds, decay, volume, lowpass=0.35):
     return out
 
 
-def wood_knock(volume):
-    """밝은 나무 몸통 울림: 비정수 배음 두 개 + 아주 짧은 어택 노이즈."""
-    knock = noise_burst(0.012, 300.0, volume * 1.1, lowpass=0.8)
-    add(knock, decay_sine(620, 0.09, 55.0, volume))
-    add(knock, decay_sine(1040, 0.07, 70.0, volume * 0.6))
-    add(knock, decay_sine(205, 0.11, 40.0, volume * 0.5))
+def wood_knock(volume, bright=1.0):
+    """나무 몸통 울림: 비정수 배음 + 짧은 어택 노이즈. bright<1이면 더 둔탁해진다."""
+    knock = noise_burst(0.012, 300.0, volume * 1.1, lowpass=0.5 + 0.3 * bright)
+    add(knock, decay_sine(620 * bright, 0.09, 55.0, volume))
+    add(knock, decay_sine(1040 * bright, 0.07, 70.0, volume * 0.5 * bright))
+    add(knock, decay_sine(190, 0.12, 36.0, volume * 0.6))
     return knock
+
+
+def build_press():
+    """경쾌한 걸쇠 '탁!': 트랜지언트 + 나무 노크 + 금속 틱. 약 0.12s."""
+    out = silence(0.12)
+    add(out, wood_knock(0.9, bright=0.9), 0.0)
+    add(out, decay_sine(2800, 0.03, 160.0, 0.26), 0.002)  # 금속 틱(살짝 절제)
+    add(out, noise_burst(0.02, 180.0, 0.35, lowpass=0.8), 0.0)
+    return out
+
+
+def build_open():
+    """상자/캐비넷 개봉(2026-10-16 V4, 더 묵직하게): 둔한 걸쇠 → 아주 깊은 이중 '쿵-텅'
+    (서브베이스 포함) → 저역 삐걱 여운. 중·고역을 최소화한 무거운 소리. 약 0.7s."""
+    out = silence(0.7)
+    # 1) 걸쇠: 둔한 저역 노크만(금속 틱 없음)
+    add(out, wood_knock(0.9, bright=0.5), 0.0)
+    # 2) 첫 번째 '쿵': 서브베이스 + 저역 몸통 + 아주 둔한 노이즈
+    add(out, decay_sine(58, 0.4, 9.0, 1.0), 0.07)
+    add(out, decay_sine(96, 0.32, 12.0, 0.8), 0.07)
+    add(out, noise_burst(0.26, 20.0, 0.4, lowpass=0.12), 0.07)
+    # 3) 두 번째 '텅'(뚜껑이 완전히 젖혀지는 반동) — 조금 높지만 여전히 저역
+    add(out, decay_sine(74, 0.34, 10.0, 0.75), 0.24)
+    add(out, decay_sine(128, 0.26, 15.0, 0.5), 0.24)
+    add(out, noise_burst(0.18, 24.0, 0.28, lowpass=0.14), 0.24)
+    # 4) 저역 삐걱 여운(절제된 음량, 어두운 스윕)
+    n = int(SR * 0.2)
+    creak = []
+    for i in range(n):
+        t = i / SR
+        f = 110 + 120 * (t / 0.2) + 14 * math.sin(2 * math.pi * 23 * t)
+        env = math.exp(-9.0 * t) * (1.0 - math.exp(-250 * t))
+        creak.append(0.22 * env * math.sin(2 * math.pi * f * t))
+    add(out, creak, 0.3)
+    # 5) 낮은 나무 공명 한 음만(어두운 여운)
+    add(out, decay_sine(98, 0.3, 8.0, 0.3), 0.42)
+    return out
 
 
 def chime_note(freq, seconds, volume):
@@ -81,35 +118,12 @@ def chime_note(freq, seconds, volume):
     return note
 
 
-def build_press():
-    """경쾌한 걸쇠 '탁!': 밝은 트랜지언트 + 나무 노크 + 금속 틱. 약 0.12s."""
-    out = silence(0.12)
-    add(out, wood_knock(0.9), 0.0)
-    add(out, decay_sine(3150, 0.03, 160.0, 0.35), 0.002)  # 금속 틱
-    add(out, noise_burst(0.02, 180.0, 0.4, lowpass=0.9), 0.0)
-    return out
-
-
-def build_open():
-    """상자 까기: 걸쇠 팝 → 나무 뚜껑 삐걱(상향 스윕) → 밝은 상승 3음 차임. 약 0.68s."""
-    out = silence(0.68)
-    # 1) 걸쇠 팝(press보다 묵직하게 한 번)
-    add(out, wood_knock(1.0), 0.0)
-    add(out, decay_sine(2650, 0.04, 130.0, 0.3), 0.004)
-    # 2) 뚜껑 삐걱: 주파수가 올라가는 떨리는 톤 + 숨소리 노이즈
-    n = int(SR * 0.2)
-    creak = []
-    for i in range(n):
-        t = i / SR
-        f = 280 + 420 * (t / 0.2) + 28 * math.sin(2 * math.pi * 33 * t)
-        env = math.exp(-9.0 * t) * (1.0 - math.exp(-250 * t))
-        creak.append(0.5 * env * math.sin(2 * math.pi * f * t))
-    add(out, creak, 0.05)
-    add(out, noise_burst(0.16, 28.0, 0.12, lowpass=0.5), 0.05)
-    # 3) 경쾌한 상승 차임: C6 → E6 → G6 (뚜껑이 열리며 보상이 반짝)
-    add(out, chime_note(1046.5, 0.3, 0.5), 0.16)
-    add(out, chime_note(1318.5, 0.3, 0.5), 0.26)
-    add(out, chime_note(1568.0, 0.38, 0.55), 0.36)
+def build_pickup():
+    """아이템 획득음(2026-10-16): 경쾌한 상승 2음 차임 E6→A6 + 짧은 반짝임. 약 0.4s."""
+    out = silence(0.4)
+    add(out, noise_burst(0.015, 220.0, 0.2, lowpass=0.95), 0.0)   # 밝은 클릭 어택
+    add(out, chime_note(1318.5, 0.22, 0.5), 0.0)                   # E6
+    add(out, chime_note(1760.0, 0.3, 0.55), 0.09)                  # A6
     return out
 
 
@@ -118,3 +132,4 @@ if __name__ == "__main__":
     here = os.path.dirname(os.path.abspath(__file__))
     write_wav(os.path.join(here, "container_press_v2.wav"), build_press())
     write_wav(os.path.join(here, "container_open_v2.wav"), build_open())
+    write_wav(os.path.join(here, "item_pickup_v1.wav"), build_pickup())

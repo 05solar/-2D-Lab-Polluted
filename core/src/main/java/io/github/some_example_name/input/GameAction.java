@@ -10,6 +10,5 @@ public enum GameAction {
     ATTACK,
     DASH,
     INTERACT,
-    RETURN_ROUTE,
     PAUSE
 }

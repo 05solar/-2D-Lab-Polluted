@@ -133,6 +133,21 @@ public class LaboratoryRoom implements ObstacleGrid {
     public boolean gateClosed() { return gateClosed; }
     public boolean hasGate() { return gatePassage != null; }
 
+    /**
+     * 시야 차단 판정: 벽과 닫힌 문(논리 solid 타일)만 시선을 막는다. 가구·몸체·열린 문은
+     * 시야를 막지 않는다 — 몬스터가 벽 뒤 플레이어를 거리만으로 발견하지 못하게 하는 기준.
+     */
+    public boolean sightBlocked(float fromX, float fromY, float toX, float toY) {
+        int steps = Math.max(1, (int) Math.ceil(
+            Math.max(Math.abs(toX - fromX), Math.abs(toY - fromY)) / .25f));
+        for (int i = 1; i < steps; i++) {
+            float t = i / (float) steps;
+            if (isSolid((int) Math.floor(fromX + (toX - fromX) * t),
+                        (int) Math.floor(fromY + (toY - fromY) * t))) return true;
+        }
+        return false;
+    }
+
     /** Shared static-obstacle sweep used by AI visibility and tile-route edges. */
     public boolean blocksActorAlongPath(float fromX, float fromY, float toX, float toY,
                                         float bodyWidth, float bodyHeight) {
