@@ -100,10 +100,10 @@ public final class HeadquartersScreen extends BaseScreen {
                 else paused = !paused;
             }
             if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) debug = !debug;
-            // 효과음 토글 버튼(우상단) — 연구소와 같은 전역 설정을 공유, 배경음악은 유지.
+            // 오디오 토글 버튼(HP 바 오른쪽) — 효과음+배경음악 세트 on/off, 연구소와 설정 공유.
             if (Gdx.input.justTouched()
                 && sfxToggle.buttonHit(Gdx.input.getX(), Gdx.input.getY()))
-                assets.combatSounds().toggleSfx();
+                assets.toggleAudio();
         }
         if (!paused && !transitionLocked && !backpackOpen && !difficultySelection) {
             float oldFeetY = player.feetY();
@@ -156,7 +156,11 @@ public final class HeadquartersScreen extends BaseScreen {
         uiViewport.apply();
         hud.render(assets.hud(), assets.loot(), assets.fadePixel(), player,
             session.backpack(), backpackOpen, dt);
-        sfxToggle.render(assets.sfxToggle(assets.combatSounds().sfxEnabled()), 16f, 16f, 44f);
+        // 효과음 토글 버튼: 좌상단 HP 바 바로 오른쪽(연구소와 동일 위치, 64px).
+        io.github.some_example_name.asset.HudLayout hudLayout = assets.hud().layout();
+        sfxToggle.render(assets.sfxToggle(assets.combatSounds().sfxEnabled()),
+            hudLayout.marginX + hudLayout.frameW + 14f,
+            hudLayout.marginY + (hudLayout.frameH - 64f) / 2f, 64f);
         renderFade(batch, viewport);
         if (debug) debugRenderer.render(camera, room, player);
     }

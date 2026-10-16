@@ -218,6 +218,26 @@ public class GameAssets implements Disposable {
     public CombatSoundAssets combatSounds() { return combatSounds; }
     public CombatUiAssets combatUi() { return combatUi; }
     public com.badlogic.gdx.audio.Music backgroundMusic() { return backgroundMusic; }
+
+    /**
+     * 오디오 토글(버튼 1개로 효과음+배경음악 세트 전환).
+     * 끄면 재생 중 효과음 정지·이후 재생 차단 + 배경음악 일시정지,
+     * 켜면 효과음 재생 허용 + 배경음악을 멈춘 지점부터 재개한다(무한 반복 유지).
+     *
+     * @return 전환 후 켜짐 여부
+     */
+    public boolean toggleAudio() {
+        boolean enabled = combatSounds.toggleSfx();
+        // 개발용 무음 실행(LAB_MUTE_MUSIC=1)에서는 음악을 건드리지 않는다.
+        if (!"1".equals(System.getenv("LAB_MUTE_MUSIC"))) {
+            if (enabled) {
+                if (!backgroundMusic.isPlaying()) backgroundMusic.play();
+            } else {
+                backgroundMusic.pause();
+            }
+        }
+        return enabled;
+    }
     /** 현재 효과음 설정에 맞는 토글 버튼 이미지(켜짐=청록 음파, 꺼짐=주황 빗금). */
     public TextureRegion sfxToggle(boolean enabled) { return enabled ? sfxToggleOn : sfxToggleOff; }
     public TextureRegion minimapFrame() { return minimapFrame; }

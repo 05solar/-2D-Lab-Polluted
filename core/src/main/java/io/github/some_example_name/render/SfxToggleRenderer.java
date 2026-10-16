@@ -17,13 +17,13 @@ public final class SfxToggleRenderer {
     // 마지막으로 그린 버튼의 화면 사각형(bottom-left 원점) — 클릭 판정용.
     private float x, y, size;
 
-    /** @param rightMargin 화면 오른쪽 끝에서의 여백 @param topOffset 화면 위쪽 끝에서 버튼 상단까지의 거리 */
-    public void render(TextureRegion state, float rightMargin, float topOffset, float buttonSize) {
+    /** @param leftX 버튼 왼쪽 가장자리(화면 px) @param topOffset 화면 위쪽 끝에서 버튼 상단까지의 거리 */
+    public void render(TextureRegion state, float leftX, float topOffset, float buttonSize) {
         float sw = Gdx.graphics.getWidth(), sh = Gdx.graphics.getHeight();
         camera.setToOrtho(false, sw, sh);
         batch.setProjectionMatrix(camera.combined);
         size = buttonSize;
-        x = sw - rightMargin - size;
+        x = leftX;
         y = sh - topOffset - size;
         batch.begin();
         batch.draw(state, x, y, size, size);

@@ -211,11 +211,11 @@ public class LaboratoryScreen extends BaseScreen {
         boolean captureRequested = active && Gdx.input.isKeyJustPressed(Input.Keys.F12);
         // 귀환 경로 토글은 H(이전 F — F는 이제 돌진 전용이라 한 키에 두 기능이 겹치지 않는다).
         if (active && inputState.isPressed(GameAction.RETURN_ROUTE)) routeEnabled = !routeEnabled;
-        // 버튼 클릭: 효과음 토글(귀환 버튼 아래) 또는 귀환 경로 토글(H와 동일). 효과음 토글은
-        // 효과음 설정만 바꾸고 배경음악은 유지한다(끄면 재생 중 효과음도 정지).
+        // 버튼 클릭: 오디오 토글(HP 바 오른쪽 — 효과음+배경음악 세트 on/off) 또는
+        // 귀환 경로 토글(H와 동일).
         if (active && !backpackOpen && !paused && Gdx.input.justTouched()) {
             if (sfxToggle.buttonHit(Gdx.input.getX(), Gdx.input.getY()))
-                assets.combatSounds().toggleSfx();
+                assets.toggleAudio();
             else if (navigationRenderer.buttonHit(Gdx.input.getX(), Gdx.input.getY()))
                 routeEnabled = !routeEnabled;
         }
@@ -359,12 +359,11 @@ public class LaboratoryScreen extends BaseScreen {
                 session.backpack(), backpackOpen, dt);
             // 돌진/공격 키 안내(우하단) — HP(좌상단)·R 안내(좌하단)·미니맵(우상단)과 분리.
             combatHud.render(assets.combatUi(), assets.fadePixel(), attackKeyLabel, dash);
-            // 효과음 토글 버튼: 미니맵·귀환 버튼 바로 아래(같은 우측 여백 12px 정렬).
-            float square = Math.min(240f, Math.min(Gdx.graphics.getWidth(),
-                Gdx.graphics.getHeight()) * 0.28f);
-            float sfxTop = 12f + square + 8f + square * 0.25f + 10f;
+            // 효과음 토글 버튼: 좌상단 HP 바 바로 오른쪽(프레임 세로 중앙 정렬, 64px).
+            io.github.some_example_name.asset.HudLayout hudLayout = assets.hud().layout();
             sfxToggle.render(assets.sfxToggle(assets.combatSounds().sfxEnabled()),
-                12f, sfxTop, 44f);
+                hudLayout.marginX + hudLayout.frameW + 14f,
+                hudLayout.marginY + (hudLayout.frameH - 64f) / 2f, 64f);
         }
         renderFade(batch, viewport);
         // Some blended debug/font pixels can lower the default framebuffer's
