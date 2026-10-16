@@ -59,6 +59,8 @@ public final class HeadquartersScreen extends BaseScreen {
     private final VendingMachineInteraction vendingInteraction = new VendingMachineInteraction();
     private final VendingMachineInteraction waterInteraction = new VendingMachineInteraction();
     private final PlayerHudRenderer hud = new PlayerHudRenderer();
+    private final io.github.some_example_name.render.SfxToggleRenderer sfxToggle =
+        new io.github.some_example_name.render.SfxToggleRenderer();
     private final PlayerSessionState session;
     private boolean paused;
     private boolean debug;
@@ -98,6 +100,10 @@ public final class HeadquartersScreen extends BaseScreen {
                 else paused = !paused;
             }
             if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) debug = !debug;
+            // 효과음 토글 버튼(우상단) — 연구소와 같은 전역 설정을 공유, 배경음악은 유지.
+            if (Gdx.input.justTouched()
+                && sfxToggle.buttonHit(Gdx.input.getX(), Gdx.input.getY()))
+                assets.combatSounds().toggleSfx();
         }
         if (!paused && !transitionLocked && !backpackOpen && !difficultySelection) {
             float oldFeetY = player.feetY();
@@ -150,6 +156,7 @@ public final class HeadquartersScreen extends BaseScreen {
         uiViewport.apply();
         hud.render(assets.hud(), assets.loot(), assets.fadePixel(), player,
             session.backpack(), backpackOpen, dt);
+        sfxToggle.render(assets.sfxToggle(assets.combatSounds().sfxEnabled()), 16f, 16f, 44f);
         renderFade(batch, viewport);
         if (debug) debugRenderer.render(camera, room, player);
     }
@@ -212,5 +219,6 @@ public final class HeadquartersScreen extends BaseScreen {
         difficultyModalRenderer.dispose();
         debugRenderer.dispose();
         hud.dispose();
+        sfxToggle.dispose();
     }
 }

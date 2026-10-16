@@ -1,0 +1,75 @@
+{
+  "origin": "top-left",
+  "textureFilter": "Nearest",
+  "states": [
+    {
+      "state": "on",
+      "file": "runtime/sfx_on_64.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    {
+      "state": "on",
+      "file": "runtime/sfx_on_96.png",
+      "size": [
+        96,
+        96
+      ]
+    },
+    {
+      "state": "on",
+      "file": "runtime/sfx_on_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "state": "off",
+      "file": "runtime/sfx_off_64.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    {
+      "state": "off",
+      "file": "runtime/sfx_off_96.png",
+      "size": [
+        96,
+        96
+      ]
+    },
+    {
+      "state": "off",
+      "file": "runtime/sfx_off_128.png",
+      "size": [
+        128,
+        128
+      ]
+    }
+  ],
+  "atlas": {
+    "file": "runtime/sfx_toggle_atlas_96.png",
+    "frameSize": [
+      96,
+      96
+    ],
+    "onRect": [
+      0,
+      0,
+      96,
+      96
+    ],
+    "offRect": [
+      96,
+      0,
+      96,
+      96
+    ]
+  },
+  "setting": "sfxEnabled",
+  "musicSettingIndependent": true
+}

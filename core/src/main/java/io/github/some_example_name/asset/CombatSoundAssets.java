@@ -25,6 +25,9 @@ public final class CombatSoundAssets implements Disposable {
     private final Sound containerPress, containerOpen, monsterHit1, monsterHit2,
         playerHurt, playerDeath, doorOpen, attackSwing, dashWhoosh;
     private float masterVolume = 1f;
+    // 효과음 켜기/끄기(sfx_toggle_ui_v1 버튼). 본부·연구소가 이 단일 인스턴스를 공유하므로
+    // 설정도 공유된다. 배경음악(Music)과는 완전히 독립이다.
+    private boolean sfxEnabled = true;
     private boolean hitVariantToggle;
     private final long[] hitPlayTimes = new long[HIT_MAX_IN_WINDOW];
     private int hitPlayIndex;
@@ -49,6 +52,34 @@ public final class CombatSoundAssets implements Disposable {
     /** 전체 효과음 음량(0..1). BalanceConfig.sfxMasterVolume을 화면에서 주입한다. */
     public void setMasterVolume(float volume) {
         masterVolume = Math.max(0f, Math.min(1f, volume));
+    }
+
+    public boolean sfxEnabled() { return sfxEnabled; }
+
+    /**
+     * 효과음 켜기/끄기. 끄는 순간 재생 중인 효과음도 모두 정지하고 이후 재생을 차단한다.
+     * 배경음악 Music 객체에는 영향을 주지 않는다.
+     */
+    public void setSfxEnabled(boolean enabled) {
+        if (sfxEnabled == enabled) return;
+        sfxEnabled = enabled;
+        if (!enabled) {
+            containerPress.stop();
+            containerOpen.stop();
+            monsterHit1.stop();
+            monsterHit2.stop();
+            playerHurt.stop();
+            playerDeath.stop();
+            doorOpen.stop();
+            attackSwing.stop();
+            dashWhoosh.stop();
+        }
+    }
+
+    /** 토글 버튼용: 현재 상태를 반전하고 바뀐 상태를 돌려준다. */
+    public boolean toggleSfx() {
+        setSfxEnabled(!sfxEnabled);
+        return sfxEnabled;
     }
 
     /** 유효한 개봉 연타 입력 1회(엣지)마다 — 경쾌한 나무 걸쇠 '탁!'(container_sfx_v2). */
@@ -77,6 +108,7 @@ public final class CombatSoundAssets implements Disposable {
      * 변형 2종 교대 + 미세 피치 변주(±3%). 80ms 창 안 3회를 넘는 타격음은 건너뛴다.
      */
     public void playMonsterHit() {
+        if (!sfxEnabled) return;
         long now = System.nanoTime();
         long oldest = hitPlayTimes[hitPlayIndex];
         if (oldest != 0L && now - oldest < HIT_WINDOW_NANOS) return; // 창이 가득 참
@@ -89,6 +121,7 @@ public final class CombatSoundAssets implements Disposable {
     }
 
     private long throttled(Sound sound, float volume, long lastNanos) {
+        if (!sfxEnabled) return lastNanos;
         long now = System.nanoTime();
         if (now - lastNanos < MIN_INTERVAL_NANOS) return lastNanos;
         sound.play(volume * masterVolume);

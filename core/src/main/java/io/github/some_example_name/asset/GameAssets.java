@@ -48,6 +48,8 @@ public class GameAssets implements Disposable {
     private final com.badlogic.gdx.audio.Music backgroundMusic;
     private final Texture minimapFrameTex, footprintsTex, returnButtonTex;
     private final TextureRegion minimapFrame, footprints, returnButton;
+    private final Texture sfxToggleOnTex, sfxToggleOffTex;
+    private final TextureRegion sfxToggleOn, sfxToggleOff;
     private final Texture fadePixel;
 
     private final Texture playerTexture;
@@ -92,6 +94,10 @@ public class GameAssets implements Disposable {
         minimapFrame = new TextureRegion(minimapFrameTex);
         footprints = new TextureRegion(footprintsTex);
         returnButton = new TextureRegion(returnButtonTex);
+        sfxToggleOnTex = loadTile(AssetPaths.SFX_TOGGLE_ON);
+        sfxToggleOffTex = loadTile(AssetPaths.SFX_TOGGLE_OFF);
+        sfxToggleOn = new TextureRegion(sfxToggleOnTex);
+        sfxToggleOff = new TextureRegion(sfxToggleOffTex);
         Pixmap pixel = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixel.setColor(1f, 1f, 1f, 1f);
         pixel.fill();
@@ -212,6 +218,8 @@ public class GameAssets implements Disposable {
     public CombatSoundAssets combatSounds() { return combatSounds; }
     public CombatUiAssets combatUi() { return combatUi; }
     public com.badlogic.gdx.audio.Music backgroundMusic() { return backgroundMusic; }
+    /** 현재 효과음 설정에 맞는 토글 버튼 이미지(켜짐=청록 음파, 꺼짐=주황 빗금). */
+    public TextureRegion sfxToggle(boolean enabled) { return enabled ? sfxToggleOn : sfxToggleOff; }
     public TextureRegion minimapFrame() { return minimapFrame; }
     public TextureRegion footprints() { return footprints; }
     public TextureRegion returnRouteButton() { return returnButton; }
@@ -239,6 +247,8 @@ public class GameAssets implements Disposable {
         minimapFrameTex.dispose();
         footprintsTex.dispose();
         returnButtonTex.dispose();
+        sfxToggleOnTex.dispose();
+        sfxToggleOffTex.dispose();
         fadePixel.dispose();
         playerTexture.dispose();
         playerDeathTexture.dispose();

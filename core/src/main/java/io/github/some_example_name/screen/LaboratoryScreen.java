@@ -114,6 +114,8 @@ public class LaboratoryScreen extends BaseScreen {
     private final CollisionSystem dashCollision = new CollisionSystem();
     private final Rectangle dashHitArea = new Rectangle();
     private final CombatHudRenderer combatHud = new CombatHudRenderer();
+    private final io.github.some_example_name.render.SfxToggleRenderer sfxToggle =
+        new io.github.some_example_name.render.SfxToggleRenderer();
     private final String attackKeyLabel;
     // LAB_PERF=1: 프레임 시간(avg/max)·몬스터 수를 120프레임마다 기록(EASY 8배 성능 측정).
     private final boolean perfLog = "1".equals(System.getenv("LAB_PERF"));
@@ -209,10 +211,14 @@ public class LaboratoryScreen extends BaseScreen {
         boolean captureRequested = active && Gdx.input.isKeyJustPressed(Input.Keys.F12);
         // 귀환 경로 토글은 H(이전 F — F는 이제 돌진 전용이라 한 키에 두 기능이 겹치지 않는다).
         if (active && inputState.isPressed(GameAction.RETURN_ROUTE)) routeEnabled = !routeEnabled;
-        // 미니맵 아래 귀환 버튼 클릭도 H와 동일하게 대문 발자국 경로를 토글한다.
-        if (active && !backpackOpen && !paused && Gdx.input.justTouched()
-            && navigationRenderer.buttonHit(Gdx.input.getX(), Gdx.input.getY()))
-            routeEnabled = !routeEnabled;
+        // 버튼 클릭: 효과음 토글(귀환 버튼 아래) 또는 귀환 경로 토글(H와 동일). 효과음 토글은
+        // 효과음 설정만 바꾸고 배경음악은 유지한다(끄면 재생 중 효과음도 정지).
+        if (active && !backpackOpen && !paused && Gdx.input.justTouched()) {
+            if (sfxToggle.buttonHit(Gdx.input.getX(), Gdx.input.getY()))
+                assets.combatSounds().toggleSfx();
+            else if (navigationRenderer.buttonHit(Gdx.input.getX(), Gdx.input.getY()))
+                routeEnabled = !routeEnabled;
+        }
         // [임시] 월드 아이템 획득 시스템이 아직 없어, G로 테스트 물품을 회수해 8칸/가득참을 확인한다.
         if (active && !backpackOpen && Gdx.input.isKeyJustPressed(Input.Keys.G)
             && !session.collect("debug_sample")) hud.flashBackpackFull();
@@ -353,6 +359,12 @@ public class LaboratoryScreen extends BaseScreen {
                 session.backpack(), backpackOpen, dt);
             // 돌진/공격 키 안내(우하단) — HP(좌상단)·R 안내(좌하단)·미니맵(우상단)과 분리.
             combatHud.render(assets.combatUi(), assets.fadePixel(), attackKeyLabel, dash);
+            // 효과음 토글 버튼: 미니맵·귀환 버튼 바로 아래(같은 우측 여백 12px 정렬).
+            float square = Math.min(240f, Math.min(Gdx.graphics.getWidth(),
+                Gdx.graphics.getHeight()) * 0.28f);
+            float sfxTop = 12f + square + 8f + square * 0.25f + 10f;
+            sfxToggle.render(assets.sfxToggle(assets.combatSounds().sfxEnabled()),
+                12f, sfxTop, 44f);
         }
         renderFade(batch, viewport);
         // Some blended debug/font pixels can lower the default framebuffer's
@@ -665,6 +677,7 @@ public class LaboratoryScreen extends BaseScreen {
         tileDebugRenderer.dispose();
         hud.dispose();
         combatHud.dispose();
+        sfxToggle.dispose();
         navigationRenderer.dispose();
         exteriorWalls.dispose();
         containerFx.dispose();

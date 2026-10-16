@@ -190,6 +190,10 @@ A door needs a straight wall run of at least five cells. Its center occupies one
 - 음량은 카탈로그 권장값 × `sfxMasterVolume`. 추가 피치는 타격음 ±3% 변주만(저음 음원 추가 다운피치 없음).
 - EASY 8배 환경 대비: 타격음은 80ms 창 안 최대 3회로 제한하고, 같은 음원은 40ms 스로틀을 둔다.
 - 효과음 재생은 시각·전투 이벤트의 결과이며 팀장 소음(달리기 시작) 카운트를 증가시키지 않는다.
+- **효과음 토글(2026-10-15, sfx_toggle_ui_v1)**: 우측 상단 버튼(연구소=귀환 버튼 아래, 본부=우상단) 클릭으로
+  효과음만 켜고 끈다(청록 음파=켜짐, 주황 빗금=꺼짐). 끄는 순간 재생 중인 효과음도 정지하고 이후 재생을
+  차단하며, 배경음악에는 영향을 주지 않는다. 설정은 본부·연구소가 공유한다(저장 시스템 도입 전까지 세션 한정).
+  클릭 영역은 보이는 버튼과 일치한다.
 ## First combat pass (2026-10-07)
 
 - Player: 100 HP, 15 damage, four-direction melee; attack cooldown 0.45 seconds, monster-hit invulnerability 0.6 seconds. SPACE (existing binding) or left mouse starts one attack per press.
