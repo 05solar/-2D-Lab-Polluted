@@ -87,8 +87,8 @@ public final class CombatSoundAssets implements Disposable {
     /** 유효한 개봉 연타 입력 1회(엣지)마다 — 경쾌한 나무 걸쇠 '탁!'(container_sfx_v2). */
     public void playContainerPress() { lastPress = throttled(containerPress, .5f, lastPress); }
 
-    /** 개봉 완료 순간 1회 — 묵직한 걸쇠+깊은 '쿵-텅'(container_sfx_v2 V4). */
-    public void playContainerOpen() { lastOpen = throttled(containerOpen, .65f, lastOpen); }
+    /** 개봉 완료 순간 1회 — 깊고 긴 '쿠우웅-터어엉'(container_sfx_v2 V6, 최대 음량). */
+    public void playContainerOpen() { lastOpen = throttled(containerOpen, 1f, lastOpen); }
 
     /** 아이템을 실제로 가방에 넣은 순간 1회 — 경쾌한 상승 차임. */
     public void playItemPickup() { lastPickup = throttled(itemPickup, .5f, lastPickup); }

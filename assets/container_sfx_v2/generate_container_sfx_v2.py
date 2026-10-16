@@ -16,9 +16,9 @@ SR = 44100
 random.seed(20261015)
 
 
-def write_wav(path, samples):
+def write_wav(path, samples, peak_target=0.92):
     peak = max(1e-9, max(abs(s) for s in samples))
-    scale = 0.92 / peak
+    scale = peak_target / peak
     with wave.open(path, "wb") as w:
         w.setnchannels(1)
         w.setsampwidth(2)
@@ -82,32 +82,42 @@ def build_press():
     return out
 
 
+def saturate(samples, drive=2.4):
+    """소프트 클리핑으로 평균 음량(RMS)을 크게 끌어올린다(피크는 노멀라이즈가 관리)."""
+    return [math.tanh(s * drive) for s in samples]
+
+
 def build_open():
-    """상자/캐비넷 개봉(2026-10-16 V4, 더 묵직하게): 둔한 걸쇠 → 아주 깊은 이중 '쿵-텅'
-    (서브베이스 포함) → 저역 삐걱 여운. 중·고역을 최소화한 무거운 소리. 약 0.7s."""
-    out = silence(0.7)
+    """상자/캐비넷 개봉(2026-10-16 V7): 훨씬 더 크고 길게.
+    둔한 걸쇠 → 아주 깊은 이중 '쿠우웅-터어엉'(40/52Hz) → 느린 저역 삐걱 →
+    아주 긴 저역 공명 꼬리. 약 2.4s. tanh 새추레이션으로 체감 음량을 크게 올리고,
+    저역이 작은 스피커에서도 들리도록 150Hz대 몸통을 함께 울린다."""
+    out = silence(2.4)
     # 1) 걸쇠: 둔한 저역 노크만(금속 틱 없음)
-    add(out, wood_knock(0.9, bright=0.5), 0.0)
-    # 2) 첫 번째 '쿵': 서브베이스 + 저역 몸통 + 아주 둔한 노이즈
-    add(out, decay_sine(58, 0.4, 9.0, 1.0), 0.07)
-    add(out, decay_sine(96, 0.32, 12.0, 0.8), 0.07)
-    add(out, noise_burst(0.26, 20.0, 0.4, lowpass=0.12), 0.07)
-    # 3) 두 번째 '텅'(뚜껑이 완전히 젖혀지는 반동) — 조금 높지만 여전히 저역
-    add(out, decay_sine(74, 0.34, 10.0, 0.75), 0.24)
-    add(out, decay_sine(128, 0.26, 15.0, 0.5), 0.24)
-    add(out, noise_burst(0.18, 24.0, 0.28, lowpass=0.14), 0.24)
-    # 4) 저역 삐걱 여운(절제된 음량, 어두운 스윕)
-    n = int(SR * 0.2)
+    add(out, wood_knock(0.8, bright=0.4), 0.0)
+    # 2) 첫 번째 '쿠우웅': 아주 느린 감쇠로 길게 울린다
+    add(out, decay_sine(40, 1.5, 2.2, 1.0), 0.07)
+    add(out, decay_sine(70, 1.2, 3.0, 0.8), 0.07)
+    add(out, decay_sine(148, 0.8, 5.0, 0.5), 0.07)       # 작은 스피커용 몸통
+    add(out, noise_burst(0.8, 6.0, 0.5, lowpass=0.09), 0.07)
+    # 3) 두 번째 '터어엉'(뚜껑 반동) — 더 길게
+    add(out, decay_sine(52, 1.4, 2.6, 0.95), 0.55)
+    add(out, decay_sine(92, 1.0, 4.0, 0.55), 0.55)
+    add(out, decay_sine(165, 0.7, 6.0, 0.35), 0.55)
+    add(out, noise_burst(0.6, 7.5, 0.35, lowpass=0.1), 0.55)
+    # 4) 느리고 어두운 저역 삐걱
+    n = int(SR * 0.6)
     creak = []
     for i in range(n):
         t = i / SR
-        f = 110 + 120 * (t / 0.2) + 14 * math.sin(2 * math.pi * 23 * t)
-        env = math.exp(-9.0 * t) * (1.0 - math.exp(-250 * t))
-        creak.append(0.22 * env * math.sin(2 * math.pi * f * t))
-    add(out, creak, 0.3)
-    # 5) 낮은 나무 공명 한 음만(어두운 여운)
-    add(out, decay_sine(98, 0.3, 8.0, 0.3), 0.42)
-    return out
+        f = 60 + 70 * (t / 0.6) + 7 * math.sin(2 * math.pi * 11 * t)
+        env = math.exp(-3.0 * t) * (1.0 - math.exp(-250 * t))
+        creak.append(0.17 * env * math.sin(2 * math.pi * f * t))
+    add(out, creak, 0.8)
+    # 5) 아주 긴 저역 공명 꼬리(이중)
+    add(out, decay_sine(60, 1.3, 1.9, 0.45), 1.05)
+    add(out, decay_sine(45, 1.3, 1.7, 0.35), 1.1)
+    return saturate(out, drive=2.4)
 
 
 def chime_note(freq, seconds, volume):
@@ -131,5 +141,6 @@ if __name__ == "__main__":
     import os
     here = os.path.dirname(os.path.abspath(__file__))
     write_wav(os.path.join(here, "container_press_v2.wav"), build_press())
-    write_wav(os.path.join(here, "container_open_v2.wav"), build_open())
+    # 개봉음은 최대 음량에 가깝게 노멀라이즈(요청: 더 크게).
+    write_wav(os.path.join(here, "container_open_v2.wav"), build_open(), peak_target=0.99)
     write_wav(os.path.join(here, "item_pickup_v1.wav"), build_pickup())

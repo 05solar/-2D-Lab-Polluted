@@ -48,10 +48,11 @@ public class BalanceConfig {
     public int slimeAttackDamage = 10;
     public int researcherAttackDamage = 15;
     public int guardAttackDamage = 20;
-    public float slimeMoveSpeed = 1.1f;
-    public float researcherMoveSpeed = 1.8f;
-    public float guardMoveSpeed = 2.2f;
-    public float teamLeaderMoveSpeed = 2.0f;
+    // 2026-10-16: 전체적으로 느리게 하향(기존 1.1/1.8/2.2/2.0).
+    public float slimeMoveSpeed = 0.8f;
+    public float researcherMoveSpeed = 1.3f;
+    public float guardMoveSpeed = 1.6f;
+    public float teamLeaderMoveSpeed = 1.5f;
     public float slimeDetectionRadius = 4.0f;
     public float researcherDetectionRadius = 5.0f;
     public float guardDetectionRadius = 7.0f;
