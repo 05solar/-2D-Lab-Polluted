@@ -37,10 +37,35 @@ public class LaboratoryGame extends Game {
     private MapTransitionController transition;
     private List<Monster> laboratoryMonsters;
     private GameDifficulty difficulty = GameDifficulty.EASY;
+    // 영속 프로필(재화·본부 보관함·강화)과 본부 경제. 프로필 로드는 본부 UI 생성보다 먼저다.
+    private io.github.some_example_name.profile.HeadquartersEconomy economy;
+    private io.github.some_example_name.profile.FileProfileStore profileStore;
+    // 진행 중 탐사 식별자: 연구소 입장 시 발급, 귀환 이관 중복 방지에 사용.
+    private String expeditionId;
+    private boolean transferPending; // 귀환 저장 실패 시 true — 가방을 유지한 채 재시도 가능
 
     @Override
     public void create() {
         assets = new GameAssets();
+        // 프로필: 앱 전용 쓰기 가능 경로(사용자 홈). assets/클래스패스에 저장하지 않는다.
+        // 첫 실행에만 기본 프로필을 만들고, 이후 실행은 저장본(재화·보관함·강화)을 복원한다.
+        profileStore = new io.github.some_example_name.profile.FileProfileStore(
+            new java.io.File(System.getProperty("user.home"), ".2d-lab-polluted"));
+        io.github.some_example_name.profile.PlayerProfile profile = null;
+        try {
+            profile = profileStore.load();
+        } catch (java.io.IOException failed) {
+            Gdx.app.error("Profile", "load failed: " + failed);
+        }
+        if (profile == null) profile = new io.github.some_example_name.profile.PlayerProfile();
+        if (profileStore.recoveredFromBackup())
+            Gdx.app.log("Profile", "main save damaged - recovered from backup");
+        if (profileStore.corruptionDetected())
+            Gdx.app.error("Profile", "all saves damaged - preserved as *.corrupt, new profile started");
+        economy = new io.github.some_example_name.profile.HeadquartersEconomy(
+            profile, profileStore, assets.loot().prices());
+        Gdx.app.log("Profile", "loaded rev=" + profile.profileRevision
+            + " money=" + profile.currencyWon + " storage=" + profile.storage.size());
         // 배경음악: 게임 시작부터 본부·연구소·화면 전환과 무관하게 무한 반복 재생.
         // (개발 캡처 등 무음이 필요하면 LAB_MUTE_MUSIC=1)
         if (!"1".equals(System.getenv("LAB_MUTE_MUSIC"))) {
@@ -89,6 +114,7 @@ public class LaboratoryGame extends Game {
         }
         session = new PlayerSessionState(initialPlayer);
         transition = new MapTransitionController(initial, config.mapFadeSeconds);
+        if (initial == MapId.LABORATORY) expeditionId = java.util.UUID.randomUUID().toString();
         if (initial == MapId.LABORATORY && wallTest == null && monstersEnabled())
             laboratoryMonsters = new MonsterSpawnSystem(config).spawn(laboratory.room(), config.monsterSpawnSeed);
         else if (initial == MapId.LABORATORY)
@@ -110,6 +136,8 @@ public class LaboratoryGame extends Game {
                     laboratoryMonsters = new MonsterSpawnSystem(config).spawn(laboratory.room(), config.monsterSpawnSeed);
                 else if (laboratoryMonsters == null)
                     laboratoryMonsters = new java.util.ArrayList<Monster>();
+                // 새 탐사 시작: 귀환 이관 중복 방지용 식별자를 발급한다.
+                expeditionId = java.util.UUID.randomUUID().toString();
                 Vector2 spawn = laboratory.room().spawnPoint();
                 session.player().bounds().setPosition(
                     spawn.x - session.player().bounds().width / 2f, spawn.y);
@@ -122,6 +150,10 @@ public class LaboratoryGame extends Game {
                     session.player().revive();
                     Gdx.app.log("Respawn", "revived at HQ hp=" + session.player().hp()
                         + " items=" + session.inventory().size());
+                } else {
+                    // 성공 귀환 1회: 가방 → 본부 보관함 이관(자동 판매 없음). 저장 성공 후에만
+                    // 가방을 비운다. 실패하면 가방을 유지하고 본부에서 재시도한다.
+                    attemptReturnTransfer();
                 }
                 Vector2 spawn = headquarters.room().spawnPoint();
                 session.player().bounds().setPosition(
@@ -135,6 +167,38 @@ public class LaboratoryGame extends Game {
         }
         super.render();
     }
+
+    /**
+     * 성공 귀환 이관(1회 보장): 보관함 추가 + 귀환 처리 기록을 한 번의 저장으로 반영하고,
+     * 저장이 성공했을 때만 가방을 비운다. 같은 expeditionId는 재호출돼도 복제되지 않는다.
+     */
+    public void attemptReturnTransfer() {
+        if (economy == null || expeditionId == null || session.backpack().count() == 0) {
+            transferPending = false;
+            return;
+        }
+        io.github.some_example_name.profile.HeadquartersEconomy.Result result =
+            economy.transferReturn(expeditionId, session.inventory());
+        switch (result.status) {
+            case OK:
+            case ALREADY_PROCESSED:
+                session.backpack().handOver();
+                transferPending = false;
+                Gdx.app.log("Profile", "return transfer " + result.status
+                    + " items=" + result.itemCount + " storage=" + economy.storageView().size());
+                break;
+            case SAVE_FAILED:
+                transferPending = true; // 물품을 잃지 않는다 — 가방 유지, 재시도 가능
+                Gdx.app.error("Profile", "return transfer save failed - backpack kept, will retry");
+                break;
+            default:
+                transferPending = false;
+                break;
+        }
+    }
+
+    public boolean transferPending() { return transferPending; }
+    public io.github.some_example_name.profile.HeadquartersEconomy economy() { return economy; }
 
     public MapTransitionController transition() { return transition; }
     public void selectDifficulty(GameDifficulty selected) {

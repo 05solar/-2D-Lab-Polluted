@@ -17,10 +17,18 @@ public final class HeadquartersRenderer {
     private final List<HeadquartersProp> depthOrder;
     private final HeadquartersProp vending;
     private final HeadquartersProp waterDispenser;
+    // 자판기 위 판매 표식(장식 — 충돌 영역 없음). null이면 그리지 않는다.
+    private final com.badlogic.gdx.graphics.g2d.TextureRegion saleSign;
     private float vendingTime;
 
     public HeadquartersRenderer(HeadquartersAssets assets, HeadquartersVisuals visuals) {
+        this(assets, visuals, null);
+    }
+
+    public HeadquartersRenderer(HeadquartersAssets assets, HeadquartersVisuals visuals,
+                                com.badlogic.gdx.graphics.g2d.TextureRegion saleSign) {
         this.assets = assets;
+        this.saleSign = saleSign;
         depthOrder = new ArrayList<>(visuals.props());
         HeadquartersProp machine = null;
         HeadquartersProp dispenser = null;
@@ -81,6 +89,11 @@ public final class HeadquartersRenderer {
             }
         }
         if (!playerDrawn) playerRenderer.render(batch, player, animDelta);
+
+        // 판매 표식: 자판기 상단 장식(충돌 없음). 안내 프롬프트보다 아래 레이어.
+        if (saleSign != null && vending != null)
+            batch.draw(saleSign, vending.anchorX() - 0.42f,
+                vending.anchorY() + vending.drawHeight() - 0.12f, 0.84f, 0.84f);
 
         // Draw the keycap and Korean prompt above all props so furniture never hides them.
         if (vending != null && promptFrame >= 0) {

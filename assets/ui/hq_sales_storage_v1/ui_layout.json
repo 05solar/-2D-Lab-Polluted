@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "referenceSize": [
+    960,
+    640
+  ],
+  "origin": "top-left",
+  "units": "reference pixels",
+  "panel": "runtime/sale_panel_960x640.png",
+  "rects": {
+    "title": [
+      48,
+      44,
+      510,
+      42
+    ],
+    "currency": [
+      668,
+      48,
+      230,
+      36
+    ],
+    "listHeader": [
+      48,
+      110,
+      540,
+      32
+    ],
+    "itemList": [
+      48,
+      150,
+      540,
+      350
+    ],
+    "summary": [
+      624,
+      116,
+      274,
+      300
+    ],
+    "saleTotal": [
+      624,
+      438,
+      274,
+      64
+    ],
+    "selectAllButton": [
+      48,
+      542,
+      220,
+      56
+    ],
+    "sellSelectedButton": [
+      360,
+      542,
+      244,
+      56
+    ],
+    "sellAllButton": [
+      632,
+      542,
+      244,
+      56
+    ],
+    "closeButton": [
+      900,
+      49,
+      28,
+      28
+    ]
+  },
+  "list": {
+    "rowHeight": 70,
+    "iconSize": 48,
+    "columns": {
+      "name": 66,
+      "rarity": 270,
+      "unitPrice": 352,
+      "quantity": 462
+    }
+  },
+  "scale": "min(viewportWidth*0.92/960, viewportHeight*0.90/640)",
+  "buttonStates": {
+    "normal": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "hover": [
+      1.08,
+      1.08,
+      1.08,
+      1
+    ],
+    "pressed": [
+      0.78,
+      0.86,
+      0.87,
+      1
+    ],
+    "disabled": [
+      0.45,
+      0.45,
+      0.45,
+      0.7
+    ]
+  },
+  "notes": [
+    "All labels and quantities are runtime text; no text is baked into PNGs.",
+    "Use actual PNG sizes as source bounds. Do not treat the panel as a sprite sheet.",
+    "Panel is one whole texture; scale uniformly. Button caps should be preserved when resized.",
+    "Item selection frame goes outside the existing rarity border; it does not replace rarity color."
+  ]
+}

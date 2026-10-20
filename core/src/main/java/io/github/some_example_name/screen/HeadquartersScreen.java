@@ -61,9 +61,13 @@ public final class HeadquartersScreen extends BaseScreen {
     private final PlayerHudRenderer hud;
     private final io.github.some_example_name.render.SfxToggleRenderer sfxToggle =
         new io.github.some_example_name.render.SfxToggleRenderer();
+    private final io.github.some_example_name.render.SalePanelRenderer salePanel;
     private final PlayerSessionState session;
     private boolean paused;
     private boolean debug;
+    // LAB_TEST_SALE=1(개발 전용): 보관함에 표본을 넣고 판매창을 열어 실프레임 캡처·판매·종료.
+    private final boolean testSale = "1".equals(System.getenv("LAB_TEST_SALE"));
+    private int testSaleFrame;
     private boolean backpackOpen;
     private boolean difficultySelection;
     private int selectedDifficultyIndex;
@@ -73,13 +77,16 @@ public final class HeadquartersScreen extends BaseScreen {
         super(game, assets);
         this.session = session;
         hud = new PlayerHudRenderer(assets.uiFont());
+        salePanel = new io.github.some_example_name.render.SalePanelRenderer(
+            assets.hqSales(), assets.loot(), assets.uiFont());
         room = layout.room();
         visuals = layout.visuals();
         player = session.player();
         movement = new MovementSystem(new CollisionSystem(), new RunStartDetector(),
             config.playerWalkSpeed, config.playerRunSpeed);
         playerRenderer = new EntityRenderer(new AnimationController(assets.playerAnimations()));
-        worldRenderer = new HeadquartersRenderer(assets.headquarters(), visuals);
+        worldRenderer = new HeadquartersRenderer(assets.headquarters(), visuals,
+            assets.hqSales().saleSign());
         updateCamera();
         uiViewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
     }
@@ -93,6 +100,13 @@ public final class HeadquartersScreen extends BaseScreen {
         } else if (difficultySelection) {
             inputState.update(EnumSet.noneOf(GameAction.class));
             updateDifficultySelectionInput();
+        } else if (salePanel.isOpen()) {
+            // 판매창이 열린 동안 이동·상호작용·월드 입력을 모두 차단하고 클릭을 소비한다.
+            // Esc는 확인창 → 판매창 순으로 닫기만 하고 일시정지로 이어지지 않는다.
+            inputState.update(EnumSet.noneOf(GameAction.class));
+            player.setMoving(false);
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) salePanel.onEscape();
+            else salePanel.handleInput();
         } else {
             input.poll(inputState);
             if (Gdx.input.isKeyJustPressed(Input.Keys.R)) backpackOpen = !backpackOpen;
@@ -106,7 +120,8 @@ public final class HeadquartersScreen extends BaseScreen {
                 && sfxToggle.buttonHit(Gdx.input.getX(), Gdx.input.getY()))
                 assets.toggleAudio();
         }
-        if (!paused && !transitionLocked && !backpackOpen && !difficultySelection) {
+        if (!paused && !transitionLocked && !backpackOpen && !difficultySelection
+            && !salePanel.isOpen()) {
             float oldFeetY = player.feetY();
             PlayerIntent intent = controller.intentFrom(player, inputState);
             movement.update(player, intent, room, dt);
@@ -114,7 +129,7 @@ public final class HeadquartersScreen extends BaseScreen {
                 difficultySelection = true;
         }
         boolean interactionContext = !player.isDead() && !paused && !transitionLocked
-            && !backpackOpen && !difficultySelection;
+            && !backpackOpen && !difficultySelection && !salePanel.isOpen();
         boolean vendingAvailable = interactionContext && room.canInteractWithVending(player);
         boolean waterAvailable = interactionContext && room.canInteractWithWaterDispenser(player);
         boolean vendingPromptVisible = interactionContext && room.isNearVending(player);
@@ -137,8 +152,11 @@ public final class HeadquartersScreen extends BaseScreen {
             vendingAvailable && spacePressed, animDelta);
         boolean waterFired = waterInteraction.update(waterPromptVisible,
             waterAvailable && spacePressed, animDelta);
-        if (vendingFired)
-            Gdx.app.log("Headquarters", "VendingMachineInteraction event (shop UI not implemented)");
+        if (vendingFired) {
+            // 자판기 SPACE → 판매창 열기. 열기 전에 미완료 귀환 이관이 있으면 재시도한다.
+            if (game.transferPending()) game.attemptReturnTransfer();
+            salePanel.open(game.economy());
+        }
         if (waterFired) {
             player.healToFullHealth();
             Gdx.app.log("Headquarters", "WaterDispenserInteraction event (player healed to full HP)");
@@ -163,8 +181,36 @@ public final class HeadquartersScreen extends BaseScreen {
         sfxToggle.render(assets.sfxToggle(assets.combatSounds().sfxEnabled()),
             hudLayout.marginX + hudLayout.frameW + 14f,
             hudLayout.marginY + (hudLayout.frameH - 64f) / 2f, 64f);
+        salePanel.render();
         renderFade(batch, viewport);
         if (debug) debugRenderer.render(camera, room, player);
+        if (testSale) runSaleTestScript();
+    }
+
+    /** 개발 전용 실행 검증: 표본 이관 → 판매창 → 전체 선택 → 선택 판매 → 캡처 → 종료. */
+    private void runSaleTestScript() {
+        testSaleFrame++;
+        io.github.some_example_name.profile.HeadquartersEconomy economy = game.economy();
+        if (testSaleFrame == 20) {
+            economy.transferReturn("test-ret-" + System.nanoTime(), java.util.Arrays.asList(
+                "tumbler", "tumbler", "lantern", "research_log_booklet", "broken_microscope"));
+            salePanel.open(economy);
+            Gdx.app.log("SaleTest", "opened money=" + economy.currencyWon()
+                + " storage=" + economy.storageView().size());
+        }
+        if (testSaleFrame == 40)
+            io.github.some_example_name.render.FrameCapture.capture("hq_sale_panel");
+        if (testSaleFrame == 50) salePanel.selection().toggleAll();
+        if (testSaleFrame == 60)
+            io.github.some_example_name.render.FrameCapture.capture("hq_sale_selected");
+        if (testSaleFrame == 70) salePanel.sellSelected();
+        if (testSaleFrame == 85)
+            io.github.some_example_name.render.FrameCapture.capture("hq_sale_sold");
+        if (testSaleFrame == 90) {
+            Gdx.app.log("SaleTest", "after sale money=" + economy.currencyWon()
+                + " storage=" + economy.storageView().size());
+            Gdx.app.exit();
+        }
     }
 
     private void updateDifficultySelectionInput() {
@@ -226,5 +272,6 @@ public final class HeadquartersScreen extends BaseScreen {
         debugRenderer.dispose();
         hud.dispose();
         sfxToggle.dispose();
+        salePanel.dispose();
     }
 }

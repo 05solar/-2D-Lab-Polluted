@@ -240,3 +240,16 @@ Desktop review can start directly in the collision overlay with `LAB_DEBUG_COLLI
 - `render/InteriorWallRenderer`: 내부 벽의 직선 벽면을 새 외벽 직선 스프라이트로 덧그린다. 벽 덩어리에서 파낸 구조라 방 경계벽은 T_OPEN_*(한쪽 바닥)로 분류되므로 T_OPEN_*+HORIZONTAL/VERTICAL을 직선으로 보고 바닥 쪽 면(north/south/west/east)을 고른다. 구간(run) 단위로 신축, 두께 1타일.
 - 접합부(OUTER/INNER/CROSS/END)·세로 방문은 기존 v3 유지. 외곽 2타일 링은 ExteriorWallRenderer가 담당.
 - `render/WorldRenderer.setInteriorWalls(renderer, room)`: WALL 레이어 직후(가구/플레이어 전) 같은 batch로 그림. `screen/LaboratoryScreen`이 easy 맵일 때 설정.
+
+## profile 패키지 (2026-10-20)
+
+영속 프로필과 본부 경제. 전부 순수 Java로 화면 없이 테스트되며, 파일 I/O는
+`ProfileStore` 인터페이스 뒤의 `FileProfileStore` 어댑터로 분리된다.
+
+- `PlayerProfile`/`ItemInstance`: 재화(long 원)·보관함 인스턴스·강화(ID→레벨)·귀환/거래 처리 기록.
+- `ProfileCodec`: JSON 직렬화 + 버전 마이그레이션(누락 필드 기본값, 알 수 없는 필드/강화/아이템 보존).
+- `FileProfileStore`: 임시 파일+fsync → 백업 → 원자 교체. 손상 시 백업 복구, 둘 다 손상 시 *.corrupt 보존.
+- `HeadquartersEconomy`: 이관/판매/강화 기록 트랜잭션 — "다음 프로필 작성 → 저장 성공 → 메모리 교체"
+  순서와 귀환/거래 ID 중복 차단을 책임진다. 가격은 loot_tables.json 카탈로그가 유일 기준.
+- `SaleSelection`: 판매창 선택 상태(수량 0..보유 제한, long 합계). 렌더러(`SalePanelRenderer`)는
+  계산 결과를 그리고 클릭을 전달만 한다. 지갑은 프로필 하나로 공유(화면별 재화 없음).

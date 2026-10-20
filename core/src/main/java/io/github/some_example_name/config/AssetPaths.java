@@ -77,6 +77,16 @@ public final class AssetPaths {
     public static final String FONT_MONA_KR = "fonts/mona/Mona12TextKR.ttf";
     public static final String FONT_MONA_KR_BOLD = "fonts/mona/Mona12TextKR-Bold.ttf";
 
+    /** 본부 판매 상점 UI 팩(hq_sales_storage_v1): 패널·버튼·판매 표식·재화·슬롯/선택 테두리. */
+    public static final String HQ_SALES_DIR = "ui/hq_sales_storage_v1/";
+    public static final String HQ_SALES_PANEL = HQ_SALES_DIR + "runtime/sale_panel_960x640.png";
+    public static final String HQ_SALES_BUTTON = HQ_SALES_DIR + "runtime/sale_button_256x64.png";
+    public static final String HQ_SALES_SIGN = HQ_SALES_DIR + "runtime/shop_sale_sign_96.png";
+    public static final String HQ_SALES_COIN_64 = HQ_SALES_DIR + "runtime/currency_coin_64.png";
+    public static final String HQ_SALES_COIN_32 = HQ_SALES_DIR + "runtime/currency_coin_32.png";
+    public static final String HQ_SALES_SLOT = HQ_SALES_DIR + "runtime/item_slot_64.png";
+    public static final String HQ_SALES_SELECTED = HQ_SALES_DIR + "runtime/item_selected_border_64.png";
+
     /** 효과음 켜기/끄기 버튼(청록 음파=켜짐, 주황 빗금=꺼짐). 배경음악과 독립. */
     public static final String SFX_TOGGLE_ON = "sfx_toggle_ui_v1/runtime/sfx_on_96.png";
     public static final String SFX_TOGGLE_OFF = "sfx_toggle_ui_v1/runtime/sfx_off_96.png";
