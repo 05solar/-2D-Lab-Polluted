@@ -207,3 +207,8 @@ PNG 알파(`LaboratoryTileCatalogV2Test`): 벽/구조물/오버레이의 알파 
 ## 획득 토스트·개봉음 V3 (2026-10-16)
 - 실행 캡처 loot_toast_center.png: 긴 이름 "고장난 컴퓨터 본체 +800"이 HP 바 아래 중앙에 아이콘과 함께 잘리지 않고 표시(수집 실경로: backpack.collect→flashLoot).
 - 수동: 여러 아이템 이름 길이에서 박스 폭 적응·2초 페이드, 개봉음이 둔탁하게 들리는지 청취.
+
+## 귀환 발자국 회귀 테스트 (2026-10-20)
+- `world/ReturnRouteRegressionTest`: 상자 footprint에 밀착한 시작 셀(기존 빈 경로 재현→보정 후 성공), 몬스터 2마리 복도 완전 봉쇄(동적 실패→정적 폴백 성공), EASY 8배 맵의 열린 셀 40곳 표본 전부 경로 생성.
+- 실행: LAB_AUTO_ROUTE=1 + 몬스터 56마리 환경에서 발자국이 플레이어→복도→대문으로 렌더됨(return_route_footprints.png).
+- 수동: 상자/가구 바로 앞·몬스터 밀집 지역에서 귀환 버튼 토글 시 발자국 즉시 표시 확인.

@@ -22,6 +22,40 @@ public final class RoomPathfinder {
                                    float bodyWidth, float bodyHeight) {
         return shortestPath((ObstacleGrid) room, sx, sy, tx, ty, bodyWidth, bodyHeight);
     }
+    /**
+     * 시작/목표 셀이 정확히 비어 있지 않아도 주변(자신+8방향)에서 가장 가까운 통행 가능
+     * 셀로 보정해 경로를 찾는다. 플레이어가 가구·상자에 붙어 서 있거나(시작 셀 중심이
+     * footprint와 겹침) 대문 앞 셀이 일시적으로 점유돼도 귀환 발자국이 끊기지 않게 한다.
+     */
+    public List<Cell> shortestPathNear(ObstacleGrid grid, int sx, int sy, int tx, int ty,
+                                       float bodyWidth, float bodyHeight) {
+        int w = grid.widthInTiles(), h = grid.heightInTiles();
+        List<Rectangle> obstacles = new ArrayList<>();
+        for (Rectangle obstacle : grid.obstacles()) obstacles.add(obstacle);
+        // 가까운 순서(자기 자신 → 반경 1 → 반경 2)로 통행 가능한 보정 셀을 찾는다.
+        // 반경 2까지 보는 이유: 가구 사이 좁은 포켓에 서 있으면 셀 중심 기준 스윕 판정이
+        // 인접 셀까지 모두 막힌 것으로 볼 수 있어, 한 칸 보정만으로는 부족할 수 있다.
+        List<int[]> offsets = new ArrayList<>();
+        for (int r = 0; r <= 2; r++)
+            for (int dy = -r; dy <= r; dy++)
+                for (int dx = -r; dx <= r; dx++)
+                    if (Math.max(Math.abs(dx), Math.abs(dy)) == r) offsets.add(new int[]{dx, dy});
+        int startX = sx, startY = sy, targetX = tx, targetY = ty;
+        for (int[] o : offsets) {
+            int x = sx + o[0], y = sy + o[1];
+            if (inside(x, y, w, h) && !blockedAtCell(grid, obstacles, x, y, bodyWidth, bodyHeight)) {
+                startX = x; startY = y; break;
+            }
+        }
+        for (int[] o : offsets) {
+            int x = tx + o[0], y = ty + o[1];
+            if (inside(x, y, w, h) && !blockedAtCell(grid, obstacles, x, y, bodyWidth, bodyHeight)) {
+                targetX = x; targetY = y; break;
+            }
+        }
+        return shortestPath(grid, startX, startY, targetX, targetY, bodyWidth, bodyHeight);
+    }
+
     public List<Cell> shortestPath(ObstacleGrid grid, int sx, int sy, int tx, int ty,
                                    float bodyWidth, float bodyHeight) {
         int w=grid.widthInTiles(), h=grid.heightInTiles();

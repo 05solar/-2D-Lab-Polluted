@@ -102,12 +102,8 @@ public final class DifficultyModalAssets implements Disposable {
     }
 
     private static Font koreanFont(String value, int size) {
-        String[] candidates = {"Malgun Gothic", "맑은 고딕", "Gulim", "Dialog"};
-        for (String family : candidates) {
-            Font font = new Font(family, Font.BOLD, size);
-            if (font.canDisplayUpTo(value) == -1) return font;
-        }
-        throw new IllegalStateException("No installed font can render Korean modal labels");
+        // Mona 픽셀 폰트 우선(OFL), 글리프 누락 시 시스템 한글 폰트 폴백.
+        return GameFonts.awtBold(value, size);
     }
 
     @Override public void dispose() {

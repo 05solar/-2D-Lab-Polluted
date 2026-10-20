@@ -60,15 +60,10 @@ public final class DifficultyModalRenderer implements com.badlogic.gdx.utils.Dis
         batch.setColor(Color.WHITE);
         batch.begin();
         drawCentered(batch, assets.text("title"), layout.titleRect(width, height), scale);
-        // 몬스터 수 설명은 표시하지 않는다(난이도 이름만).
+        // 몬스터 수 설명 없이 난이도 이름만, 각 행 가운데 정렬로 표시한다.
         String[] names = {"easy", "normal", "hard"};
-        for (int i = 0; i < layout.optionCount(); i++) {
-            DifficultyModalLayout.Rect r = layout.optionRect(i, width, height);
-            DifficultyModalAssets.Text name = assets.text(names[i]);
-            float nameH = name.height * scale;
-            float y = r.y + (r.height - nameH) / 2f;
-            batch.draw(name.texture, r.x + 34f * scale, y, name.width * scale, nameH);
-        }
+        for (int i = 0; i < layout.optionCount(); i++)
+            drawCentered(batch, assets.text(names[i]), layout.optionRect(i, width, height), scale);
         drawCentered(batch, assets.text("footer"), layout.footerRect(width, height), scale);
         batch.setColor(Color.WHITE);
         batch.end();

@@ -46,6 +46,9 @@ public class GameAssets implements Disposable {
     // 배경음악: Sound와 달리 스트리밍되는 Music 인스턴스. 여기서 소유·해제하고
     // 재생 시작(무한 반복)은 게임 루트가 한 번만 호출한다.
     private final com.badlogic.gdx.audio.Music backgroundMusic;
+    // Mona 픽셀 폰트(OFL)로 생성한 BitmapFont. 화면 UI용과 월드 좌표용(연타 카운트 —
+    // 자체 scale 상태를 가져 분리)을 따로 둔다. 렌더러는 빌려 쓰기만 하고 해제하지 않는다.
+    private final com.badlogic.gdx.graphics.g2d.BitmapFont uiFont, worldFont;
     private final Texture minimapFrameTex, footprintsTex, returnButtonTex;
     private final TextureRegion minimapFrame, footprints, returnButton;
     private final Texture sfxToggleOnTex, sfxToggleOffTex;
@@ -88,6 +91,20 @@ public class GameAssets implements Disposable {
         combatSounds = new CombatSoundAssets();
         combatUi = new CombatUiAssets();
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(AssetPaths.MUSIC_BACKGROUND));
+        // Mona12 Text KR(픽셀 폰트, 12px 설계)을 2배수 24px로 생성해 선명하게 쓴다.
+        com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator fontGenerator =
+            new com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator(
+                Gdx.files.internal(AssetPaths.FONT_MONA_KR_BOLD));
+        com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter fontParameter =
+            new com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter();
+        fontParameter.size = 24;
+        fontParameter.minFilter = Texture.TextureFilter.Nearest;
+        fontParameter.magFilter = Texture.TextureFilter.Nearest;
+        uiFont = fontGenerator.generateFont(fontParameter);
+        uiFont.setUseIntegerPositions(false);
+        worldFont = fontGenerator.generateFont(fontParameter);
+        worldFont.setUseIntegerPositions(false);
+        fontGenerator.dispose();
         minimapFrameTex = loadTile(AssetPaths.NAV_MINIMAP_FRAME);
         footprintsTex = loadTile(AssetPaths.NAV_FOOTPRINTS);
         returnButtonTex = loadTile(AssetPaths.NAV_RETURN_BUTTON);
@@ -218,6 +235,10 @@ public class GameAssets implements Disposable {
     public CombatSoundAssets combatSounds() { return combatSounds; }
     public CombatUiAssets combatUi() { return combatUi; }
     public com.badlogic.gdx.audio.Music backgroundMusic() { return backgroundMusic; }
+    /** 화면 UI 텍스트(HP 숫자·쿨다운·키 라벨 등)용 Mona BitmapFont(공유 — 해제 금지). */
+    public com.badlogic.gdx.graphics.g2d.BitmapFont uiFont() { return uiFont; }
+    /** 월드 좌표 텍스트(연타 카운트)용 Mona BitmapFont — 자체 scale을 유지하므로 분리. */
+    public com.badlogic.gdx.graphics.g2d.BitmapFont worldFont() { return worldFont; }
 
     /**
      * 오디오 토글(버튼 1개로 효과음+배경음악 세트 전환).
@@ -264,6 +285,8 @@ public class GameAssets implements Disposable {
         combatSounds.dispose();
         combatUi.dispose();
         backgroundMusic.dispose();
+        uiFont.dispose();
+        worldFont.dispose();
         minimapFrameTex.dispose();
         footprintsTex.dispose();
         returnButtonTex.dispose();

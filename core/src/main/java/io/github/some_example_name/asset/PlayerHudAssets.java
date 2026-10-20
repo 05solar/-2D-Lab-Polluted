@@ -54,7 +54,7 @@ public final class PlayerHudAssets implements Disposable {
         BufferedImage image = new BufferedImage(360, 56, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = image.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 26));
+        g.setFont(GameFonts.awtBold(text, 26));
         java.awt.FontMetrics fm = g.getFontMetrics();
         int x = (image.getWidth() - fm.stringWidth(text)) / 2;
         int y = (image.getHeight() - fm.getHeight()) / 2 + fm.getAscent();

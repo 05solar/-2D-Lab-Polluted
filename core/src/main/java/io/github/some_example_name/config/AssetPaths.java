@@ -73,6 +73,10 @@ public final class AssetPaths {
     /** 배경음악(사용자 제공 영상에서 추출, OGG 스트리밍·무한 반복). */
     public static final String MUSIC_BACKGROUND = "music/background_music.ogg";
 
+    /** Mona 픽셀 폰트(Monad ABXY, OFL 1.1) — 한글 포함 Mona12 Text KR. UI 전역 폰트. */
+    public static final String FONT_MONA_KR = "fonts/mona/Mona12TextKR.ttf";
+    public static final String FONT_MONA_KR_BOLD = "fonts/mona/Mona12TextKR-Bold.ttf";
+
     /** 효과음 켜기/끄기 버튼(청록 음파=켜짐, 주황 빗금=꺼짐). 배경음악과 독립. */
     public static final String SFX_TOGGLE_ON = "sfx_toggle_ui_v1/runtime/sfx_on_96.png";
     public static final String SFX_TOGGLE_OFF = "sfx_toggle_ui_v1/runtime/sfx_off_96.png";

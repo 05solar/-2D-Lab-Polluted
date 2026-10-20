@@ -128,7 +128,8 @@ config/    AssetPaths · BalanceConfig
 `ui/player_hud_inventory_v1`, `ui/navigation`, `exterior_walls_gate_v3`(대문), `textures/player`, `data`,
 `combat_loot_update_v1`(돌진/공격 HUD UI 4종 + 전투·전리품 효과음 9종, CC0 — `sounds/` 구 2종 대체),
 `container_sfx_v2`(경쾌한 상자 걸쇠/개봉 차임 — 팩 press/open 대체), `music`(배경음악 OGG, 무한 반복),
-`sfx_toggle_ui_v1`(효과음 켜기/끄기 버튼 — 본부·연구소 공유 설정, 배경음악과 독립).
+`sfx_toggle_ui_v1`(효과음 켜기/끄기 버튼 — 본부·연구소 공유 설정, 배경음악과 독립),
+`fonts/mona`(Mona12TextKR 픽셀 폰트, OFL 1.1 — gdx-freetype BitmapFont + AWT 한글 라벨 전역 적용).
 
 ### V4 파일 ↔ 사용 매핑
 - `laboratory_structure_v4/runtime/walls/walls_blob47_atlas_128.png` → `LaboratoryStructureV4Assets.wall(index)`,

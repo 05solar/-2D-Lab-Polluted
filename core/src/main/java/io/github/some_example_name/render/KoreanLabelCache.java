@@ -68,12 +68,8 @@ public final class KoreanLabelCache implements Disposable {
     }
 
     private static Font koreanFont(String text, int size) {
-        String[] candidates = {"Malgun Gothic", "맑은 고딕", "Gulim", "Dialog"};
-        for (String family : candidates) {
-            Font font = new Font(family, Font.BOLD, size);
-            if (font.canDisplayUpTo(text) == -1) return font;
-        }
-        return new Font(Font.SANS_SERIF, Font.BOLD, size);
+        // Mona 픽셀 폰트 우선(OFL), 글리프 누락 시 시스템 한글 폰트 폴백.
+        return io.github.some_example_name.asset.GameFonts.awtBold(text, size);
     }
 
     @Override public void dispose() {

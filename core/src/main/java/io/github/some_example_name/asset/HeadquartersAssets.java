@@ -98,7 +98,7 @@ public final class HeadquartersAssets implements Disposable {
         Graphics2D graphics = image.createGraphics();
         graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
             RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        graphics.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 12));
+        graphics.setFont(GameFonts.awtBold(text, 12));
         FontMetrics metrics = graphics.getFontMetrics();
         int x = (image.getWidth() - metrics.stringWidth(text)) / 2;
         int y = (image.getHeight() - metrics.getHeight()) / 2 + metrics.getAscent();

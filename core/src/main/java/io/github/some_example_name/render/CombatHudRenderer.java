@@ -27,8 +27,11 @@ public final class CombatHudRenderer {
 
     private final SpriteBatch batch = new SpriteBatch();
     private final OrthographicCamera camera = new OrthographicCamera();
-    private final BitmapFont font = new BitmapFont();
+    // 공유 Mona 폰트(GameAssets 소유 — 여기서 해제하지 않는다).
+    private final BitmapFont font;
     private final GlyphLayout glyph = new GlyphLayout();
+
+    public CombatHudRenderer(BitmapFont sharedUiFont) { this.font = sharedUiFont; }
 
     public void render(CombatUiAssets ui, Texture whitePixel, String attackKeyLabel,
                        PlayerDashState dash) {
@@ -83,6 +86,5 @@ public final class CombatHudRenderer {
 
     public void dispose() {
         batch.dispose();
-        font.dispose();
     }
 }

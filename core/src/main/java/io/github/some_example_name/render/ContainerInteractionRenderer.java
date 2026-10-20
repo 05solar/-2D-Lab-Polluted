@@ -31,7 +31,8 @@ public final class ContainerInteractionRenderer implements Disposable {
     private static final float PRESSED_FRAME_SECONDS = 0.12f;
 
     private final Texture glowTexture;
-    private final BitmapFont font = new BitmapFont();
+    // 연타 카운트용 월드 좌표 Mona 폰트(GameAssets 소유 — 자체 scale 유지, 해제 금지).
+    private final BitmapFont font;
     private final GlyphLayout layout = new GlyphLayout();
 
     // 한 번에 하나의 대상만 연타하므로 펄스 상태도 단일 대상에 저장한다.
@@ -51,7 +52,8 @@ public final class ContainerInteractionRenderer implements Disposable {
     private float revealX, revealStartY, revealTopY;
     private float revealAge = Float.MAX_VALUE;
 
-    public ContainerInteractionRenderer() {
+    public ContainerInteractionRenderer(BitmapFont sharedWorldFont) {
+        this.font = sharedWorldFont;
         glowTexture = createRadialGlow(128);
         font.setUseIntegerPositions(false);
         font.getData().setScale(0.016f);
@@ -179,6 +181,5 @@ public final class ContainerInteractionRenderer implements Disposable {
 
     @Override public void dispose() {
         glowTexture.dispose();
-        font.dispose();
     }
 }

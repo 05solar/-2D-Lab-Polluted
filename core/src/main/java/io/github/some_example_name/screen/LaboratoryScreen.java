@@ -85,7 +85,7 @@ public class LaboratoryScreen extends BaseScreen {
     private final CombatRenderer combatRenderer = new CombatRenderer();
     private final DebugRenderer debugRenderer = new DebugRenderer();
     private final TileDebugRenderer tileDebugRenderer = new TileDebugRenderer();
-    private final PlayerHudRenderer hud = new PlayerHudRenderer();
+    private final PlayerHudRenderer hud;
     private final NavigationRenderer navigationRenderer = new NavigationRenderer();
     private final RoomPathfinder pathfinder = new RoomPathfinder();
     private final PlayerSessionState session;
@@ -95,7 +95,8 @@ public class LaboratoryScreen extends BaseScreen {
     private boolean debugEnabled = "1".equals(System.getenv("LAB_DEBUG_COLLISION"));
     private boolean tileDebugEnabled;
     private boolean backpackOpen;
-    private boolean routeEnabled;
+    // LAB_AUTO_ROUTE=1(개발 전용): 귀환 버튼을 누른 상태로 시작해 발자국 렌더를 캡처 검증.
+    private boolean routeEnabled = "1".equals(System.getenv("LAB_AUTO_ROUTE"));
     // 개발용 자동 캡처: LAB_AUTO_CAPTURE 설정 시 몇 프레임 뒤 UI/충돌 프레임을 저장하고 종료한다.
     private final boolean autoCapture = System.getenv("LAB_AUTO_CAPTURE") != null;
     private int autoCaptureFrame;
@@ -105,15 +106,14 @@ public class LaboratoryScreen extends BaseScreen {
     private final List<LootContainer> lootContainers = new ArrayList<>();
     private final List<LootDrop> lootDrops = new ArrayList<>();
     private final Random lootRandom = new Random();
-    private final io.github.some_example_name.render.ContainerInteractionRenderer containerFx =
-        new io.github.some_example_name.render.ContainerInteractionRenderer();
+    private final io.github.some_example_name.render.ContainerInteractionRenderer containerFx;
     private LootContainer promptTarget;        // 이번 프레임 상호작용 대상(안내 표시용)
     private float containerGlowHeight = 1f;    // 마지막 유효 입력 대상의 표시 높이(발광 반경 기준)
     // F 돌진: 별도 상태(달리기 RunStartDetector와 분리). 쿨다운·방향·대상당 1회 피해를 관리한다.
     private final PlayerDashState dash;
     private final CollisionSystem dashCollision = new CollisionSystem();
     private final Rectangle dashHitArea = new Rectangle();
-    private final CombatHudRenderer combatHud = new CombatHudRenderer();
+    private final CombatHudRenderer combatHud;
     private final io.github.some_example_name.render.SfxToggleRenderer sfxToggle =
         new io.github.some_example_name.render.SfxToggleRenderer();
     private final String attackKeyLabel;
@@ -133,6 +133,11 @@ public class LaboratoryScreen extends BaseScreen {
         super(game, assets);
         this.config = config;
         this.session = session;
+        // 텍스트 렌더러는 GameAssets가 소유한 공유 Mona 폰트를 빌려 쓴다.
+        hud = new PlayerHudRenderer(assets.uiFont());
+        combatHud = new CombatHudRenderer(assets.uiFont());
+        containerFx = new io.github.some_example_name.render.ContainerInteractionRenderer(
+            assets.worldFont());
         room = layout.room();
         visuals = layout.visuals();
         player = session.player();
@@ -303,11 +308,17 @@ public class LaboratoryScreen extends BaseScreen {
 
         updateCamera();
         playerGrid.forPlayer(monsters);
-        if (routeEnabled && !player.isDead())
-            exitPath = pathfinder.shortestPath(playerGrid, (int)player.feetX(), (int)player.feetY(),
-                room.southExitCenterX(), room.southExitPathY(),
-                player.bounds().width, player.bounds().height);
-        else exitPath = java.util.Collections.emptyList();
+        if (routeEnabled && !player.isDead()) {
+            int sx = (int) player.feetX(), sy = (int) player.feetY();
+            int tx = room.southExitCenterX(), ty = room.southExitPathY();
+            float bw = player.bounds().width, bh = player.bounds().height;
+            // 1차: 살아 있는 몬스터 몸체까지 피하는 경로. 시작/목표 셀은 주변 보정.
+            exitPath = pathfinder.shortestPathNear(playerGrid, sx, sy, tx, ty, bw, bh);
+            // 2차: 몬스터(EASY 8배·로밍)가 복도를 완전히 막아도 발자국이 사라지지 않도록
+            // 정적 지형(벽·문·가구·상자)만으로 폴백 — 안내는 항상 표시된다.
+            if (exitPath.isEmpty())
+                exitPath = pathfinder.shortestPathNear(room, sx, sy, tx, ty, bw, bh);
+        } else exitPath = java.util.Collections.emptyList();
         navigationRenderer.updateFootsteps(animDelta, player.isMoving(), player.feetX(), player.feetY());
         // The desktop backbuffer must remain opaque even while sprite/shape
         // layers blend translucent pixels into RGB.

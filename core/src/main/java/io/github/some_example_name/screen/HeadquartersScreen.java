@@ -58,7 +58,7 @@ public final class HeadquartersScreen extends BaseScreen {
     private final HeadquartersDebugRenderer debugRenderer = new HeadquartersDebugRenderer();
     private final VendingMachineInteraction vendingInteraction = new VendingMachineInteraction();
     private final VendingMachineInteraction waterInteraction = new VendingMachineInteraction();
-    private final PlayerHudRenderer hud = new PlayerHudRenderer();
+    private final PlayerHudRenderer hud;
     private final io.github.some_example_name.render.SfxToggleRenderer sfxToggle =
         new io.github.some_example_name.render.SfxToggleRenderer();
     private final PlayerSessionState session;
@@ -72,6 +72,7 @@ public final class HeadquartersScreen extends BaseScreen {
                               HeadquartersLayout layout, PlayerSessionState session) {
         super(game, assets);
         this.session = session;
+        hud = new PlayerHudRenderer(assets.uiFont());
         room = layout.room();
         visuals = layout.visuals();
         player = session.player();
