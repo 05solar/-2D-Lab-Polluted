@@ -69,4 +69,16 @@ public final class HudLayout {
     public static HudLayout fromJson(String json) {
         return new HudLayout(new JsonReader().parse(json));
     }
+
+    /**
+     * HP 색 구간(비율 기준, 2026-10-20): 과거 50/25 고정 임계를 체력 비율 50%/25%로
+     * 해석한다 — 최대 HP가 강화로 늘어도 같은 비율에서 색이 바뀐다.
+     * @return 0=healthy, 1=warning, 2=critical
+     */
+    public int colorBand(int hp, int currentMaxHp) {
+        float ratio = currentMaxHp <= 0 ? 0f : hp / (float) currentMaxHp;
+        if (ratio > healthyAbove / (float) maxHp) return 0;
+        if (ratio > warningAbove / (float) maxHp) return 1;
+        return 2;
+    }
 }

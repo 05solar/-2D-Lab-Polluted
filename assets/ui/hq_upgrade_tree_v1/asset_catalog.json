@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "alpha": "straight RGBA",
+  "filter": "Nearest",
+  "assets": [
+    {
+      "file": "runtime/currency_coin_32.png",
+      "size": [
+        32,
+        32
+      ]
+    },
+    {
+      "file": "runtime/icon_attack_64.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    {
+      "file": "runtime/icon_health_64.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    {
+      "file": "runtime/icon_skill_64.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    {
+      "file": "runtime/link_h_active.png",
+      "size": [
+        64,
+        12
+      ]
+    },
+    {
+      "file": "runtime/link_h_complete.png",
+      "size": [
+        64,
+        12
+      ]
+    },
+    {
+      "file": "runtime/link_h_inactive.png",
+      "size": [
+        64,
+        12
+      ]
+    },
+    {
+      "file": "runtime/link_v_active.png",
+      "size": [
+        12,
+        64
+      ]
+    },
+    {
+      "file": "runtime/link_v_complete.png",
+      "size": [
+        12,
+        64
+      ]
+    },
+    {
+      "file": "runtime/link_v_inactive.png",
+      "size": [
+        12,
+        64
+      ]
+    },
+    {
+      "file": "runtime/node_available_96.png",
+      "size": [
+        96,
+        96
+      ]
+    },
+    {
+      "file": "runtime/node_locked_96.png",
+      "size": [
+        96,
+        96
+      ]
+    },
+    {
+      "file": "runtime/node_purchased_96.png",
+      "size": [
+        96,
+        96
+      ]
+    },
+    {
+      "file": "runtime/upgrade_bench_north_192x128.png",
+      "size": [
+        192,
+        128
+      ],
+      "placement": "north-wall only",
+      "anchorTopLeftPx": [
+        96,
+        116
+      ],
+      "footprintTopLeftPx": [
+        12,
+        78,
+        168,
+        42
+      ],
+      "note": "Starting calibration values; tune to world tile scale and actual sprite feet. Transparent margins do not block."
+    },
+    {
+      "file": "runtime/upgrade_button_256x64.png",
+      "size": [
+        256,
+        64
+      ]
+    },
+    {
+      "file": "runtime/upgrade_panel_1120x720.png",
+      "size": [
+        1120,
+        720
+      ]
+    }
+  ]
+}

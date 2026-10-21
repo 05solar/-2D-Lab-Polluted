@@ -1,0 +1,20 @@
+{
+  "generatorVersion": 1,
+  "pipeline": [
+    "rooms_and_corridors",
+    "walls_and_doors",
+    "furniture",
+    "containers",
+    "monsters",
+    "validation"
+  ],
+  "plannedSocketsBeforeFurniture": true,
+  "randomAlgorithm": "FNV-1a32(seedDecimalString + | + scope), XorShift32(13,17,5), unsigned modulo bounds",
+  "fallbackAttempts": 3,
+  "fallback": "same-difficulty known validated baseline; log reason and resulting seed/template",
+  "gateCount": 1,
+  "doorReachability": "open adjacent reachable ordinary doors incrementally",
+  "gameActorColliderRequired": true,
+  "referenceCollider": "point at tile center with floor continuity; proxy does not prove actual AABB clearance",
+  "layoutGalleryIsRuntimeArt": false
+}

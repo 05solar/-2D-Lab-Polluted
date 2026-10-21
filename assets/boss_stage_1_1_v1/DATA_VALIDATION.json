@@ -1,0 +1,12 @@
+{
+  "stageData": "PASS",
+  "patternEventOrdering": "PASS",
+  "rewardContract": "PASS",
+  "proxyArenaPaths": "PASS",
+  "animationPathsAndCounts": "PASS",
+  "totalFrames": 34,
+  "limitations": [
+    "No real actor AABB, Java combat, save or rendering was executed.",
+    "Arena uses proxy obstacle footprints."
+  ]
+}

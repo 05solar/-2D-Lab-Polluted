@@ -26,6 +26,9 @@ public class ProfilePersistenceTest {
         profile.processedReturnIds.add("ret-1");
         profile.processedTransactionIds.add("tx-1");
         profile.nextInstanceId = 13;
+        profile.skillSlots.addAll(java.util.Arrays.asList("dash", "heal", "", "", ""));
+        profile.skillKeys.addAll(java.util.Arrays.asList(34, 45, 8, 9, 10));
+        profile.skillCooldowns.put("heal", 6.5f);
         PlayerProfile loaded = ProfileCodec.fromJson(ProfileCodec.toJson(profile));
         assertEquals(123_456_789L, loaded.currencyWon);
         assertEquals(7, loaded.profileRevision);
@@ -38,6 +41,11 @@ public class ProfilePersistenceTest {
         assertTrue(loaded.processedReturnIds.contains("ret-1"));
         assertTrue(loaded.processedTransactionIds.contains("tx-1"));
         assertEquals(13, loaded.nextInstanceId);
+        assertEquals("스킬 슬롯 구성 왕복",
+            java.util.Arrays.asList("dash", "heal", "", "", ""), loaded.skillSlots);
+        assertEquals(java.util.Arrays.asList(34, 45, 8, 9, 10), loaded.skillKeys);
+        assertEquals("쿨다운 스냅샷 왕복(오프라인 경과 미적용)",
+            6.5f, loaded.skillCooldowns.get("heal"), .0001f);
     }
 
     @Test public void legacySaveWithoutNewFieldsMigratesKeepingCurrencyAndUnknowns() {

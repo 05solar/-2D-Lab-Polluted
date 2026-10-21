@@ -233,8 +233,8 @@ public final class LaboratoryLayout {
         return layout;
     }
 
-    private enum Side { NORTH, EAST, SOUTH, WEST }
-    private static final class RoomPlan {
+    enum Side { NORTH, EAST, SOUTH, WEST }
+    static final class RoomPlan {
         final String name; final int x, y, w, h; final Side side; final int offset;
         final int notchX, notchY, notchW, notchH;
         final int doorX, doorY;
@@ -290,11 +290,11 @@ public final class LaboratoryLayout {
     private static float compactXf(float x) { return 64f + (x - 64f) * PLAN_SPACING_SCALE; }
     private static float compactYf(float y) { return 8f + (y - 8f) * PLAN_SPACING_SCALE; }
 
-    private static void hall(TileType[][] map,int x,int y,int w,int h) {
+    static void hall(TileType[][] map,int x,int y,int w,int h) {
         for(int yy=Math.max(0,y);yy<Math.min(map.length,y+h);yy++)
             for(int xx=Math.max(0,x);xx<Math.min(map[0].length,x+w);xx++) map[yy][xx]=TileType.FLOOR;
     }
-    private static void drawRoomFloor(TileType[][] map,RoomPlan p) {
+    static void drawRoomFloor(TileType[][] map,RoomPlan p) {
         for(int y=p.y+1;y<p.y+p.h-1;y++) for(int x=p.x+1;x<p.x+p.w-1;x++) {
             boolean cut=p.notchW>0&&x>=p.notchX&&x<p.notchX+p.notchW
                 &&y>=p.notchY&&y<p.notchY+p.notchH;
@@ -393,7 +393,7 @@ public final class LaboratoryLayout {
      *
      * @return 유효 후보가 전혀 없으면 null
      */
-    private static LootContainerPlacement placeContainer(String id,int minX,int minY,
+    static LootContainerPlacement placeContainer(String id,int minX,int minY,
             int maxX,int maxY,TileType[][] map,List<LaboratoryProp> props,
             List<LootContainerPlacement> placed,java.util.Random random,
             float avoidX,float avoidY) {
@@ -527,10 +527,41 @@ public final class LaboratoryLayout {
         }
         return false;
     }
+    /** 테마 id → 검증된 쉬움 배치 kit(벽면 정면/측면·중앙 섬 공용 4종) — 생성 맵과 공유. */
+    static String[] kitForTheme(String themeId) {
+        String name;
+        switch (themeId) {
+            case "entry": name = "ENTRANCE"; break;
+            case "chemistry": name = "CHEMISTRY"; break;
+            case "biology": name = "BIOLOGY"; break;
+            case "general_lab": name = "GENERAL LAB"; break;
+            case "preparation": name = "PREP ROOM"; break;
+            case "specimen": name = "SPECIMEN"; break;
+            case "information": name = "INFORMATION"; break;
+            case "cctv": name = "CCTV"; break;
+            case "pantry": name = "PANTRY"; break;
+            case "lounge": name = "LOUNGE"; break;
+            case "sleeping": name = "SLEEPING"; break;
+            case "toilet": name = "RESTROOM"; break;
+            case "changing": name = "LOCKER"; break;
+            case "shower": name = "SHOWER"; break;
+            case "records": name = "RECORDS"; break;
+            case "library": name = "LIBRARY"; break;
+            default: throw new IllegalArgumentException("unknown theme: " + themeId);
+        }
+        int index = 0;
+        while (index < ROOM_KIT_NAMES.length && !ROOM_KIT_NAMES[index].equals(name)) index++;
+        return ROOM_KITS[index];
+    }
+
     private static void addRoomFurniture(List<LaboratoryProp> out,RoomPlan p,
                                         List<WallFurnitureCoverageReport> coverage,
                                         TileType[][] map) {
-        String[][] kits={
+        int index=0;while(index<ROOM_KIT_NAMES.length&&!ROOM_KIT_NAMES[index].equals(p.name))index++;
+        addThemedRoomFurniture(out,p,ROOM_KITS[index],coverage,map,false,0);
+    }
+
+    private static final String[][] ROOM_KITS={
             {"science_lab/chemistry_workbench/front","science_lab/chemistry_fume_hood/front","general_lab/storage_cabinet/left_side","general_lab/workbench/right_side"},
             {"science_lab/biosafety_cabinet/front","science_lab/specimen_cabinet/left_side","science_lab/biosafety_cabinet/right_side","science_lab/chemistry_workbench/front"},
             {"general_lab/workbench/front","general_lab/sink_counter/left_side","general_lab/storage_cabinet/right_side","general_lab/workbench/front"},
@@ -558,11 +589,18 @@ public final class LaboratoryLayout {
             {"general_lab/storage_cabinet/front","general_lab/storage_cabinet/left_side","archive_library/filing_cabinet/right_side","archive_library/archive_shelf/front"},       // NORTH STORE
             {"science_lab/specimen_cabinet/front","science_lab/biosafety_cabinet/left_side","science_lab/specimen_cabinet/right_side","general_lab/storage_cabinet/front"},        // SPECIMEN ANNEX
             {"lounge_sleeping/locker_bank/front","lounge_sleeping/locker_bank/left_side","general_lab/storage_cabinet/right_side","lounge_sleeping/locker_bank/front"}             // WEST CLOSET
-        };
-        String[] names={"CHEMISTRY","BIOLOGY","GENERAL LAB","PREP ROOM","INFORMATION","CCTV","SPECIMEN","LIBRARY","LOUNGE","SLEEPING","RESTROOM","LOCKER","SHOWER","RECORDS","PANTRY","ENTRANCE",
+    };
+    private static final String[] ROOM_KIT_NAMES={"CHEMISTRY","BIOLOGY","GENERAL LAB","PREP ROOM","INFORMATION","CCTV","SPECIMEN","LIBRARY","LOUNGE","SLEEPING","RESTROOM","LOCKER","SHOWER","RECORDS","PANTRY","ENTRANCE",
             "STORAGE ANNEX","STORE ROOM","ELECTRICAL","QUARANTINE","WASHROOM","GUARD POST","SERVER ANNEX","NORTH STORE","SPECIMEN ANNEX","WEST CLOSET"};
-        int index=0;while(index<names.length&&!names[index].equals(p.name))index++;
-        String[] kit=kits[index];
+
+    /**
+     * 방 하나의 가구 배치(쉬움과 생성 맵 공용): 네 벽면을 테마 kit의 전용 방향 뷰로 채우고
+     * 중앙 작업 섬을 놓는다. 생성 맵은 islandVariant(시드)로 섬 패턴을 변형하고,
+     * 입구(대문) 방은 skipIslands로 중앙을 비워 스폰·대문 접근 공간을 지킨다.
+     */
+    static void addThemedRoomFurniture(List<LaboratoryProp> out,RoomPlan p,String[] kit,
+                                       List<WallFurnitureCoverageReport> coverage,
+                                       TileType[][] map,boolean skipIslands,int islandVariant) {
         // Fill all four wall runs before creating center islands. Wall slots use
         // measured opaque alpha spans, so transparent canvas margins do not create
         // fake coverage or visible gaps. Door cells, jambs, corners and recesses are
@@ -578,13 +616,17 @@ public final class LaboratoryLayout {
         addWallFurniture(out, coverage, p, map, "EAST", p.y + 1, p.y + p.h - 1,
             p.x + p.w - 1, false, kit[3], kit[1]);
         // Compact central equipment islands are offset from the doorway and from
-        // one another; small rooms keep a clear center lane.
-        if(p.w>=9&&p.h>=8) {
+        // one another; small rooms keep a clear center lane. islandVariant(시드)는
+        // 행 높이/열 생략을 바꾸는 검증된 변형만 쓴다(무작위 산포 금지).
+        if(!skipIslands&&p.w>=9&&p.h>=8) {
             int columns=p.w>=18?3:2;
-            int rows=p.w>=9&&p.h>=8?2:1;
+            int rows=islandVariant%3==2?1:2;
+            float rowA=islandVariant%3==1?.45f:.40f;
+            float rowB=islandVariant%3==1?.28f:.25f;
             for(int row=0;row<rows;row++) {
-                float y=p.y+p.h*(row==0?.40f:.25f);
+                float y=p.y+p.h*(row==0?rowA:rowB);
                 for(int col=0;col<columns;col++) {
+                    if(islandVariant%3==1&&columns==3&&col==1)continue; // 가운데 열 생략 변형
                     float x=p.x+p.w*(columns==2?(col==0?.34f:.66f):(.30f+col*.20f));
                     if(!insideNotch(p,x,y))
                         addV7(out,kit[(row+col)%4],x,y,1.85f,.34f,p,map);
@@ -787,7 +829,7 @@ public final class LaboratoryLayout {
         return true;
     }
 
-    private static void validateFurniturePlacements(List<LaboratoryProp> props,
+    static void validateFurniturePlacements(List<LaboratoryProp> props,
             List<RoomPlan> plans, TileType[][] map) {
         for (LaboratoryProp prop : props) {
             Rectangle visible = FurniturePlacementValidator.visibleBounds(prop);
@@ -821,6 +863,15 @@ public final class LaboratoryLayout {
             && y>=p.notchY && y<p.notchY+p.notchH;
     }
 
+
+    /** 시드 생성기(LaboratoryGenerator) 전용 조립 팩토리 — 쉬움과 같은 렌더 경로를 쓴다. */
+    static LaboratoryLayout createForGenerator(LaboratoryRoom room, RoomVisuals visuals,
+            List<LootContainerPlacement> containers, List<LaboratoryRoomArea> areas,
+            List<WallFurnitureCoverageReport> coverage, boolean exteriorRing) {
+        LaboratoryLayout layout = new LaboratoryLayout(room, visuals, containers, areas, coverage);
+        layout.exteriorRing = exteriorRing;
+        return layout;
+    }
 
     public static LaboratoryLayout forDifficulty(GameDifficulty difficulty) {
         return forDifficulty(difficulty, new io.github.some_example_name.config.BalanceConfig());

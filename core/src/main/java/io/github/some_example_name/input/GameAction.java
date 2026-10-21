@@ -8,7 +8,7 @@ public enum GameAction {
     MOVE_RIGHT,
     RUN,
     ATTACK,
-    DASH,
     INTERACT,
+    RETURN_ROUTE,
     PAUSE
 }

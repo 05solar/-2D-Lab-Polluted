@@ -1,0 +1,179 @@
+{
+  "version": 1,
+  "minimumDistinctThemes": {
+    "easy": 16,
+    "normal": 16,
+    "hard": 16
+  },
+  "themes": [
+    {
+      "id": "entry",
+      "displayName": "입구",
+      "wallRoles": [
+        "terminal",
+        "shelf"
+      ],
+      "islandRole": "desk",
+      "styleRule": "existing validated easy-room kit, proper N/S/E/W views, no image rotation"
+    },
+    {
+      "id": "chemistry",
+      "displayName": "화학연구실",
+      "wallRoles": [
+        "chemical_hood",
+        "sink",
+        "shelf"
+      ],
+      "islandRole": "lab_bench",
+      "styleRule": "existing validated easy-room kit, proper N/S/E/W views, no image rotation"
+    },
+    {
+      "id": "biology",
+      "displayName": "생물연구실",
+      "wallRoles": [
+        "incubator",
+        "sink",
+        "shelf"
+      ],
+      "islandRole": "lab_bench",
+      "styleRule": "existing validated easy-room kit, proper N/S/E/W views, no image rotation"
+    },
+    {
+      "id": "general_lab",
+      "displayName": "일반실험실",
+      "wallRoles": [
+        "lab_bench",
+        "centrifuge",
+        "shelf"
+      ],
+      "islandRole": "lab_bench",
+      "styleRule": "existing validated easy-room kit, proper N/S/E/W views, no image rotation"
+    },
+    {
+      "id": "preparation",
+      "displayName": "준비실",
+      "wallRoles": [
+        "sink",
+        "shelf",
+        "locker"
+      ],
+      "islandRole": "desk",
+      "styleRule": "existing validated easy-room kit, proper N/S/E/W views, no image rotation"
+    },
+    {
+      "id": "specimen",
+      "displayName": "표본실",
+      "wallRoles": [
+        "display_case",
+        "shelf"
+      ],
+      "islandRole": "display_case",
+      "styleRule": "existing validated easy-room kit, proper N/S/E/W views, no image rotation"
+    },
+    {
+      "id": "information",
+      "displayName": "정보실",
+      "wallRoles": [
+        "computer_desk",
+        "terminal",
+        "shelf"
+      ],
+      "islandRole": "computer_desk",
+      "styleRule": "existing validated easy-room kit, proper N/S/E/W views, no image rotation"
+    },
+    {
+      "id": "cctv",
+      "displayName": "CCTV실",
+      "wallRoles": [
+        "cctv_console",
+        "terminal",
+        "locker"
+      ],
+      "islandRole": "desk",
+      "styleRule": "existing validated easy-room kit, proper N/S/E/W views, no image rotation"
+    },
+    {
+      "id": "pantry",
+      "displayName": "탕비실",
+      "wallRoles": [
+        "sink",
+        "cupboard",
+        "fridge"
+      ],
+      "islandRole": "dining_table",
+      "styleRule": "existing validated easy-room kit, proper N/S/E/W views, no image rotation"
+    },
+    {
+      "id": "lounge",
+      "displayName": "휴게실",
+      "wallRoles": [
+        "sofa",
+        "shelf",
+        "cupboard"
+      ],
+      "islandRole": "coffee_table",
+      "styleRule": "existing validated easy-room kit, proper N/S/E/W views, no image rotation"
+    },
+    {
+      "id": "sleeping",
+      "displayName": "취침실",
+      "wallRoles": [
+        "bunk_bed",
+        "locker"
+      ],
+      "islandRole": "desk",
+      "styleRule": "existing validated easy-room kit, proper N/S/E/W views, no image rotation"
+    },
+    {
+      "id": "toilet",
+      "displayName": "화장실",
+      "wallRoles": [
+        "toilet",
+        "sink"
+      ],
+      "islandRole": "sink",
+      "styleRule": "existing validated easy-room kit, proper N/S/E/W views, no image rotation"
+    },
+    {
+      "id": "changing",
+      "displayName": "탈의실",
+      "wallRoles": [
+        "locker",
+        "bench"
+      ],
+      "islandRole": "bench",
+      "styleRule": "existing validated easy-room kit, proper N/S/E/W views, no image rotation"
+    },
+    {
+      "id": "shower",
+      "displayName": "샤워실",
+      "wallRoles": [
+        "shower",
+        "locker",
+        "sink"
+      ],
+      "islandRole": "bench",
+      "styleRule": "existing validated easy-room kit, proper N/S/E/W views, no image rotation"
+    },
+    {
+      "id": "records",
+      "displayName": "기록실",
+      "wallRoles": [
+        "filing_cabinet",
+        "shelf"
+      ],
+      "islandRole": "desk",
+      "styleRule": "existing validated easy-room kit, proper N/S/E/W views, no image rotation"
+    },
+    {
+      "id": "library",
+      "displayName": "도서관",
+      "wallRoles": [
+        "bookcase",
+        "shelf"
+      ],
+      "islandRole": "desk",
+      "styleRule": "existing validated easy-room kit, proper N/S/E/W views, no image rotation"
+    }
+  ]
+}

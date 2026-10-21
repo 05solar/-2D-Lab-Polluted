@@ -127,6 +127,13 @@ public final class Monster {
         lostSightTime = 0f;
         forgetSeen();
     }
+    // 감전(전기 투척): 남은 시간 동안 이동·새 공격 시작이 막힌다. 재적용은 max 갱신(무한 중첩 금지).
+    private float shockTime;
+    public float shockTime() { return shockTime; }
+    public boolean shocked() { return shockTime > 0f; }
+    public void applyShock(float seconds) { shockTime = Math.max(shockTime, Math.max(0f, seconds)); }
+    public void reduceShockTime(float delta) { shockTime = Math.max(0f, shockTime - delta); }
+
     public float knockbackTime() { return knockbackTime; }
     public float knockbackX() { return knockbackX; }
     public float knockbackY() { return knockbackY; }

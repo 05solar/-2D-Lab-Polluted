@@ -1,0 +1,617 @@
+{
+  "version": 1,
+  "runtimePngs": [
+    {
+      "file": "runtime/arena/barrier_128x64.png",
+      "size": [
+        128,
+        64
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/arena/floor_128.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": false,
+      "fullBleedIntentional": true
+    },
+    {
+      "file": "runtime/arena/gate_closed_192x128.png",
+      "size": [
+        192,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/arena/gate_locked_192x128.png",
+      "size": [
+        192,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/arena/gate_open_192x128.png",
+      "size": [
+        192,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/arena/gate_opening_192x128.png",
+      "size": [
+        192,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/arena/pillar_96x128.png",
+      "size": [
+        96,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/boss/boss_attack_768x384.png",
+      "size": [
+        768,
+        384
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/boss/boss_death_576x384.png",
+      "size": [
+        576,
+        384
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/boss/boss_idle_384x384.png",
+      "size": [
+        384,
+        384
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/acid_pool/acid_pool_00.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/acid_pool/acid_pool_01.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/acid_pool/acid_pool_02.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/acid_pool/acid_pool_03.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/acid_pool/acid_pool_04.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/acid_pool/acid_pool_05.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_attack/boss_attack_00.png",
+      "size": [
+        192,
+        192
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_attack/boss_attack_01.png",
+      "size": [
+        192,
+        192
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_attack/boss_attack_02.png",
+      "size": [
+        192,
+        192
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_attack/boss_attack_03.png",
+      "size": [
+        192,
+        192
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_attack/boss_attack_04.png",
+      "size": [
+        192,
+        192
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_attack/boss_attack_05.png",
+      "size": [
+        192,
+        192
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_attack/boss_attack_06.png",
+      "size": [
+        192,
+        192
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_attack/boss_attack_07.png",
+      "size": [
+        192,
+        192
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_death/boss_death_00.png",
+      "size": [
+        192,
+        192
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_death/boss_death_01.png",
+      "size": [
+        192,
+        192
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_death/boss_death_02.png",
+      "size": [
+        192,
+        192
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_death/boss_death_03.png",
+      "size": [
+        192,
+        192
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_death/boss_death_04.png",
+      "size": [
+        192,
+        192
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_death/boss_death_05.png",
+      "size": [
+        192,
+        192
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_idle/boss_idle_00.png",
+      "size": [
+        192,
+        192
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_idle/boss_idle_01.png",
+      "size": [
+        192,
+        192
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_idle/boss_idle_02.png",
+      "size": [
+        192,
+        192
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_idle/boss_idle_03.png",
+      "size": [
+        192,
+        192
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_impact/boss_impact_00.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_impact/boss_impact_01.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_impact/boss_impact_02.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_impact/boss_impact_03.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_impact/boss_impact_04.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_impact/boss_impact_05.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_projectile/boss_projectile_00.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_projectile/boss_projectile_01.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_projectile/boss_projectile_02.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/frames/boss_projectile/boss_projectile_03.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/ui/boss_emblem_96.png",
+      "size": [
+        96,
+        96
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/ui/boss_hp_fill_256x16.png",
+      "size": [
+        256,
+        16
+      ],
+      "rgba": true,
+      "transparentMargin": false,
+      "fullBleedIntentional": true
+    },
+    {
+      "file": "runtime/ui/boss_hp_frame_768x64.png",
+      "size": [
+        768,
+        64
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/ui/reward_frame_96.png",
+      "size": [
+        96,
+        96
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/ui/reward_glow_128.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/ui/stage_button_256x64.png",
+      "size": [
+        256,
+        64
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/ui/stage_locked_96.png",
+      "size": [
+        96,
+        96
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/ui/stage_panel_1120x720.png",
+      "size": [
+        1120,
+        720
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/ui/stage_ready_96.png",
+      "size": [
+        96,
+        96
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/vfx/acid_pool_384x256.png",
+      "size": [
+        384,
+        256
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/vfx/boss_impact_384x256.png",
+      "size": [
+        384,
+        256
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/vfx/boss_projectile_256x256.png",
+      "size": [
+        256,
+        256
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/vfx/dash_streak_256x64.png",
+      "size": [
+        256,
+        64
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/vfx/telegraph_circle_128.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    },
+    {
+      "file": "runtime/vfx/telegraph_lane_256x64.png",
+      "size": [
+        256,
+        64
+      ],
+      "rgba": true,
+      "transparentMargin": true,
+      "fullBleedIntentional": false
+    }
+  ],
+  "newGeneratedSources": [
+    "boss_idle",
+    "boss_attack",
+    "boss_death",
+    "arena_floor",
+    "pillar",
+    "gate",
+    "boss_projectile",
+    "acid_pool",
+    "boss_impact",
+    "boss_hp_frame",
+    "barrier"
+  ],
+  "reusedUi": "prior upgrade tree panel/button/node frames",
+  "precisionCodeAssets": [
+    "telegraphs",
+    "HP fill",
+    "dash streak",
+    "reward glow"
+  ],
+  "gameplayTextBaked": false,
+  "existingWallsPlayerItemsAudioIncluded": false
+}

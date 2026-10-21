@@ -24,6 +24,13 @@ public class BalanceConfig {
     public int killHealHp = 20;
     /** 사망 후 본부 재소환까지 대기(쓰러짐 연출 0.8s 포함). [임시값] */
     public float deathRespawnDelaySeconds = 2.0f;
+    /**
+     * 기본 활성 스킬 슬롯 수(강화 트리 ACTIVE_SLOT_ADD로 +1씩 확장, 최대 5).
+     * 2026-10-20 공통 스킬 시스템: 기본 F(돌진)·Q(회복) 두 슬롯을 지원하기 위해 1→2로 상향.
+     * 기존에 구매한 active_slot_2(+1)는 그대로 누적된다(1+1=2 → 2+1=3). [확정]
+     */
+    public int baseActiveSkillSlots = 2;
+    public int maxActiveSkillSlots = 5;
 
     // --- 돌진(F) ---
     public float dashDistanceTiles = 3f;          // [확정] 초기 돌진 거리(타일)
@@ -138,10 +145,20 @@ public class BalanceConfig {
                 researcherSpawnCount = easyResearcherBaseCount * easyMonsterMultiplier;
                 guardSpawnCount = easyGuardBaseCount * easyMonsterMultiplier;
                 teamLeaderSpawnCount = easyTeamLeaderBaseCount * easyMonsterMultiplier;
+                // 생성 맵 컨테이너 목표(쉬움 기준 유지 — 등급 비율 wood>epic>legendary).
+                woodenChestCount = 14; epicCabinetCount = 7; legendaryCabinetCount = 2;
                 break;
-            // NORMAL/HARD 생성 수·주기는 이번 변경에서 바꾸지 않는다.
-            case NORMAL: slimeSpawnCount=5; researcherSpawnCount=3; guardSpawnCount=2; teamLeaderSpawnCount=1; break;
-            case HARD: slimeSpawnCount=7; researcherSpawnCount=5; guardSpawnCount=3; teamLeaderSpawnCount=1; break;
+            // NORMAL/HARD의 "구형(수제 변형 맵)" 생성 수·주기는 바꾸지 않는다(폴백 전용).
+            // 생성 맵의 몬스터 총량은 생성기가 쉬움 예산(56)×방 수 비율로 계산한다.
+            case NORMAL:
+                slimeSpawnCount=5; researcherSpawnCount=3; guardSpawnCount=2; teamLeaderSpawnCount=1;
+                // 방 수(25/16) 비례 캐비넷 목표 — 난이도 상승 시 전체 수 증가.
+                woodenChestCount = 20; epicCabinetCount = 11; legendaryCabinetCount = 4;
+                break;
+            case HARD:
+                slimeSpawnCount=7; researcherSpawnCount=5; guardSpawnCount=3; teamLeaderSpawnCount=1;
+                woodenChestCount = 28; epicCabinetCount = 16; legendaryCabinetCount = 6;
+                break;
             default: throw new IllegalArgumentException("difficulty");
         }
     }

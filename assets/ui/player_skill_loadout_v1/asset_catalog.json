@@ -1,0 +1,168 @@
+{
+  "runtimePngs": [
+    {
+      "file": "runtime/frames/heal_cast_00.png",
+      "size": [
+        128,
+        128
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/frames/heal_cast_01.png",
+      "size": [
+        128,
+        128
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/frames/heal_cast_02.png",
+      "size": [
+        128,
+        128
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/frames/heal_cast_03.png",
+      "size": [
+        128,
+        128
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/frames/heal_cast_04.png",
+      "size": [
+        128,
+        128
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/frames/heal_cast_05.png",
+      "size": [
+        128,
+        128
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/frames/heal_cast_06.png",
+      "size": [
+        128,
+        128
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/frames/heal_cast_07.png",
+      "size": [
+        128,
+        128
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/frames/heal_cast_08.png",
+      "size": [
+        128,
+        128
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/frames/heal_cast_09.png",
+      "size": [
+        128,
+        128
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/frames/heal_cast_10.png",
+      "size": [
+        128,
+        128
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/frames/heal_cast_11.png",
+      "size": [
+        128,
+        128
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/heal_cast_sheet_512x384.png",
+      "size": [
+        512,
+        384
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/icon_heal_64.png",
+      "size": [
+        64,
+        64
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/keycap_blank_96x48.png",
+      "size": [
+        96,
+        48
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/register_button_256x64.png",
+      "size": [
+        256,
+        64
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/skill_panel_1120x720.png",
+      "size": [
+        1120,
+        720
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/slot_locked_96.png",
+      "size": [
+        96,
+        96
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/slot_normal_96.png",
+      "size": [
+        96,
+        96
+      ],
+      "safeOuterMargin": true
+    },
+    {
+      "file": "runtime/slot_selected_96.png",
+      "size": [
+        96,
+        96
+      ],
+      "safeOuterMargin": true
+    }
+  ],
+  "reused": "slot frames/panel/button from prior sales and upgrade packs",
+  "newGenerated": "healing icon, healing VFX sheet, blank keycap",
+  "runtimeTextBaked": false,
+  "existingDashIconIncluded": false
+}

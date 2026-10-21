@@ -21,6 +21,11 @@ public final class HeadquartersRoom implements ObstacleGrid {
     private final Rectangle exit;
     private final HeadquartersProp vending;
     private final HeadquartersProp waterDispenser;
+    // 2026-10-20: 강화 트리 = 망치 있는 접이식 작업대, 스킬 창 = 북벽 금속 테이블.
+    private final HeadquartersProp upgradeBench;
+    private final HeadquartersProp skillTable;
+    // 메인 컴퓨터(중앙 터미널 책상) = 보스 단계 선택 입구(2026-10-20).
+    private final HeadquartersProp mainComputer;
     private final Map<String, Vector2> interactionPoints;
     private boolean exitFired;
 
@@ -32,11 +37,17 @@ public final class HeadquartersRoom implements ObstacleGrid {
         List<Rectangle> ground = new ArrayList<>();
         HeadquartersProp machine = null;
         HeadquartersProp dispenser = null;
+        HeadquartersProp bench = null;
+        HeadquartersProp skills = null;
+        HeadquartersProp computer = null;
         Map<String, Vector2> points = new LinkedHashMap<>();
         for (HeadquartersProp prop : props) {
             if (prop.footprint() != null) ground.add(prop.footprint());
             if (prop.id().equals("vending_machine")) machine = prop;
             if (prop.id().equals("water_dispenser")) dispenser = prop;
+            if (prop.id().equals("folding_workbench")) bench = prop;
+            if (prop.id().equals("skill_table")) skills = prop;
+            if (prop.id().equals("terminal_desk")) computer = prop;
             points.put(prop.id(), new Vector2(prop.anchorX(), prop.id().equals("water_dispenser")
                 ? prop.anchorY() + 0.6f : prop.anchorY() - 0.65f));
         }
@@ -44,6 +55,9 @@ public final class HeadquartersRoom implements ObstacleGrid {
         this.interactionPoints = Collections.unmodifiableMap(points);
         this.vending = machine;
         this.waterDispenser = dispenser;
+        this.upgradeBench = bench;
+        this.skillTable = skills;
+        this.mainComputer = computer;
     }
 
     @Override public int widthInTiles() { return walls[0].length; }
@@ -107,6 +121,47 @@ public final class HeadquartersRoom implements ObstacleGrid {
         if (waterDispenser == null || player == null || player.isDead()) return false;
         Vector2 target = interactionPoint("water_dispenser");
         return distanceTo(player, target.x, target.y) <= PROMPT_RADIUS;
+    }
+
+    /** 강화 작업대(망치 있는 접이식 작업대): 남쪽(앞)에서 접근, 막히지 않은 경로 필요. */
+    public boolean canInteractWithUpgradeBench(Player player) {
+        return canInteractWithFrontProp(player, upgradeBench);
+    }
+
+    public boolean isNearUpgradeBench(Player player) {
+        return isNearFrontProp(player, upgradeBench);
+    }
+
+    /** 스킬 테이블(북벽 금속 벤치): SPACE로 스킬 장착/단축키 등록 창 — 같은 접근 규칙. */
+    public boolean canInteractWithSkillTable(Player player) {
+        return canInteractWithFrontProp(player, skillTable);
+    }
+
+    public boolean isNearSkillTable(Player player) {
+        return isNearFrontProp(player, skillTable);
+    }
+
+    /** 메인 컴퓨터(터미널 책상): SPACE로 보스 단계 선택창 — 같은 전면 접근 규칙. */
+    public boolean canInteractWithMainComputer(Player player) {
+        return canInteractWithFrontProp(player, mainComputer);
+    }
+
+    public boolean isNearMainComputer(Player player) {
+        return isNearFrontProp(player, mainComputer);
+    }
+
+    /** 남쪽(앞)에서 접근하는 가구 공통 판정(자판기와 동일 규칙). */
+    private boolean canInteractWithFrontProp(Player player, HeadquartersProp prop) {
+        if (prop == null || player == null || player.isDead()
+            || player.feetY() >= prop.anchorY()) return false;
+        Vector2 target = new Vector2(prop.anchorX(), prop.anchorY() - 0.55f);
+        if (distanceTo(player, target.x, target.y) > 1.6f) return false;
+        return hasClearApproach(player, target, prop);
+    }
+
+    private boolean isNearFrontProp(Player player, HeadquartersProp prop) {
+        return player != null && !player.isDead() && prop != null
+            && distanceTo(player, prop.anchorX(), prop.anchorY() - 0.55f) <= PROMPT_RADIUS;
     }
 
     private static float distanceTo(Player player, float x, float y) {

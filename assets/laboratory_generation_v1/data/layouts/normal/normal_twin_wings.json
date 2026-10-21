@@ -1,0 +1,207 @@
+{
+  "templateVersion": 1,
+  "templateId": "normal_twin_wings",
+  "difficulty": "normal",
+  "mapSize": [
+    160,
+    120
+  ],
+  "roomCount": 25,
+  "gridPitch": [
+    22,
+    16
+  ],
+  "roomInteriorSize": [
+    17,
+    11
+  ],
+  "roomJitterTiles": 1,
+  "allowedShapes": [
+    "rectangle",
+    "notch_ne",
+    "notch_sw",
+    "stepped"
+  ],
+  "corridorWidthTiles": 3,
+  "logicalDoorWidthTiles": 1,
+  "doorSizeNote": "Reference 1-cell proxy only; real adapter must use actual asset doorSocket width and actor collider.",
+  "roomSlots": [
+    {
+      "roomId": "r00",
+      "grid": [
+        1,
+        0
+      ]
+    },
+    {
+      "roomId": "r01",
+      "grid": [
+        2,
+        0
+      ]
+    },
+    {
+      "roomId": "r02",
+      "grid": [
+        4,
+        0
+      ]
+    },
+    {
+      "roomId": "r03",
+      "grid": [
+        5,
+        0
+      ]
+    },
+    {
+      "roomId": "r04",
+      "grid": [
+        0,
+        1
+      ]
+    },
+    {
+      "roomId": "r05",
+      "grid": [
+        1,
+        1
+      ]
+    },
+    {
+      "roomId": "r06",
+      "grid": [
+        2,
+        1
+      ]
+    },
+    {
+      "roomId": "r07",
+      "grid": [
+        4,
+        1
+      ]
+    },
+    {
+      "roomId": "r08",
+      "grid": [
+        5,
+        1
+      ]
+    },
+    {
+      "roomId": "r09",
+      "grid": [
+        0,
+        2
+      ]
+    },
+    {
+      "roomId": "r10",
+      "grid": [
+        1,
+        2
+      ]
+    },
+    {
+      "roomId": "r11",
+      "grid": [
+        2,
+        2
+      ]
+    },
+    {
+      "roomId": "r12",
+      "grid": [
+        3,
+        2
+      ]
+    },
+    {
+      "roomId": "r13",
+      "grid": [
+        4,
+        2
+      ]
+    },
+    {
+      "roomId": "r14",
+      "grid": [
+        5,
+        2
+      ]
+    },
+    {
+      "roomId": "r15",
+      "grid": [
+        0,
+        3
+      ]
+    },
+    {
+      "roomId": "r16",
+      "grid": [
+        1,
+        3
+      ]
+    },
+    {
+      "roomId": "r17",
+      "grid": [
+        2,
+        3
+      ]
+    },
+    {
+      "roomId": "r18",
+      "grid": [
+        4,
+        3
+      ]
+    },
+    {
+      "roomId": "r19",
+      "grid": [
+        5,
+        3
+      ]
+    },
+    {
+      "roomId": "r20",
+      "grid": [
+        0,
+        4
+      ]
+    },
+    {
+      "roomId": "r21",
+      "grid": [
+        1,
+        4
+      ]
+    },
+    {
+      "roomId": "r22",
+      "grid": [
+        2,
+        4
+      ]
+    },
+    {
+      "roomId": "r23",
+      "grid": [
+        4,
+        4
+      ]
+    },
+    {
+      "roomId": "r24",
+      "grid": [
+        5,
+        4
+      ]
+    }
+  ],
+  "connectionRule": "Kruskal spanning tree on orthogonal adjacent room slots + seeded optional short edges",
+  "gateRule": "single south gate attached to the central-most southern room"
+}

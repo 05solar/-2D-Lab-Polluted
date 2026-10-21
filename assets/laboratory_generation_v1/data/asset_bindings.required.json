@@ -1,0 +1,69 @@
+{
+  "status": "REQUIRES_REAL_PROJECT_MAPPING",
+  "tileIndicesInvented": false,
+  "existingPacks": [
+    "laboratory_tiles_v2",
+    "laboratory_roomkits_v3",
+    "laboratory_orthographic_views_v7",
+    "laboratory_orthographic_views_v8",
+    "exterior_walls_gate_v3",
+    "loot",
+    "monsters"
+  ],
+  "requiredTileRoles": [
+    "floor",
+    "wall_straight",
+    "wall_outer_corner",
+    "wall_inner_corner",
+    "wall_t_junction",
+    "wall_cross",
+    "wall_end",
+    "door_horizontal_open",
+    "door_horizontal_closed",
+    "door_vertical_open",
+    "door_vertical_closed",
+    "main_gate_open",
+    "main_gate_closed"
+  ],
+  "requiredFurnitureRoles": [
+    "bench",
+    "bookcase",
+    "bunk_bed",
+    "cctv_console",
+    "centrifuge",
+    "chemical_hood",
+    "coffee_table",
+    "computer_desk",
+    "cupboard",
+    "desk",
+    "dining_table",
+    "display_case",
+    "filing_cabinet",
+    "fridge",
+    "incubator",
+    "lab_bench",
+    "locker",
+    "shelf",
+    "shower",
+    "sink",
+    "sofa",
+    "terminal",
+    "toilet"
+  ],
+  "directionViews": {
+    "N": "front",
+    "S": "back",
+    "W": "left-wall side",
+    "E": "right-wall side"
+  },
+  "adapterMustResolve": [
+    "real region IDs and dimensions",
+    "render/feet anchor",
+    "world footprint",
+    "wall attachment plane",
+    "door interaction socket",
+    "tabletop sockets"
+  ],
+  "missingDirectionPolicy": "Use a validated pattern with actual supported views; never rotate front into a side view or silently invent assets.",
+  "note": "No new artwork needed for this stage if existing directional tiles and furniture cover these roles. Missing real regions remain an integration issue to report."
+}

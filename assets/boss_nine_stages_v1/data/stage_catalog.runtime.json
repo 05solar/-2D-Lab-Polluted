@@ -1,0 +1,594 @@
+{
+ "schemaVersion": 1,
+ "status": "runtime catalog adopted 2026-10-21; 1-1 preserves legacy id/balance/art",
+ "playerSkillRangePolicy": "KEEP_CURRENT_VALUES",
+ "stageCount": 9,
+ "stages": [
+  {
+   "id": "1-1",
+   "bossId": "centrifuge_c01",
+   "displayName": "폐기물 변이체",
+   "previousStage": null,
+   "nextStage": "1-2",
+   "initialProgressUnlocked": true,
+   "integrationReady": true,
+   "portrait": {
+    "silhouette": "runtime/portraits/waste_mutant_silhouette_128.png",
+    "color": "runtime/portraits/waste_mutant_color_128.png"
+   },
+   "animationSet": "legacy_1_1",
+   "draftMaxHp": 600,
+   "preserveExistingBalance": true,
+   "render": {
+    "drawWidthTiles": 8.0,
+    "drawHeightTiles": 8.0,
+    "anchorTopLeftPx": [
+     96,
+     160
+    ],
+    "frameSizePx": [
+     192,
+     192
+    ]
+   },
+   "draftHurtboxTiles": [
+    3.6,
+    2.3
+   ],
+   "draftMovementFootprintTiles": [
+    2.8,
+    1.4999999999999998
+   ],
+   "patterns": [
+    "waste_throw",
+    "waste_charge"
+   ],
+   "arenaId": "arena_waste_mutant",
+   "reward": {
+    "source": "existing high-value / LEGENDARY item catalog",
+    "count": 1,
+    "destination": "HQ_STORAGE",
+    "receiptKey": [
+     "runId",
+     "stageId"
+    ],
+    "commitTogether": [
+     "rewardInstance",
+     "clear",
+     "nextUnlock",
+     "receipt"
+    ]
+   },
+   "draftHurtboxCenterOffsetFromFeetTiles": [
+    0,
+    1.6
+   ],
+   "draftMovementColliderCenterOffsetFromFeetTiles": [
+    0,
+    0.5
+   ],
+   "collisionCalibrationRequired": true,
+   "legacyEngine": true
+  },
+  {
+   "id": "1-2",
+   "bossId": "coolant_colossus",
+   "displayName": "냉각관 거수",
+   "previousStage": "1-1",
+   "nextStage": "1-3",
+   "initialProgressUnlocked": false,
+   "integrationReady": true,
+   "portrait": {
+    "silhouette": "runtime/portraits/coolant_colossus_silhouette_128.png",
+    "color": "runtime/portraits/coolant_colossus_color_128.png"
+   },
+   "animationSet": "coolant_colossus",
+   "draftMaxHp": 700,
+   "preserveExistingBalance": false,
+   "render": {
+    "drawWidthTiles": 8.0,
+    "drawHeightTiles": 8.0,
+    "anchorTopLeftPx": [
+     128,
+     224
+    ],
+    "frameSizePx": [
+     256,
+     256
+    ]
+   },
+   "draftHurtboxTiles": [
+    3.7,
+    3.0
+   ],
+   "draftMovementFootprintTiles": [
+    2.9000000000000004,
+    2.2
+   ],
+   "patterns": [
+    "cold_cone",
+    "ice_zone"
+   ],
+   "arenaId": "arena_coolant_colossus",
+   "reward": {
+    "source": "existing high-value / LEGENDARY item catalog",
+    "count": 1,
+    "destination": "HQ_STORAGE",
+    "receiptKey": [
+     "runId",
+     "stageId"
+    ],
+    "commitTogether": [
+     "rewardInstance",
+     "clear",
+     "nextUnlock",
+     "receipt"
+    ]
+   },
+   "draftHurtboxCenterOffsetFromFeetTiles": [
+    0,
+    1.6
+   ],
+   "draftMovementColliderCenterOffsetFromFeetTiles": [
+    0,
+    0.5
+   ],
+   "collisionCalibrationRequired": true
+  },
+  {
+   "id": "1-3",
+   "bossId": "culture_colony",
+   "displayName": "배양낭 군체",
+   "previousStage": "1-2",
+   "nextStage": "1-4",
+   "initialProgressUnlocked": false,
+   "integrationReady": true,
+   "portrait": {
+    "silhouette": "runtime/portraits/culture_colony_silhouette_128.png",
+    "color": "runtime/portraits/culture_colony_color_128.png"
+   },
+   "animationSet": "culture_colony",
+   "draftMaxHp": 820,
+   "preserveExistingBalance": false,
+   "render": {
+    "drawWidthTiles": 8.0,
+    "drawHeightTiles": 8.0,
+    "anchorTopLeftPx": [
+     128,
+     224
+    ],
+    "frameSizePx": [
+     256,
+     256
+    ]
+   },
+   "draftHurtboxTiles": [
+    3.8,
+    2.8
+   ],
+   "draftMovementFootprintTiles": [
+    3.0,
+    1.9999999999999998
+   ],
+   "patterns": [
+    "acid_throw",
+    "spore_zone"
+   ],
+   "arenaId": "arena_culture_colony",
+   "reward": {
+    "source": "existing high-value / LEGENDARY item catalog",
+    "count": 1,
+    "destination": "HQ_STORAGE",
+    "receiptKey": [
+     "runId",
+     "stageId"
+    ],
+    "commitTogether": [
+     "rewardInstance",
+     "clear",
+     "nextUnlock",
+     "receipt"
+    ]
+   },
+   "draftHurtboxCenterOffsetFromFeetTiles": [
+    0,
+    1.6
+   ],
+   "draftMovementColliderCenterOffsetFromFeetTiles": [
+    0,
+    0.5
+   ],
+   "collisionCalibrationRequired": true
+  },
+  {
+   "id": "1-4",
+   "bossId": "security_suppressor",
+   "displayName": "보안 제압 기체",
+   "previousStage": "1-3",
+   "nextStage": "1-5",
+   "initialProgressUnlocked": false,
+   "integrationReady": true,
+   "portrait": {
+    "silhouette": "runtime/portraits/security_suppressor_silhouette_128.png",
+    "color": "runtime/portraits/security_suppressor_color_128.png"
+   },
+   "animationSet": "security_suppressor",
+   "draftMaxHp": 940,
+   "preserveExistingBalance": false,
+   "render": {
+    "drawWidthTiles": 8.0,
+    "drawHeightTiles": 8.0,
+    "anchorTopLeftPx": [
+     128,
+     224
+    ],
+    "frameSizePx": [
+     256,
+     256
+    ]
+   },
+   "draftHurtboxTiles": [
+    3.3,
+    3.5
+   ],
+   "draftMovementFootprintTiles": [
+    2.5,
+    2.7
+   ],
+   "patterns": [
+    "aimed_shot",
+    "rotating_laser"
+   ],
+   "arenaId": "arena_security_suppressor",
+   "reward": {
+    "source": "existing high-value / LEGENDARY item catalog",
+    "count": 1,
+    "destination": "HQ_STORAGE",
+    "receiptKey": [
+     "runId",
+     "stageId"
+    ],
+    "commitTogether": [
+     "rewardInstance",
+     "clear",
+     "nextUnlock",
+     "receipt"
+    ]
+   },
+   "draftHurtboxCenterOffsetFromFeetTiles": [
+    0,
+    1.6
+   ],
+   "draftMovementColliderCenterOffsetFromFeetTiles": [
+    0,
+    0.5
+   ],
+   "collisionCalibrationRequired": true
+  },
+  {
+   "id": "1-5",
+   "bossId": "neural_specimen",
+   "displayName": "신경 접속 표본",
+   "previousStage": "1-4",
+   "nextStage": "1-보스",
+   "initialProgressUnlocked": false,
+   "integrationReady": true,
+   "portrait": {
+    "silhouette": "runtime/portraits/neural_specimen_silhouette_128.png",
+    "color": "runtime/portraits/neural_specimen_color_128.png"
+   },
+   "animationSet": "neural_specimen",
+   "draftMaxHp": 1060,
+   "preserveExistingBalance": false,
+   "render": {
+    "drawWidthTiles": 8.0,
+    "drawHeightTiles": 8.0,
+    "anchorTopLeftPx": [
+     128,
+     224
+    ],
+    "frameSizePx": [
+     256,
+     256
+    ]
+   },
+   "draftHurtboxTiles": [
+    3.0,
+    2.7
+   ],
+   "draftMovementFootprintTiles": [
+    2.2,
+    1.9000000000000001
+   ],
+   "patterns": [
+    "psychic_wave",
+    "delayed_blast"
+   ],
+   "arenaId": "arena_neural_specimen",
+   "reward": {
+    "source": "existing high-value / LEGENDARY item catalog",
+    "count": 1,
+    "destination": "HQ_STORAGE",
+    "receiptKey": [
+     "runId",
+     "stageId"
+    ],
+    "commitTogether": [
+     "rewardInstance",
+     "clear",
+     "nextUnlock",
+     "receipt"
+    ]
+   },
+   "draftHurtboxCenterOffsetFromFeetTiles": [
+    0,
+    1.6
+   ],
+   "draftMovementColliderCenterOffsetFromFeetTiles": [
+    0,
+    0.5
+   ],
+   "collisionCalibrationRequired": true
+  },
+  {
+   "id": "1-보스",
+   "bossId": "containment_fusion",
+   "displayName": "중앙 격리실 융합체",
+   "previousStage": "1-5",
+   "nextStage": "2-1",
+   "initialProgressUnlocked": false,
+   "integrationReady": true,
+   "portrait": {
+    "silhouette": "runtime/portraits/containment_fusion_silhouette_128.png",
+    "color": "runtime/portraits/containment_fusion_color_128.png"
+   },
+   "animationSet": "containment_fusion",
+   "draftMaxHp": 1450,
+   "preserveExistingBalance": false,
+   "render": {
+    "drawWidthTiles": 9.5,
+    "drawHeightTiles": 9.5,
+    "anchorTopLeftPx": [
+     128,
+     224
+    ],
+    "frameSizePx": [
+     256,
+     256
+    ]
+   },
+   "draftHurtboxTiles": [
+    4.8,
+    3.5
+   ],
+   "draftMovementFootprintTiles": [
+    4.0,
+    2.7
+   ],
+   "patterns": [
+    "enrage_transition",
+    "fusion_combo"
+   ],
+   "arenaId": "arena_containment_fusion",
+   "reward": {
+    "source": "existing high-value / LEGENDARY item catalog",
+    "count": 1,
+    "destination": "HQ_STORAGE",
+    "receiptKey": [
+     "runId",
+     "stageId"
+    ],
+    "commitTogether": [
+     "rewardInstance",
+     "clear",
+     "nextUnlock",
+     "receipt"
+    ]
+   },
+   "draftHurtboxCenterOffsetFromFeetTiles": [
+    0,
+    1.6
+   ],
+   "draftMovementColliderCenterOffsetFromFeetTiles": [
+    0,
+    0.5
+   ],
+   "collisionCalibrationRequired": true
+  },
+  {
+   "id": "2-1",
+   "bossId": "cryogenic_multipod",
+   "displayName": "저온실 다족 실험체",
+   "previousStage": "1-보스",
+   "nextStage": "2-2",
+   "initialProgressUnlocked": false,
+   "integrationReady": true,
+   "portrait": {
+    "silhouette": "runtime/portraits/cryogenic_multipod_silhouette_128.png",
+    "color": "runtime/portraits/cryogenic_multipod_color_128.png"
+   },
+   "animationSet": "cryogenic_multipod",
+   "draftMaxHp": 1550,
+   "preserveExistingBalance": false,
+   "render": {
+    "drawWidthTiles": 8.0,
+    "drawHeightTiles": 8.0,
+    "anchorTopLeftPx": [
+     128,
+     224
+    ],
+    "frameSizePx": [
+     256,
+     256
+    ]
+   },
+   "draftHurtboxTiles": [
+    4.5,
+    2.4
+   ],
+   "draftMovementFootprintTiles": [
+    3.7,
+    1.5999999999999999
+   ],
+   "patterns": [
+    "chain_charge",
+    "ice_shards"
+   ],
+   "arenaId": "arena_cryogenic_multipod",
+   "reward": {
+    "source": "existing high-value / LEGENDARY item catalog",
+    "count": 1,
+    "destination": "HQ_STORAGE",
+    "receiptKey": [
+     "runId",
+     "stageId"
+    ],
+    "commitTogether": [
+     "rewardInstance",
+     "clear",
+     "nextUnlock",
+     "receipt"
+    ]
+   },
+   "draftHurtboxCenterOffsetFromFeetTiles": [
+    0,
+    1.6
+   ],
+   "draftMovementColliderCenterOffsetFromFeetTiles": [
+    0,
+    0.5
+   ],
+   "collisionCalibrationRequired": true
+  },
+  {
+   "id": "2-2",
+   "bossId": "mutant_botanical",
+   "displayName": "변이 식물 실험체",
+   "previousStage": "2-1",
+   "nextStage": "2-3",
+   "initialProgressUnlocked": false,
+   "integrationReady": true,
+   "portrait": {
+    "silhouette": "runtime/portraits/mutant_botanical_silhouette_128.png",
+    "color": "runtime/portraits/mutant_botanical_color_128.png"
+   },
+   "animationSet": "mutant_botanical",
+   "draftMaxHp": 1700,
+   "preserveExistingBalance": false,
+   "render": {
+    "drawWidthTiles": 8.0,
+    "drawHeightTiles": 8.0,
+    "anchorTopLeftPx": [
+     128,
+     224
+    ],
+    "frameSizePx": [
+     256,
+     256
+    ]
+   },
+   "draftHurtboxTiles": [
+    3.3,
+    3.4
+   ],
+   "draftMovementFootprintTiles": [
+    2.5,
+    2.5999999999999996
+   ],
+   "patterns": [
+    "root_bind",
+    "toxic_zone"
+   ],
+   "arenaId": "arena_mutant_botanical",
+   "reward": {
+    "source": "existing high-value / LEGENDARY item catalog",
+    "count": 1,
+    "destination": "HQ_STORAGE",
+    "receiptKey": [
+     "runId",
+     "stageId"
+    ],
+    "commitTogether": [
+     "rewardInstance",
+     "clear",
+     "nextUnlock",
+     "receipt"
+    ]
+   },
+   "draftHurtboxCenterOffsetFromFeetTiles": [
+    0,
+    1.6
+   ],
+   "draftMovementColliderCenterOffsetFromFeetTiles": [
+    0,
+    0.5
+   ],
+   "collisionCalibrationRequired": true
+  },
+  {
+   "id": "2-3",
+   "bossId": "mobile_culture_tank",
+   "displayName": "이동형 배양 탱크",
+   "previousStage": "2-2",
+   "nextStage": null,
+   "initialProgressUnlocked": false,
+   "integrationReady": true,
+   "portrait": {
+    "silhouette": "runtime/portraits/mobile_culture_tank_silhouette_128.png",
+    "color": "runtime/portraits/mobile_culture_tank_color_128.png"
+   },
+   "animationSet": "mobile_culture_tank",
+   "draftMaxHp": 1900,
+   "preserveExistingBalance": false,
+   "render": {
+    "drawWidthTiles": 8.0,
+    "drawHeightTiles": 8.0,
+    "anchorTopLeftPx": [
+     128,
+     224
+    ],
+    "frameSizePx": [
+     256,
+     256
+    ]
+   },
+   "draftHurtboxTiles": [
+    4.2,
+    3.0
+   ],
+   "draftMovementFootprintTiles": [
+    3.4000000000000004,
+    2.2
+   ],
+   "patterns": [
+    "moving_mortar",
+    "toxic_leak"
+   ],
+   "arenaId": "arena_mobile_culture_tank",
+   "reward": {
+    "source": "existing high-value / LEGENDARY item catalog",
+    "count": 1,
+    "destination": "HQ_STORAGE",
+    "receiptKey": [
+     "runId",
+     "stageId"
+    ],
+    "commitTogether": [
+     "rewardInstance",
+     "clear",
+     "nextUnlock",
+     "receipt"
+    ]
+   },
+   "draftHurtboxCenterOffsetFromFeetTiles": [
+    0,
+    1.6
+   ],
+   "draftMovementColliderCenterOffsetFromFeetTiles": [
+    0,
+    0.5
+   ],
+   "collisionCalibrationRequired": true
+  }
+ ]
+}

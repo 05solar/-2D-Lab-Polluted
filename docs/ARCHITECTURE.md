@@ -253,3 +253,154 @@ Desktop review can start directly in the collision overlay with `LAB_DEBUG_COLLI
   순서와 귀환/거래 ID 중복 차단을 책임진다. 가격은 loot_tables.json 카탈로그가 유일 기준.
 - `SaleSelection`: 판매창 선택 상태(수량 0..보유 제한, long 합계). 렌더러(`SalePanelRenderer`)는
   계산 결과를 그리고 클릭을 전달만 한다. 지갑은 프로필 하나로 공유(화면별 재화 없음).
+
+## 영구 강화 트리 (2026-10-20)
+
+- `profile/UpgradeCatalog`: JSON 카탈로그 파싱+그래프 검증(중복/순환/음수가/미지 효과). 수치의 유일 출처.
+- `profile/UpgradeEffects`: 구매 노드 집합 → 파생 능력치(HP/공격 보너스·해금 스킬·회복 보너스·슬롯).
+  상태 없는 순수 계산이라 멱등. 알 수 없는 저장 노드는 보존 목록으로 분리.
+- `HeadquartersEconomy.purchaseUpgrade`: 판매와 동일한 거래 경계(검증 → 다음 프로필 → 저장 성공 → 교체).
+  해금 시 빈 슬롯 자동 장착. 프로필에 equippedSkills·upgradeCatalogVersion 추가(코덱 마이그레이션 포함).
+- `LaboratoryGame.applyUpgradeEffects`: 기준값(baseMaxHp/baseAttackDamage) + 효과 합을 config와
+  Player.setMaxHp에 반영 — 모든 시스템(전투·돌진·정수기·HUD)이 같은 config/Player 값을 읽는다.
+- UI: `UpgradeTreeRenderer`(1120×720 패널, 노드 상태·직각 연결선·상세/구매), 패널은 별도 UI 좌표.
+  공용 버튼·재화 텍스처는 판매 팩(HqSalesAssets) 공유. 2026-10-20 개편: 강화 트리 상호작용 대상은
+  접이식 작업대(folding_workbench)이고, 북벽 금속 테이블은 `HeadquartersProp.skillTable`(id
+  "skill_table", 같은 192×128 아트)로 전환되어 SPACE로 스킬창을 연다(침대 제거). 전면 접근 판정은
+  HeadquartersRoom의 공통 canInteractWithFrontProp/isNearFrontProp.
+- ~~회복 스킬 런타임은 LaboratoryScreen(Q 입력·쿨다운·HealEffectRenderer)이 담당~~ → 2026-10-20
+  공통 스킬 시스템으로 이관(아래 절).
+
+## 공통 스킬 시스템 (2026-10-20)
+
+소유(해금)·장착·키 설정·쿨다운을 분리한 공통 모델. 전부 순수 Java(profile/)로 화면 없이 테스트된다.
+
+- `profile/SkillLoadout`: slotId→skillId / slotId→keyCode 구성(5칸 고정 표시, 용량은 별도 계산).
+  `fromProfile` 로드 시 마이그레이션(최초 기본값 F=돌진·Q=회복(해금 시), 구 equippedSkills 이관)과
+  정리(미지 스킬·중복 장착·중복/예약 키 → 기본 키 복구+사유 로그, 해금 기록 보존)를 수행.
+  equip/unequip/setKey는 실패 이유 문자열 반환+상태 불변.
+- `profile/SkillRuntime`: skillId별 남은 쿨다운(초, delta 기반 — 절대시각 불사용). 게임 루트가 1개를
+  소유해 슬롯 교체·키 변경·맵 전환·화면 재생성에도 유지. 저장 이벤트 시점 snapshot()을 프로필
+  `skillCooldowns`에 싣고 로드 시 restore(오프라인 경과 미적용). tick은 플레이 가능한 시간에만 호출.
+- `profile/SkillService.tryExecute`: 입력→장착/해금→생존·입력 허용→쿨다운→효과별 검증(회복=만피 거부,
+  실제 회복량 = min(회복량, maxHp−HP))→Context.applyEffect 성공 시에만 쿨다운 시작. 실패는 Result
+  열거형(이유)만 반환. Context 인터페이스로 화면 상태·효과 적용을 주입해 모델이 GL에 의존하지 않는다.
+- 돌진: `combat/PlayerDashState`에서 쿨다운을 **제거**(이동·충돌·대상당 1회 타격 전용). 발동·쿨다운은
+  SkillService+SkillRuntime("dash") 한 곳 — 이중 관리 금지. 이동/피해 규칙은 기존 그대로 화면이 수행.
+- 입력: `GameAction`에서 DASH/SKILL_1 제거(슬롯 키는 SkillLoadout에서 직접 폴링, 엣지 1회),
+  RETURN_ROUTE(H) 재추가. `KeyBindings.reservedKeys()`가 스킬 키 등록 금지 집합의 유일 출처.
+- 저장: `HeadquartersEconomy.saveSkillLoadout`(판매와 같은 거래 경계) + persist 시 쿨다운 스냅샷 주입
+  (`setCooldownSnapshotProvider`). 변경 성공 시에만 저장, 프레임 단위 저장 없음.
+- UI/VFX(렌더러는 그리기·클릭 전달만): `SkillBarRenderer`(하단 중앙 퀵슬롯 5칸 — 실제 키 이름/미등록·
+  쿨다운 가림+올림 초·잠김 구분), `SkillLoadoutRenderer`(1120×720 스킬창 — 장착/해제/키 등록 대기·Esc
+  취소, 성공 시에만 onSave), `HealCastRenderer`(heal_cast_sheet 12프레임 1회·발 앵커·알파 0.7, 시각 전용),
+  `SkillMenuButtonRenderer`(열기 버튼), `CombatHudRenderer`는 공격 전용으로 축소. 텍스처는
+  `SkillAssets`(GameAssets 소유, Nearest).
+
+## 보스 모드 1-1 (2026-10-20)
+
+일반 연구소와 분리된 모드(MapId.BOSS_ARENA). 전투 전이는 순수 Java 상태 기계 한 곳에서.
+
+- `boss/BossStageCatalog`(stages.json — progressUnlocked/implemented/cleared 구분),
+  `boss/BossDefinition`(boss_1_1.json — 수치/패턴/시간 유일 출처, 저항 선언),
+  `boss/BossFight`(상태 기계+패턴 3종+투사체/장판/돌진 판정 — Context 주입으로 GL 비의존,
+  시뮬레이션 시계 경계 1회, 사망/실패 시 전체 취소, 동시 사망 실패 우선).
+- 프로필: bossUnlockedStages/bossClearedStages/bossRewardReceipts("stageId#runId") +
+  `HeadquartersEconomy.commitBossClear` — 클리어 기록+다음 단계 해금+보상 인스턴스+영수증을
+  1회 원자 저장(실패 롤백·재시도, 같은 runId 멱등). 보상 선택은 runId 파생 시드로
+  LootTableCatalog의 LEGENDARY 테이블에서 — 새 파일에 이름/가격 복사 없음.
+- `screen/BossArenaScreen`: 32×24 광장(반복 바닥 타일+V4 벽, 기둥/방벽 footprint 장애물,
+  남쪽 겸용 문=기존 gatePassage/southExitGate 재사용). 플레이어 공격/돌진/충격파/전기는
+  보스 hurtbox 프록시(Monster 1개 — HealthComponent를 BossFight와 공유)로 기존 공통 경로를
+  그대로 쓴다(AI를 돌리지 않아 넉백/경직 자연 면역, 감전은 VFX 표시만). 플레이어 피해는
+  PlayerCombatState 공통 파이프라인 1회. runId/attemptSeed는 LaboratoryGame이 입장 확정/
+  재도전에서만 발급(선택창 열람·화면 재생성으로는 미발급), 더블클릭은 전환 잠금+패널 잠금.
+- UI: BossHudRenderer(상단 중앙 HP바 — 이름/수치 런타임), BossStageSelectRenderer(메인 컴퓨터
+  SPACE, 1120×720), BossResultRenderer(보상/실패·재도전/복귀·저장 재시도). 복귀는 HQ 도착
+  분기에서 보스 출신이면 가방 이관/루트 초기화를 건너뛴다(영구 자원 유지, 임시 엔티티 정리).
+
+## 9단계 보스전 (2026-10-21)
+
+데이터 주도 확장 — 단계별 Screen 복사본/거대 stageId switch 없음. 1-1은 위 레거시 경로를
+회귀 기준으로 그대로 쓰고(BossFight·32×24·기존 아트, 표기 이름만 교체), 1-2 이후만 신규 엔진.
+
+- 데이터(유일 출처): `assets/boss_nine_stages_v1/data/stage_catalog.runtime.json`(9단계 —
+  bossId/displayName/legacyEngine/draftMaxHp/그리기·피격·footprint 분리/patternIds/arenaId/초상),
+  `patterns.runtime.json`(17 패턴 — kind·수치·차폐/관통/틱 그룹 정책 선언),
+  `arena_layouts.runtime.json`(8 투기장). draft 파일은 로드하지 않는다.
+- `boss/BossStageCatalog`(구·신 스키마 겸용), `boss/BossPatternCatalog`, `boss/BossArenaCatalog`,
+  `boss/BossBattle`(범용 패턴 엔진, 순수 Java — Context 주입: blockedAt/sightBlocked/validFloor/
+  applySlow/applyRoot). kind별 실행기(projectile/fan/cone/ground/bind/trail/beam/annulus/
+  burst/moving_burst/charge/repeat_charge/phase_change/sequence), 해저드(투사체 swept·장판
+  그룹 틱 게이트=스케줄·지연 폭발·레이저 trim·확장 고리)는 BossBattle이 소유하고 렌더러는
+  읽어서만 그린다(피해/보상 실행 금지). 분노 전환은 HP 50% 1회 큐 삽입, sequence는 하위 큐.
+- `screen/BossArenaScreen` 분기 1곳: legacy(BossFight) vs nine(BossBattle) — 통일 접근자
+  (phase/bossX/bossY/patternStage/markCleared/beginReturn)로 보상·결과창·귀환 로직 공유.
+  투기장은 BossArenaCatalog 논리 배치로 조립(기존 바닥/벽/gatePassage 재사용, 기둥 footprint
+  solid). 프록시 Monster 피격 박스=카탈로그 값(중심=발+1.6), 이동 충돌=footprint 반경.
+  시트는 1024²=4×4 of 256(발 비율 32/256), 세그먼트 idle0-3/예고4-5/발사6-7/회복8-9/
+  이동10-11/사망12-15(마지막 유지) — 몸체 회전 금지. 상태 이상은 화면 소유(둔화=이동 dt 배율,
+  구속=이동만 차단).
+- `asset/BossNineAssets`(GameAssets 소유): 보스 시트 8종, VFX 640×160 스트립 12종(4프레임),
+  초상 지연 로드 캐시, 선택창 카드/배지. `render/BossStageSelectRenderer`는 3×3 실루엣 카드
+  (잠김에도 표시, contain-fit)+방향키/Enter+컬러 초상 상세로 개편.
+- 플레이어 스킬 수치는 변경 금지 계약 — `PlayerSkillRangeBaselineTest`가 기준값을 고정.
+  해금 집합은 `LaboratoryGame.bossUnlockedView()`(디버그 LAB_BOSS_UNLOCK_ALL=1은 입장만 허용,
+  저장 진행과 분리).
+
+## 난이도별 시드 기반 연구소 생성 (2026-10-20)
+
+생성기는 데이터(논리 타일·가구·컨테이너·몬스터 배치)를 만들고 렌더러는 읽어서만 그린다 —
+프레임마다 난수 재선택 없음, Texture 소유는 GameAssets 그대로. 충돌·길찾기·미니맵은 같은
+최종 논리 스냅샷(LaboratoryRoom)을 쓴다.
+
+- `world/GenRng`: FNV-1a32(seed십진문자열+"|"+scope)+XorShift32(13,17,5) — 팩 참조 파이썬과
+  golden vector 일치. scope로 topology/shape/notch/themes/furniture/loot/monsters/visual
+  하위 스트림 분리(바닥 장식 변형이 몬스터 배치를 밀지 않는다).
+- `world/LabGenData`: 구조 틀 12종(data/layouts)·난이도 프로필·테마 16종 파싱. 파일 I/O는
+  Source 인터페이스 주입(게임=Gdx.files, 테스트=java.nio). 동봉 몬스터/캐비넷 수는 초안 —
+  실제 쉬움 기준(BalanceConfig)이 우선한다.
+- `world/LaboratoryGenerator`: 방 배치(격자+크기 변형+모서리 후퇴 — 문 앵커 보호) →
+  spanning tree+추가 연결 → 도그레그 복도+문별 5칸 전실(DoorPlacementResolver 지지 규칙) →
+  남쪽 대문(외벽 링+V3 대문, 모든 난이도) → 테마 16종 배정 → 가구(기존 쉬움 kit 파이프라인
+  `addThemedRoomFurniture` 공유, 입구 방 중앙 비움, 섬 변형 3종) → 캐비넷(기존 placeContainer
+  가중 추첨) → 접근성 BFS(배우 몸체·4방향) + 실패 슬롯 수리 → 몬스터(예산=쉬움 56×방 수 비례,
+  팀장=구석 후보만) → 메타데이터(contentHash·통계). 실패는 attempt 하위 시드 3회 → 난이도별
+  검증된 폴백(쉬움=수제 easyRoom, 보통/어려움=golden seed compact) + 기록.
+- LaboratoryLayout: 수제 쉬움은 고정 회귀 기준+폴백으로 보존. kit/placeContainer/RoomPlan을
+  패키지 공개로 생성기와 공유(난이도별 구식 렌더러 분기 없음 — 전 난이도 V4 경로).
+- LaboratoryGame: 난이도 확정(selectDifficulty)에서만 `generateExpedition` — 시드 발급은
+  비결정(새 탐사), 생성은 결정적. 몬스터는 생성 플랜에서 소환(수제 폴백만 MonsterSpawnSystem).
+  디버그: LAB_SEED(시드 고정)/LAB_CLASSIC_MAP=1(수제 맵)/입장 로그에 재현 메타데이터.
+- 진행 중 탐사 저장은 미지원(범위 명시) — 같은 세션에서는 laboratory 스냅샷이 유지되어 화면
+  재생성으로 맵/열린 상자 상태가 초기화되지 않고, 앱 종료 시 탐사는 소멸한다(본부 프로필 보존).
+
+## 추가 스킬 3종 — 충격파·전기 투척·보호막 (2026-10-20)
+
+공통 스킬 파이프라인 확장(화면 키 분기 없음). 판정 모델은 전부 순수 Java(combat/)로 GL 없이
+테스트되고, 화면은 결과를 공용 타격 경로·VFX에 연결만 한다.
+
+- `profile/SkillCatalog`: skills.json(동봉 초안 채택) 파싱 — 쿨다운/피해/반경/radiusCurve/이벤트
+  시각. `shockwaveFrontRadius(elapsed)` 보간이 판정·렌더 공용 파면 함수(한 정의에서 파생).
+- `combat/SkillCast`: 시전 준비 타이머 — 경계 "이전<t≤현재", t=0은 시작 시 1회, cancel()로 미발생
+  효과만 취소(재시전 = 새 인스턴스 = 새 castId).
+- `combat/ShockwaveState`: 원점 고정, 피해 창(1/15~5/15초) 동안 "직전→현재 파면 고리(annulus)"와
+  hurtbox 교차를 검사해 시전·대상별 1회 Hit 반환(원점 위 대상 포함, 큰 delta 커버). 차폐는
+  Occlusion 인터페이스 주입(화면이 room.blocksActorAlongPath로 구현 — 벽·닫힌 문·solid 가구).
+- `combat/ElectricProjectile`: 방향 고정, swept 샘플(간격 ≤ 충돌 반경) 이동 — 같은 구간에서 벽을
+  먼저 검사(벽이 몬스터보다 앞이면 무피해), 1충돌 소멸, 사거리 만료. Solid 인터페이스 주입.
+- 감전: `Monster.applyShock(max 갱신)` + `MonsterAiSystem`이 남은 시간 동안 자율 이동·새 공격
+  시작 차단(미확정 공격만 취소 — attackHit 전), 넉백 물리는 유지, 종료 시 자연 복귀.
+- `combat/PlayerShieldState` + `PlayerCombatState.setShield`: 흡수는 공통 피해 파이프라인
+  takeDamage 한 곳(무적 검증 → 흡수 → 잔여만 HP). 준비/활성/소진(파괴)/만료(페이드) 상태 구분,
+  큰 delta에서 활성→만료를 시간순 처리(프레임 선두 update → 만료 우선), 활성 중 재시전 거부.
+- `CombatSystem.applyPlayerSkillStrike(damage, knockbackDistance)`: 일반 공격과 같은 HIT/DEAD·
+  처치 회복·타격 알림 경로에 피해·넉백 거리만 스킬 값 — 기본 공격 강화와 중복 가산 없음.
+- 강화: UpgradeCatalog에 SKILL_DAMAGE_ADD/SHIELD_ABSORB_ADD 추가, UpgradeEffects가
+  skillId별 피해 보너스·흡수 보너스 집계. LaboratoryGame.skillDamage/shieldAbsorbAmount/
+  skillCooldownSeconds가 파생 수치의 단일 접점.
+- VFX: `ThreeSkillsAssets`(시트 6종+아이콘 3종, GameAssets 소유) + `SkillVfxRenderer` —
+  충격파는 엔티티 아래, 피격/착탄/투사체(+X 기준 회전)/보호막(발 앵커 64,102·알파 0.65)/감전
+  오버레이는 엔티티 위 레이어. 충격파 draw scale은 visualExtent(46.8px/128셀)로 논리 반경과 일치.
+  피격/착탄 연출은 실제 명중 시에만 생성. 활성 효과는 화면 수명(맵 이탈 시 제거), 쿨다운은
+  게임 루트 SkillRuntime 유지.

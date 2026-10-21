@@ -1,0 +1,210 @@
+{
+  "status": "PASS",
+  "templates": 12,
+  "totalCases": 300,
+  "uniqueSeedsPerDifficulty": 100,
+  "caseSeedRange": [
+    1001,
+    1100
+  ],
+  "rngGoldenVector": {
+    "seed": "1001",
+    "scope": "topology",
+    "first8Unsigned32": [
+      171762395,
+      1520366824,
+      74804169,
+      2291136175,
+      3172965826,
+      2589501617,
+      1721183702,
+      3868730432
+    ]
+  },
+  "results": [
+    {
+      "templateId": "easy_compact",
+      "seedsTested": 25,
+      "seedRange": [
+        1001,
+        1025
+      ],
+      "passed": true,
+      "distinctHashes": 25,
+      "maxConnectorLength": 9,
+      "meanConnectorLength": 5.95,
+      "minimumMajorPropsInAnyRoom": 7,
+      "casesWithRetry": 0,
+      "casesWithFallback": 0
+    },
+    {
+      "templateId": "easy_courtyard",
+      "seedsTested": 25,
+      "seedRange": [
+        1026,
+        1050
+      ],
+      "passed": true,
+      "distinctHashes": 25,
+      "maxConnectorLength": 9,
+      "meanConnectorLength": 5.93,
+      "minimumMajorPropsInAnyRoom": 6,
+      "casesWithRetry": 0,
+      "casesWithFallback": 0
+    },
+    {
+      "templateId": "easy_staggered",
+      "seedsTested": 25,
+      "seedRange": [
+        1051,
+        1075
+      ],
+      "passed": true,
+      "distinctHashes": 25,
+      "maxConnectorLength": 9,
+      "meanConnectorLength": 5.98,
+      "minimumMajorPropsInAnyRoom": 5,
+      "casesWithRetry": 0,
+      "casesWithFallback": 0
+    },
+    {
+      "templateId": "easy_twin_wings",
+      "seedsTested": 25,
+      "seedRange": [
+        1076,
+        1100
+      ],
+      "passed": true,
+      "distinctHashes": 25,
+      "maxConnectorLength": 9,
+      "meanConnectorLength": 5.84,
+      "minimumMajorPropsInAnyRoom": 7,
+      "casesWithRetry": 0,
+      "casesWithFallback": 0
+    },
+    {
+      "templateId": "normal_compact",
+      "seedsTested": 25,
+      "seedRange": [
+        1001,
+        1025
+      ],
+      "passed": true,
+      "distinctHashes": 25,
+      "maxConnectorLength": 9,
+      "meanConnectorLength": 5.85,
+      "minimumMajorPropsInAnyRoom": 5,
+      "casesWithRetry": 0,
+      "casesWithFallback": 0
+    },
+    {
+      "templateId": "normal_courtyard",
+      "seedsTested": 25,
+      "seedRange": [
+        1026,
+        1050
+      ],
+      "passed": true,
+      "distinctHashes": 25,
+      "maxConnectorLength": 9,
+      "meanConnectorLength": 5.92,
+      "minimumMajorPropsInAnyRoom": 5,
+      "casesWithRetry": 0,
+      "casesWithFallback": 0
+    },
+    {
+      "templateId": "normal_staggered",
+      "seedsTested": 25,
+      "seedRange": [
+        1051,
+        1075
+      ],
+      "passed": true,
+      "distinctHashes": 25,
+      "maxConnectorLength": 9,
+      "meanConnectorLength": 5.89,
+      "minimumMajorPropsInAnyRoom": 5,
+      "casesWithRetry": 0,
+      "casesWithFallback": 0
+    },
+    {
+      "templateId": "normal_twin_wings",
+      "seedsTested": 25,
+      "seedRange": [
+        1076,
+        1100
+      ],
+      "passed": true,
+      "distinctHashes": 25,
+      "maxConnectorLength": 9,
+      "meanConnectorLength": 5.87,
+      "minimumMajorPropsInAnyRoom": 5,
+      "casesWithRetry": 0,
+      "casesWithFallback": 0
+    },
+    {
+      "templateId": "hard_compact",
+      "seedsTested": 25,
+      "seedRange": [
+        1001,
+        1025
+      ],
+      "passed": true,
+      "distinctHashes": 25,
+      "maxConnectorLength": 9,
+      "meanConnectorLength": 5.91,
+      "minimumMajorPropsInAnyRoom": 5,
+      "casesWithRetry": 0,
+      "casesWithFallback": 0
+    },
+    {
+      "templateId": "hard_courtyard",
+      "seedsTested": 25,
+      "seedRange": [
+        1026,
+        1050
+      ],
+      "passed": true,
+      "distinctHashes": 25,
+      "maxConnectorLength": 9,
+      "meanConnectorLength": 5.86,
+      "minimumMajorPropsInAnyRoom": 5,
+      "casesWithRetry": 0,
+      "casesWithFallback": 0
+    },
+    {
+      "templateId": "hard_staggered",
+      "seedsTested": 25,
+      "seedRange": [
+        1051,
+        1075
+      ],
+      "passed": true,
+      "distinctHashes": 25,
+      "maxConnectorLength": 9,
+      "meanConnectorLength": 5.9,
+      "minimumMajorPropsInAnyRoom": 5,
+      "casesWithRetry": 0,
+      "casesWithFallback": 0
+    },
+    {
+      "templateId": "hard_twin_wings",
+      "seedsTested": 25,
+      "seedRange": [
+        1076,
+        1100
+      ],
+      "passed": true,
+      "distinctHashes": 25,
+      "maxConnectorLength": 9,
+      "meanConnectorLength": 5.91,
+      "minimumMajorPropsInAnyRoom": 5,
+      "casesWithRetry": 0,
+      "casesWithFallback": 0
+    }
+  ],
+  "limits": [
+    "Proxy footprints and tile-center path checks only.",
+    "Real sprite regions, anchors, actor AABB, Java game and runtime rendering are not tested."
+  ]
+}

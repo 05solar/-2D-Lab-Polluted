@@ -1,0 +1,52 @@
+{
+  "referenceSize": [
+    1120,
+    720
+  ],
+  "origin": "top-left",
+  "rects": {
+    "title": [
+      48,
+      42,
+      780,
+      45
+    ],
+    "skillList": [
+      48,
+      124,
+      470,
+      390
+    ],
+    "details": [
+      560,
+      124,
+      510,
+      295
+    ],
+    "loadout": [
+      68,
+      530,
+      640,
+      120
+    ],
+    "registerButton": [
+      814,
+      548,
+      240,
+      60
+    ]
+  },
+  "hud": {
+    "slotSize": 72,
+    "gap": 12,
+    "keycapSize": [
+      52,
+      26
+    ],
+    "alignment": "bottom-center",
+    "bottomSafeMargin": 24,
+    "slotCount": 5,
+    "cooldownOverlay": "code-rendered translucent fill + dynamic ceil seconds"
+  },
+  "note": "Slot state and all labels are code-driven. Fit modal into safe UI viewport; keep HP HUD visible."
+}

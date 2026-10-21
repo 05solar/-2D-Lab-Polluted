@@ -1,0 +1,140 @@
+{
+  "version": 1,
+  "status": "PROPOSED_COUNTS_ONLY_PRESERVE_CURRENT_EASY_BASELINE_IN_REAL_GAME",
+  "note": "Do not multiply an already increased easy budget by 8 again. Existing species count saturates at 4; hard increases elite share, not invented monster types. Tier weights are container placement weights, not loot item probabilities.",
+  "profiles": {
+    "easy": {
+      "mapSize": [
+        128,
+        96
+      ],
+      "roomCount": 16,
+      "monsterCount": 32,
+      "cabinetsPerRoom": 2,
+      "extraEdgePercent": 20,
+      "monsterWeights": [
+        [
+          "slime",
+          75
+        ],
+        [
+          "researcher",
+          25
+        ]
+      ],
+      "minimumSpecies": [],
+      "containerTierWeights": [
+        [
+          "COMMON",
+          75
+        ],
+        [
+          "EPIC",
+          24
+        ],
+        [
+          "LEGENDARY",
+          1
+        ]
+      ],
+      "excludedMonsterIds": [
+        "guard",
+        "manager"
+      ]
+    },
+    "normal": {
+      "mapSize": [
+        160,
+        120
+      ],
+      "roomCount": 25,
+      "monsterCount": 72,
+      "cabinetsPerRoom": 3,
+      "extraEdgePercent": 28,
+      "monsterWeights": [
+        [
+          "slime",
+          45
+        ],
+        [
+          "researcher",
+          30
+        ],
+        [
+          "guard",
+          20
+        ],
+        [
+          "manager",
+          5
+        ]
+      ],
+      "minimumSpecies": [
+        "guard",
+        "manager"
+      ],
+      "containerTierWeights": [
+        [
+          "COMMON",
+          50
+        ],
+        [
+          "EPIC",
+          43
+        ],
+        [
+          "LEGENDARY",
+          7
+        ]
+      ],
+      "excludedMonsterIds": []
+    },
+    "hard": {
+      "mapSize": [
+        192,
+        144
+      ],
+      "roomCount": 36,
+      "monsterCount": 128,
+      "cabinetsPerRoom": 4,
+      "extraEdgePercent": 36,
+      "monsterWeights": [
+        [
+          "slime",
+          25
+        ],
+        [
+          "researcher",
+          25
+        ],
+        [
+          "guard",
+          35
+        ],
+        [
+          "manager",
+          15
+        ]
+      ],
+      "minimumSpecies": [
+        "guard",
+        "manager"
+      ],
+      "containerTierWeights": [
+        [
+          "COMMON",
+          30
+        ],
+        [
+          "EPIC",
+          52
+        ],
+        [
+          "LEGENDARY",
+          18
+        ]
+      ],
+      "excludedMonsterIds": []
+    }
+  }
+}

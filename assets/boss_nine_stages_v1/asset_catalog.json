@@ -1,0 +1,1962 @@
+{
+  "schemaVersion": 1,
+  "newArt": "built-in image generation",
+  "runtimeImages": [
+    {
+      "file": "runtime/portraits/waste_mutant_silhouette_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/portraits/coolant_colossus_color_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/portraits/mutant_botanical_color_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/portraits/culture_colony_silhouette_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/portraits/coolant_colossus_silhouette_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/portraits/waste_mutant_color_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/portraits/security_suppressor_color_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/portraits/cryogenic_multipod_color_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/portraits/security_suppressor_silhouette_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/portraits/neural_specimen_color_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/portraits/neural_specimen_silhouette_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/portraits/mutant_botanical_silhouette_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/portraits/culture_colony_color_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/portraits/cryogenic_multipod_silhouette_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/portraits/containment_fusion_silhouette_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/portraits/mobile_culture_tank_color_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/portraits/containment_fusion_color_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/portraits/mobile_culture_tank_silhouette_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/boss/security_suppressor_1024x1024.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "runtime/boss/mutant_botanical_1024x1024.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "runtime/boss/containment_fusion_1024x1024.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "runtime/boss/cryogenic_multipod_1024x1024.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "runtime/boss/coolant_colossus_1024x1024.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "runtime/boss/neural_specimen_1024x1024.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "runtime/boss/culture_colony_1024x1024.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "runtime/boss/mobile_culture_tank_1024x1024.png",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "file": "runtime/vfx/toxic_leak_640x160.png",
+      "size": [
+        640,
+        160
+      ]
+    },
+    {
+      "file": "runtime/vfx/root_eruption_640x160.png",
+      "size": [
+        640,
+        160
+      ]
+    },
+    {
+      "file": "runtime/vfx/psychic_blast_640x160.png",
+      "size": [
+        640,
+        160
+      ]
+    },
+    {
+      "file": "runtime/vfx/ice_zone_640x160.png",
+      "size": [
+        640,
+        160
+      ]
+    },
+    {
+      "file": "runtime/vfx/red_laser_640x160.png",
+      "size": [
+        640,
+        160
+      ]
+    },
+    {
+      "file": "runtime/vfx/psychic_wave_640x160.png",
+      "size": [
+        640,
+        160
+      ]
+    },
+    {
+      "file": "runtime/vfx/enrage_aura_640x160.png",
+      "size": [
+        640,
+        160
+      ]
+    },
+    {
+      "file": "runtime/vfx/ice_impact_640x160.png",
+      "size": [
+        640,
+        160
+      ]
+    },
+    {
+      "file": "runtime/vfx/cold_cone_640x160.png",
+      "size": [
+        640,
+        160
+      ]
+    },
+    {
+      "file": "runtime/vfx/acid_splash_640x160.png",
+      "size": [
+        640,
+        160
+      ]
+    },
+    {
+      "file": "runtime/vfx/ice_shard_640x160.png",
+      "size": [
+        640,
+        160
+      ]
+    },
+    {
+      "file": "runtime/vfx/spore_zone_640x160.png",
+      "size": [
+        640,
+        160
+      ]
+    },
+    {
+      "file": "runtime/ui/stage_card_normal_144.png",
+      "size": [
+        144,
+        144
+      ]
+    },
+    {
+      "file": "runtime/ui/stage_card_cleared_144.png",
+      "size": [
+        144,
+        144
+      ]
+    },
+    {
+      "file": "runtime/ui/clear_badge_24.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    {
+      "file": "runtime/ui/stage_card_selected_144.png",
+      "size": [
+        144,
+        144
+      ]
+    },
+    {
+      "file": "runtime/ui/stage_card_locked_144.png",
+      "size": [
+        144,
+        144
+      ]
+    },
+    {
+      "file": "runtime/ui/lock_badge_24.png",
+      "size": [
+        24,
+        24
+      ]
+    },
+    {
+      "file": "runtime/frames/culture_colony/11.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/culture_colony/03.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/culture_colony/02.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/culture_colony/07.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/culture_colony/08.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/culture_colony/01.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/culture_colony/12.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/culture_colony/14.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/culture_colony/15.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/culture_colony/00.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/culture_colony/10.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/culture_colony/04.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/culture_colony/13.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/culture_colony/09.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/culture_colony/05.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/culture_colony/06.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/toxic_leak/03.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/toxic_leak/02.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/toxic_leak/01.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/toxic_leak/00.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/mobile_culture_tank/11.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mobile_culture_tank/03.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mobile_culture_tank/02.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mobile_culture_tank/07.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mobile_culture_tank/08.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mobile_culture_tank/01.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mobile_culture_tank/12.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mobile_culture_tank/14.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mobile_culture_tank/15.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mobile_culture_tank/00.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mobile_culture_tank/10.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mobile_culture_tank/04.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mobile_culture_tank/13.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mobile_culture_tank/09.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mobile_culture_tank/05.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mobile_culture_tank/06.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/coolant_colossus/11.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/coolant_colossus/03.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/coolant_colossus/02.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/coolant_colossus/07.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/coolant_colossus/08.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/coolant_colossus/01.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/coolant_colossus/12.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/coolant_colossus/14.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/coolant_colossus/15.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/coolant_colossus/00.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/coolant_colossus/10.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/coolant_colossus/04.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/coolant_colossus/13.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/coolant_colossus/09.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/coolant_colossus/05.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/coolant_colossus/06.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/cold_cone/03.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/cold_cone/02.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/cold_cone/01.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/cold_cone/00.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/red_laser/03.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/red_laser/02.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/red_laser/01.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/red_laser/00.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/mutant_botanical/11.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mutant_botanical/03.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mutant_botanical/02.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mutant_botanical/07.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mutant_botanical/08.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mutant_botanical/01.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mutant_botanical/12.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mutant_botanical/14.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mutant_botanical/15.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mutant_botanical/00.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mutant_botanical/10.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mutant_botanical/04.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mutant_botanical/13.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mutant_botanical/09.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mutant_botanical/05.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/mutant_botanical/06.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/psychic_blast/03.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/psychic_blast/02.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/psychic_blast/01.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/psychic_blast/00.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/enrage_aura/03.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/enrage_aura/02.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/enrage_aura/01.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/enrage_aura/00.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/containment_fusion/11.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/containment_fusion/03.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/containment_fusion/02.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/containment_fusion/07.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/containment_fusion/08.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/containment_fusion/01.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/containment_fusion/12.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/containment_fusion/14.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/containment_fusion/15.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/containment_fusion/00.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/containment_fusion/10.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/containment_fusion/04.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/containment_fusion/13.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/containment_fusion/09.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/containment_fusion/05.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/containment_fusion/06.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/neural_specimen/11.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/neural_specimen/03.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/neural_specimen/02.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/neural_specimen/07.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/neural_specimen/08.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/neural_specimen/01.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/neural_specimen/12.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/neural_specimen/14.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/neural_specimen/15.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/neural_specimen/00.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/neural_specimen/10.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/neural_specimen/04.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/neural_specimen/13.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/neural_specimen/09.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/neural_specimen/05.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/neural_specimen/06.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/security_suppressor/11.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/security_suppressor/03.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/security_suppressor/02.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/security_suppressor/07.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/security_suppressor/08.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/security_suppressor/01.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/security_suppressor/12.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/security_suppressor/14.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/security_suppressor/15.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/security_suppressor/00.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/security_suppressor/10.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/security_suppressor/04.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/security_suppressor/13.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/security_suppressor/09.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/security_suppressor/05.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/security_suppressor/06.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/root_eruption/03.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/root_eruption/02.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/root_eruption/01.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/root_eruption/00.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/ice_impact/03.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/ice_impact/02.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/ice_impact/01.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/ice_impact/00.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/cryogenic_multipod/11.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/cryogenic_multipod/03.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/cryogenic_multipod/02.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/cryogenic_multipod/07.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/cryogenic_multipod/08.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/cryogenic_multipod/01.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/cryogenic_multipod/12.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/cryogenic_multipod/14.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/cryogenic_multipod/15.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/cryogenic_multipod/00.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/cryogenic_multipod/10.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/cryogenic_multipod/04.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/cryogenic_multipod/13.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/cryogenic_multipod/09.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/cryogenic_multipod/05.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/cryogenic_multipod/06.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/frames/psychic_wave/03.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/psychic_wave/02.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/psychic_wave/01.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/psychic_wave/00.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/ice_shard/03.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/ice_shard/02.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/ice_shard/01.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/ice_shard/00.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/acid_splash/03.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/acid_splash/02.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/acid_splash/01.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/acid_splash/00.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/spore_zone/03.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/spore_zone/02.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/spore_zone/01.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/spore_zone/00.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/ice_zone/03.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/ice_zone/02.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/ice_zone/01.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/frames/ice_zone/00.png",
+      "size": [
+        160,
+        160
+      ]
+    },
+    {
+      "file": "runtime/reused/arena/pillar_96x128.png",
+      "size": [
+        96,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/arena/gate_locked_192x128.png",
+      "size": [
+        192,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/arena/floor_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/arena/barrier_128x64.png",
+      "size": [
+        128,
+        64
+      ]
+    },
+    {
+      "file": "runtime/reused/arena/gate_closed_192x128.png",
+      "size": [
+        192,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/arena/gate_opening_192x128.png",
+      "size": [
+        192,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/arena/gate_open_192x128.png",
+      "size": [
+        192,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/boss/boss_idle_384x384.png",
+      "size": [
+        384,
+        384
+      ]
+    },
+    {
+      "file": "runtime/reused/boss/boss_attack_768x384.png",
+      "size": [
+        768,
+        384
+      ]
+    },
+    {
+      "file": "runtime/reused/boss/boss_death_576x384.png",
+      "size": [
+        576,
+        384
+      ]
+    },
+    {
+      "file": "runtime/reused/vfx/boss_projectile_256x256.png",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "file": "runtime/reused/vfx/acid_pool_384x256.png",
+      "size": [
+        384,
+        256
+      ]
+    },
+    {
+      "file": "runtime/reused/vfx/boss_impact_384x256.png",
+      "size": [
+        384,
+        256
+      ]
+    },
+    {
+      "file": "runtime/reused/vfx/dash_streak_256x64.png",
+      "size": [
+        256,
+        64
+      ]
+    },
+    {
+      "file": "runtime/reused/vfx/telegraph_lane_256x64.png",
+      "size": [
+        256,
+        64
+      ]
+    },
+    {
+      "file": "runtime/reused/vfx/telegraph_circle_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/ui/boss_hp_frame_768x64.png",
+      "size": [
+        768,
+        64
+      ]
+    },
+    {
+      "file": "runtime/reused/ui/stage_locked_96.png",
+      "size": [
+        96,
+        96
+      ]
+    },
+    {
+      "file": "runtime/reused/ui/stage_panel_1120x720.png",
+      "size": [
+        1120,
+        720
+      ]
+    },
+    {
+      "file": "runtime/reused/ui/boss_hp_fill_256x16.png",
+      "size": [
+        256,
+        16
+      ]
+    },
+    {
+      "file": "runtime/reused/ui/stage_button_256x64.png",
+      "size": [
+        256,
+        64
+      ]
+    },
+    {
+      "file": "runtime/reused/ui/reward_frame_96.png",
+      "size": [
+        96,
+        96
+      ]
+    },
+    {
+      "file": "runtime/reused/ui/reward_glow_128.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/ui/stage_ready_96.png",
+      "size": [
+        96,
+        96
+      ]
+    },
+    {
+      "file": "runtime/reused/ui/boss_emblem_96.png",
+      "size": [
+        96,
+        96
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_idle/boss_idle_00.png",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_idle/boss_idle_01.png",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_idle/boss_idle_02.png",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_idle/boss_idle_03.png",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_impact/boss_impact_04.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_impact/boss_impact_05.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_impact/boss_impact_02.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_impact/boss_impact_00.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_impact/boss_impact_01.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_impact/boss_impact_03.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_death/boss_death_04.png",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_death/boss_death_02.png",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_death/boss_death_00.png",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_death/boss_death_05.png",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_death/boss_death_01.png",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_death/boss_death_03.png",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/acid_pool/acid_pool_02.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/acid_pool/acid_pool_00.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/acid_pool/acid_pool_03.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/acid_pool/acid_pool_05.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/acid_pool/acid_pool_04.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/acid_pool/acid_pool_01.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_attack/boss_attack_01.png",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_attack/boss_attack_00.png",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_attack/boss_attack_03.png",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_attack/boss_attack_06.png",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_attack/boss_attack_05.png",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_attack/boss_attack_04.png",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_attack/boss_attack_02.png",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_attack/boss_attack_07.png",
+      "size": [
+        192,
+        192
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_projectile/boss_projectile_00.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_projectile/boss_projectile_01.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_projectile/boss_projectile_03.png",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "file": "runtime/reused/frames/boss_projectile/boss_projectile_02.png",
+      "size": [
+        128,
+        128
+      ]
+    }
+  ],
+  "sourceCount": 11,
+  "readme": "README.md",
+  "implementationPrompt": "BOSS_NINE_IMPLEMENTATION_PROMPT.md"
+}

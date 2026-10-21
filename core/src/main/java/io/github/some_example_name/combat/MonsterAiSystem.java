@@ -74,6 +74,18 @@ public final class MonsterAiSystem {
                     continue;
                 }
             }
+            // 감전(전기 투척): 남은 시간 동안 자율 이동·새 공격 시작을 막는다. 아직 타격이
+            // 확정되지 않은 공격은 취소하되(상태만 되돌림), 이미 들어간 피해는 되돌리지
+            // 않는다. 넉백 물리(위)는 그대로 적용되고, AI를 영구 정지시키지 않는다 —
+            // 시간이 다하면 자연 복귀한다.
+            if (monster.shocked()) {
+                monster.reduceShockTime(delta);
+                if (monster.state() == MonsterState.ATTACK && !monster.attackHit()) {
+                    monster.setState(MonsterState.CHASE);
+                    monster.setStateTime(0f);
+                }
+                if (monster.shocked()) continue;
+            }
             // 비분노 팀장: 구석에 머무른다. 근접·시야 발견으로 추적하지 않는다(소음 규칙 전용).
             if (monster.type() == MonsterType.TEAM_LEADER && !monster.enraged()
                 && monster.state() != MonsterState.RETURN) {

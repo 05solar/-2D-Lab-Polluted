@@ -1,0 +1,119 @@
+{
+  "referenceSize": [
+    1120,
+    720
+  ],
+  "origin": "top-left",
+  "bossHud": {
+    "frame": [
+      176,
+      104,
+      768,
+      64
+    ],
+    "fillInsideFrame": [
+      64,
+      25,
+      640,
+      16
+    ],
+    "name": [
+      176,
+      78,
+      640,
+      24
+    ],
+    "hpText": [
+      850,
+      78,
+      94,
+      24
+    ],
+    "note": "Reserve player HUD safe area above; shrink/move if viewport changes. Inspect inner frame alpha to calibrate fill."
+  },
+  "stageSelection": {
+    "gridOrigin": [
+      80,
+      140
+    ],
+    "gridStep": [
+      150,
+      150
+    ],
+    "columns": 3,
+    "details": [
+      620,
+      140,
+      420,
+      350
+    ],
+    "entryButton": [
+      790,
+      560,
+      240,
+      60
+    ]
+  },
+  "reward": {
+    "panelUses": "stage_panel_1120x720.png",
+    "itemFrame": [
+      512,
+      260,
+      96,
+      96
+    ],
+    "drawItem": "reuse actual awarded item icon/rarity border",
+    "storageNotice": "runtime Korean text"
+  },
+  "worldMetadata": {
+    "pillar": {
+      "spriteSize": [
+        96,
+        128
+      ],
+      "footAnchor": [
+        48,
+        120
+      ]
+    },
+    "barrier": {
+      "spriteSize": [
+        128,
+        64
+      ],
+      "footAnchor": [
+        64,
+        58
+      ]
+    },
+    "gate": {
+      "spriteSize": [
+        192,
+        128
+      ],
+      "footAnchor": [
+        96,
+        120
+      ]
+    },
+    "telegraphCircle": {
+      "center": [
+        64,
+        64
+      ],
+      "visualRadiusPx": 56
+    },
+    "telegraphLane": {
+      "axisStart": [
+        8,
+        32
+      ],
+      "axisEnd": [
+        248,
+        32
+      ],
+      "visualWidthPx": 48
+    }
+  },
+  "textBakedIntoRuntimePngs": false
+}

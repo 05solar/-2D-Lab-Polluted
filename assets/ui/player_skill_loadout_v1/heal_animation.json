@@ -1,0 +1,133 @@
+{
+  "file": "runtime/heal_cast_sheet_512x384.png",
+  "columns": 4,
+  "rows": 3,
+  "frameSize": [
+    128,
+    128
+  ],
+  "frameCount": 12,
+  "origin": "top-left",
+  "order": "row-major",
+  "frameSeconds": 0.06666666666666667,
+  "durationSeconds": 0.8,
+  "loop": false,
+  "footAnchor": [
+    64,
+    108
+  ],
+  "blend": "straight-alpha",
+  "startRenderAlpha": 0.7,
+  "effectFollowsActor": true,
+  "registration": [
+    {
+      "frame": 0,
+      "sourceFootAnchor": [
+        201.19,
+        331
+      ],
+      "sharedScale": 0.285,
+      "opacityEnvelope": 0.25
+    },
+    {
+      "frame": 1,
+      "sourceFootAnchor": [
+        177.57,
+        337
+      ],
+      "sharedScale": 0.285,
+      "opacityEnvelope": 0.45
+    },
+    {
+      "frame": 2,
+      "sourceFootAnchor": [
+        179.74,
+        337
+      ],
+      "sharedScale": 0.285,
+      "opacityEnvelope": 0.65
+    },
+    {
+      "frame": 3,
+      "sourceFootAnchor": [
+        174.26,
+        341
+      ],
+      "sharedScale": 0.285,
+      "opacityEnvelope": 0.85
+    },
+    {
+      "frame": 4,
+      "sourceFootAnchor": [
+        182.93,
+        307
+      ],
+      "sharedScale": 0.285,
+      "opacityEnvelope": 1
+    },
+    {
+      "frame": 5,
+      "sourceFootAnchor": [
+        179.84,
+        307
+      ],
+      "sharedScale": 0.285,
+      "opacityEnvelope": 1
+    },
+    {
+      "frame": 6,
+      "sourceFootAnchor": [
+        176.35,
+        307
+      ],
+      "sharedScale": 0.285,
+      "opacityEnvelope": 1
+    },
+    {
+      "frame": 7,
+      "sourceFootAnchor": [
+        173.99,
+        307
+      ],
+      "sharedScale": 0.285,
+      "opacityEnvelope": 0.95
+    },
+    {
+      "frame": 8,
+      "sourceFootAnchor": [
+        182.47,
+        279
+      ],
+      "sharedScale": 0.285,
+      "opacityEnvelope": 0.8
+    },
+    {
+      "frame": 9,
+      "sourceFootAnchor": [
+        175.9,
+        279
+      ],
+      "sharedScale": 0.285,
+      "opacityEnvelope": 0.6
+    },
+    {
+      "frame": 10,
+      "sourceFootAnchor": [
+        173.99,
+        271
+      ],
+      "sharedScale": 0.285,
+      "opacityEnvelope": 0.3
+    },
+    {
+      "frame": 11,
+      "sourceFootAnchor": [
+        174.62,
+        266
+      ],
+      "sharedScale": 0.285,
+      "opacityEnvelope": 0.07
+    }
+  ],
+  "note": "All frames use the same source-cell scale, a shared foot anchor and a fade envelope; frame alpha is already baked. Do not trim or recenter frames."
+}

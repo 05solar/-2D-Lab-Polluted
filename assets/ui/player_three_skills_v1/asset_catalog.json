@@ -1,0 +1,417 @@
+{
+  "version": 1,
+  "icons": 3,
+  "animations": 6,
+  "totalAnimationFrames": 36,
+  "runtimePngs": [
+    {
+      "file": "runtime/frames/electric_impact/electric_impact_00.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/electric_impact/electric_impact_01.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/electric_impact/electric_impact_02.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/electric_impact/electric_impact_03.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/electric_impact/electric_impact_04.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/electric_impact/electric_impact_05.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/electric_projectile/electric_projectile_00.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/electric_projectile/electric_projectile_01.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/electric_projectile/electric_projectile_02.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/electric_projectile/electric_projectile_03.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shield_active/shield_active_00.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shield_active/shield_active_01.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shield_active/shield_active_02.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shield_active/shield_active_03.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shield_active/shield_active_04.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shield_active/shield_active_05.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shield_break/shield_break_00.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shield_break/shield_break_01.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shield_break/shield_break_02.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shield_break/shield_break_03.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shield_break/shield_break_04.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shield_break/shield_break_05.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shock_hit/shock_hit_00.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shock_hit/shock_hit_01.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shock_hit/shock_hit_02.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shock_hit/shock_hit_03.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shock_hit/shock_hit_04.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shock_hit/shock_hit_05.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shockwave/shockwave_00.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shockwave/shockwave_01.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shockwave/shockwave_02.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shockwave/shockwave_03.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shockwave/shockwave_04.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shockwave/shockwave_05.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shockwave/shockwave_06.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/frames/shockwave/shockwave_07.png",
+      "size": [
+        128,
+        128
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/icons/icon_electric_throw_64.png",
+      "size": [
+        64,
+        64
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/icons/icon_shield_64.png",
+      "size": [
+        64,
+        64
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/icons/icon_shockwave_64.png",
+      "size": [
+        64,
+        64
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/vfx/electric_impact_384x256.png",
+      "size": [
+        384,
+        256
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/vfx/electric_projectile_256x256.png",
+      "size": [
+        256,
+        256
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/vfx/shield_active_384x256.png",
+      "size": [
+        384,
+        256
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/vfx/shield_break_384x256.png",
+      "size": [
+        384,
+        256
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/vfx/shock_hit_384x256.png",
+      "size": [
+        384,
+        256
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    },
+    {
+      "file": "runtime/vfx/shockwave_512x256.png",
+      "size": [
+        512,
+        256
+      ],
+      "rgba": true,
+      "transparentOutsideMargin": true
+    }
+  ],
+  "filter": "Nearest",
+  "alpha": "straight-alpha",
+  "textBaked": false,
+  "soundIncluded": false
+}

@@ -89,24 +89,23 @@ public final class PlayerHudRenderer {
     }
 
     private void drawHealth(PlayerHudAssets hud, Player player, HudLayout L, float sh) {
-        int hp = Math.max(0, Math.min(L.maxHp, player.hp()));
-        // frame (top-left anchored)
+        // 영구 강화로 최대 HP가 변하므로 숫자·채움·색 모두 currentHp/maxHp 비율 기준.
+        int maxHp = Math.max(1, player.maxHp());
+        int hp = Math.max(0, Math.min(maxHp, player.hp()));
         float frameX = L.marginX;
         float frameY = sh - L.marginY - L.frameH;
         batch.draw(hud.frame(), frameX, frameY, L.frameW, L.frameH);
-        // fill: width scales with hp ratio
-        int fillPx = Math.round(L.fillW * hp / (float) L.maxHp);
+        int fillPx = Math.round(L.fillW * hp / (float) maxHp);
         if (fillPx > 0) {
-            TextureRegion full = hud.fillFor(hp);
+            TextureRegion full = hud.fillFor(hp, maxHp);
             TextureRegion part = new TextureRegion(full, 0, 0, fillPx, (int) L.fillH);
             float fillX = L.marginX + L.fillX;
             float fillY = sh - (L.marginY + L.fillY) - L.fillH;
             batch.draw(part, fillX, fillY, fillPx, L.fillH);
         }
-        // value number, centered in value rect
         float cx = L.marginX + L.valueX + L.valueW / 2f;
         float cy = sh - (L.marginY + L.valueY + L.valueH / 2f);
-        drawCenteredText(String.valueOf(hp), cx, cy, L.valueH * 0.7f, Color.WHITE);
+        drawCenteredText(hp + "/" + maxHp, cx, cy, L.valueH * 0.58f, Color.WHITE);
     }
 
     private void drawRPrompt(PlayerHudAssets hud, float sh) {

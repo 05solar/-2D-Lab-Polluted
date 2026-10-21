@@ -528,3 +528,242 @@ The requested archives are now extracted under `assets/laboratory_roomkits_v3/` 
   화면 전환과 무관하게 연속 반복. `LAB_MUTE_MUSIC=1`로 끌 수 있음.
 - 검증: core:test 133·lwjgl3:build 통과. 실행 스모크(AUTO_PRESS)에서 OGG 로드·press×4/open×1 재생 호출 예외 없음.
   실제 청감(경쾌함 체감·음악 음량 밸런스)은 사용자 핸즈온 필요.
+
+
+## 2026-10-20 — 공통 스킬 시스템 (player_skill_loadout_v1)
+
+### 모델 (순수 Java, profile/)
+1. `SkillLoadout`: 장착(slotId→skillId)·키(slotId→keyCode) 구성 + 마이그레이션(최초 기본 F=dash·Q=heal(해금 시),
+   구 equippedSkills 이관)과 정리(미지 스킬/중복 장착/중복·예약 키 → 기본 키 복구, 사유 로그, 해금 보존).
+2. `SkillRuntime`: skillId별 남은 쿨다운(delta 기반) — 게임 루트 단일 소유(슬롯 교체·맵 전환에도 유지),
+   snapshot(0 초과만)/restore(오프라인 경과 없음).
+3. `SkillService.tryExecute`: 입력→장착/해금→생존·차단→쿨다운→효과별 검증(회복 만피 거부, 실회복=min(양, max−hp))
+   →applyEffect 성공 시에만 쿨다운. 실패=Result 이유만, 상태 불변. Context 주입으로 GL 비의존.
+4. 돌진 이관: `PlayerDashState` 쿨다운 제거(이동·충돌·대상당 1회 타격 전용) — 쿨다운은 SkillRuntime("dash") 한 곳.
+5. 키 정리: GameAction DASH/SKILL_1 제거(슬롯 키 직접 폴링·엣지 1회), RETURN_ROUTE(H) 재추가,
+   `KeyBindings.reservedKeys()` = 스킬 키 금지 집합 유일 출처. 기본 슬롯 1→2(구매 +1 보존, 최대 5).
+6. 저장: 프로필 skillSlots/skillKeys/skillCooldowns(코덱 왕복) + `HeadquartersEconomy.saveSkillLoadout`
+   (판매 동일 거래 경계) + persist 시 쿨다운 스냅샷 주입. 변경 성공 시에만 저장(프레임 저장 없음).
+
+### UI/VFX
+- `SkillAssets`(GameAssets 소유·Nearest), `HealCastRenderer`(시트 4×3 행 우선 12프레임·1/15s·0.8s 1회,
+  발 앵커(64,108), 플레이어 추종·알파 0.7, 시각 전용), `SkillBarRenderer`(하단 중앙 5칸 — 실제 키 이름/
+  미등록 라벨/쿨다운 가림+올림 초/잠김 구분), `SkillLoadoutRenderer`(1120×720 — 장착/해제/키 등록 대기·
+  Esc 취소·예약/중복 거부·성공 시만 onSave), `SkillMenuButtonRenderer`(오디오 토글 오른쪽, 본부·연구소),
+  `CombatHudRenderer` 공격 전용 축소, HealEffectRenderer 삭제(시트 연출로 대체).
+
+### 검증
+- core:test 186개 0 fail(신규 SkillSystemTest 17, PlayerDashStateTest 5로 개편, ProfilePersistenceTest 왕복 확장),
+  lwjgl3:build 성공.
+- 실행: ① LAB_TEST_SKILLS — 구 프로필(equippedSkills=[heal]) 마이그레이션 → slots=[dash,heal,,,]
+  keys=[34,45,8,9,10] capacity=2, profile.json에 skillSlots/skillKeys/skillCooldowns 기록.
+  ② dash 2.5s 주입 후 재시작 — AutoDash ON_COOLDOWN(이동 0, 2.5→2.08 플레이 시간만 감소) = 복원 실증.
+  ③ 초기화 후 OK(63.5→64.7, 쿨 2.9) + 퀵슬롯 "3" 캡처. ④ AutoHeal — 120→80 피해, 회복 OK(80→110, 쿨 10.0),
+  즉시 재시도 ON_COOLDOWN(110→110 무변화), 캐스트·"10" 캡처.
+- 캡처: skill_panel_hq/keywait, skill_dash_cooldown_hud, skill_heal_cast, skill_heal_cooldown_hud.
+
+### 미확인(사용자 핸즈온 필요)
+- 실제 키보드로 키 재등록 → 기존 키 무발동·새 키 발동 체감(폴링 구조+단위 테스트로 로직은 보장).
+- 슬롯 확장 노드(active_slot_2) 구매 후 3번째 슬롯 실사용(용량 로직은 단위 테스트 검증).
+- 리사이즈별 퀵슬롯/스킬창 글자·클릭, 회복 캐스트 연출 체감(캡처는 초기 프레임).
+
+
+## 2026-10-20 — 본부 스킬 테이블·강화 작업대 분리 (사용자 요청)
+
+- 요청: 침대 제거 + 그 위 금속 테이블에서 SPACE로 스킬 단축키 등록 + 근접 시 SPACE 프롬프트.
+  확인 결과 그 테이블이 기존 강화대라, 사용자 지시로 **강화 트리는 망치 있는 접이식 작업대**로 이동.
+- HeadquartersProp.upgradeBench → skillTable(id "skill_table", 동일 192×128 아트/footprint).
+  HeadquartersLayout: field_medical_cot 제거. HeadquartersRoom: folding_workbench=강화, skill_table=스킬,
+  전면 접근 공통 판정(canInteractWithFrontProp/isNearFrontProp)으로 리팩터.
+- HeadquartersScreen: skillInteraction 추가, 4개 대상 최근접 1개 선택, skillFired → openSkillPanel().
+  HeadquartersRenderer: skill_table에 벤치 아트, 프롬프트 라벨 "스킬 등록"(HeadquartersAssets 추가).
+  북서 구석 프롬프트가 좌상단 HP HUD(화면 좌표)에 가려져 → 스킬 테이블·작업대는 가구 아트 위(-1.35)로
+  내려 그리도록 조정(첫 캡처에서 가림 실측 후 수정).
+- LaboratoryGame: LAB_HQ_TEST=SKILL/BENCH 스폰 추가(각 가구 남쪽 정면). LAB_TEST_SKILLS 스크립트가
+  frame 10에 hq_prompt_<대상> 캡처.
+- 검증: core:test 187(신규 HeadquartersLayoutTest.skillTableAndUpgradeWorkbenchHaveFrontInteractions,
+  침대 상호작용 지점 null 교체)·lwjgl3:build green. 실프레임 hq_prompt_skill.png("스킬 등록"+SPACE,
+  침대 없음), hq_prompt_bench.png("영구 강화"+SPACE, 망치 작업대), 스킬창 열림 캡처.
+- 미확인: 실제 SPACE 키 체감(발화 경로는 자판기 동일 코드), 리사이즈별 프롬프트 위치.
+
+### 추가(같은 날): 북벽 가구 재배치 — 두 테이블을 중앙 책상 양옆으로
+- 스킬 테이블 ↔ 중앙 오른쪽 통신 콘솔(8.75/7.45), 강화 작업대 ↔ 중앙 왼쪽 통신 콘솔(4.35/7.45) 교환.
+  콘솔은 북서쪽(2.15/7.45)·서쪽 유지보수 줄(1.75/3.95)로 이동. LAB_HQ_TEST=SKILL/BENCH 스폰·레이아웃
+  테스트 좌표 갱신. core:test 187 green, 실프레임 hq_prompt_skill/bench.png로 새 배치+프롬프트 확인.
+
+
+## 2026-10-20 — 추가 스킬 3종: 충격파·전기 투척·보호막 (player_three_skills_v1)
+
+### 데이터
+- ZIP이 중앙 디렉터리 잘림(truncated) 상태 — 로컬 헤더 61개 스트림 파싱으로 전체 복구(마지막
+  source PNG 1개만 불완전, 런타임 불필요). data/skills.example.json을 data/skills.json으로 채택
+  (기존 확정 밸런스 없음), upgrade_tree.json에 해금 3+강화 3+활성 슬롯 IV/V 병합(총 17노드,
+  스킬 가지 3×4 재배치 — 이전 노드 보존).
+
+### 모델 (순수 Java)
+- profile/SkillCatalog(파싱+파면 보간 — 판정·렌더 공용), combat/SkillCast(경계 "이전<t≤현재",
+  t=0 시작 1회), combat/ShockwaveState(원점 고정·annulus 1회 명중·차폐 주입·NaN 폴백),
+  combat/ElectricProjectile(방향 고정·swept·벽 우선·1충돌), Monster.applyShock(max 갱신)+AI 감전
+  게이트(미확정 공격만 취소), combat/PlayerShieldState+PlayerCombatState.setShield(공통 피해
+  파이프라인 한 곳 흡수·만료 선처리·파괴/만료 구분), CombatSystem.applyPlayerSkillStrike(스킬
+  피해·넉백 거리 공용 경로 — 기본 공격 보너스 비가산), UpgradeCatalog/Effects에
+  SKILL_DAMAGE_ADD·SHIELD_ABSORB_ADD, SkillService KNOWN_SKILLS 5종.
+- 게임 접점: LaboratoryGame.skillCatalog/skillDamage/shieldAbsorbAmount/skillCooldownSeconds,
+  unlockedSkills는 SKILL_UNLOCK skillId 전체 연동.
+
+### 렌더/화면
+- ThreeSkillsAssets(아이콘 3+시트 6, 128px 셀 행 우선), SkillVfxRenderer(충격파=엔티티 아래,
+  피격/착탄/투사체 회전/보호막 알파 0.65/감전 오버레이=엔티티 위, 충격파 scale=visualExtent 보정),
+  SkillBar/SkillLoadout/UpgradeTree 렌더러에 아이콘·계산 수치·미리보기 확장. LaboratoryScreen이
+  시전 결과를 상태 목록으로 연결(사망 시 미발생 효과 취소+정리, 쿨다운 유지).
+
+### 검증
+- core:test 202 green(ThreeSkillsModelTest 13 신규 등), lwjgl3:build 성공.
+- 실행(LAB_AUTO_SKILL3 훅, 테스트 몬스터 60HP): 충격파 OK/쿨 6.0/60→30·링+명중 캡처.
+  전기 OK/쿨 5.0/60→35+shocked 0.235s·착탄/감전 오버레이 캡처 — 가구 옆 발사 시 즉시 가구
+  착탄(=solid 가구 차단 실증, 테스트 위치를 빈 사격선으로 이동해 재검증). 보호막 OK/쿨 12.0/
+  35피해 60→25·HP 불변→무적 거절 시 보호막 불변→25→0·HP −10·파괴 1회 캡처. HQ 스킬창 5종·
+  강화 트리 17노드 캡처. 캡처: skill3_*.png 9장.
+- 참고: 검증을 위해 로컬 프로필에 해금/슬롯 노드를 직접 부여했다(실구매 아님 — 사용자 확인 필요).
+
+### 미확인
+- 실제 키보드 1/2/3 발동 체감, 30/144fps 실측(큰 delta 동등성은 단위 테스트), 효과음(팩 미포함 —
+  재생하지 않음), 제공 GIF는 에셋 예시일 뿐 게임 판정 검증이 아님.
+
+
+## 2026-10-20 — 난이도별 시드 기반 연구소 생성 (laboratory_generation_v1)
+
+### 조사/재사용
+- 기존 쉬움 파이프라인(RoomPlan·drawRoomFloor·carve 전실 패턴·DoorPlacementResolver 5칸 지지·
+  addRoomFurniture 방향별 kit·placeContainer 가중 추첨·V4 렌더 경로·외벽 링+대문)을 그대로 공유
+  하도록 LaboratoryLayout을 리팩터(RoomPlan/Side 패키지 공개, kitForTheme, addThemedRoomFurniture
+  (kit·섬 변형·입구 방 중앙 비움), createForGenerator). 수제 쉬움은 회귀 기준+폴백으로 보존.
+
+### 신규 (world/)
+- GenRng: FNV-1a32(seed+"|"+scope)+XorShift32(13,17,5) — 파이썬 참조에서 golden vector 산출 후
+  Java 이식(unsigned shift·32비트 오버플로 일치 검증). 하위 스트림: template/topology/shape/
+  notch/themes/furniture/loot/monsters/visual + retry:N.
+- LabGenData: 12개 layout JSON·difficulty_profiles·room_themes 파싱(Source 주입 — 테스트는 java.nio).
+- LaboratoryGenerator(~600줄): 격자 방 배치(pitch-7 상한으로 복도 간격 ≥3 보장, 크기 변형·지터),
+  모서리 후퇴 모양(문 앵커 ±2 충돌 시 사각형 유지+통계), Kruskal spanning tree+extraEdgePercent,
+  도그레그 복도(두께 3)+문별 5칸 전실, 남쪽 대문 1개(가장 남쪽 행 중앙 방·스폰 통로), 테마 배정
+  (16종 최소 1회), 가구/캐비넷(기존 경로), 접근성 BFS(플레이어 몸체·4방향·가구/컨테이너 포함) +
+  실패 슬롯 수리(섬 제거·캐비넷 드롭) 1회 → attempt 하위 시드 3회 → 폴백(쉬움=수제, 보통/어려움=
+  golden 1001 compact), 몬스터(쉬움 예산 56×방 수 비례; 쉬움은 slime/researcher만; 팀장은 두 벽이
+  만나는 구석 후보만·부족 시 축소), contentHash(FNV)·통계(복도/재시도/드롭/팀장).
+
+### 연결
+- LaboratoryGame: selectDifficulty에서만 generateExpedition(새 시드 발급 — 화면 재생성/리사이즈/
+  일시정지는 재생성 없음), LAB_SEED 고정·LAB_CLASSIC_MAP=1 수제 맵, 몬스터는 생성 플랜에서 소환
+  (HP는 config, 결정적 restTime). BalanceConfig applyDifficulty에 난이도별 캐비넷 목표(23/35/50).
+  LAB_START_ROOM은 부분 일치(BIOLOGY↔biology_r07) 허용.
+
+### 검증
+- core:test 209 green(LaboratoryGeneratorTest 7 신규 — golden vector/결정성/스트림 독립/
+  난이도별 100시드 전수/규모 증가/golden 폴백/테마 16종). 100시드×3 실측: 재시도 0·폴백 0·
+  몬스터 56/88/126 고정·복도 평균 6~7 최대 10·캐비넷 드롭 ≤1. lwjgl3:build green.
+- 실행: LAB_SEED=424242 — 조감 3난이도(gen_easy/normal/hard_overview.png), 실내(gen_easy_ingame.png),
+  같은 시드 재실행 contentHash 4dbd3700 일치, LabGen 메타데이터 로그. 환경변수 비persist로 1회
+  실행이 멈춤(timeout) — 같은 명령에 env 포함 재실행으로 해결(기존 교훈 재확인).
+
+### 미확인
+- 생성 맵 수동 플레이(문 개폐/캐비넷 연타/H 귀환/대문 복귀 체감 — 로직은 공유 경로+BFS 검증),
+  보통/어려움 밸런스 체감, 진행 중 탐사 저장(기존 세이브 미지원 — 범위 밖 명시).
+
+
+## 2026-10-20 — 문서 전반 갱신(사용자 요청)
+
+- PROGRESS: 커밋 타임라인을 실제 git log(최신 74d6f26)와 동기화하고 미커밋 5건(강화 트리/공통
+  스킬/본부 테이블 분리/스킬 3종/시드 생성)을 추가. 남은 작업 정리(완료 항목 축약, 탐사 중단
+  저장·구매 상점·게임오버 UI·hazard·스킬 효과음·밸런스 체감만 잔존), 검증 메모 209 테스트·
+  최신 env 훅·캡처 목록으로 교체.
+- TEST_PLAN: "현재 상태"를 2026-10-20(209 테스트)로 갱신, 이전 2026-10-12 기준선은 보존.
+- ROADMAP: 상단에 2026-10-20 현재 상태 요약 추가(캠페인 1~5 이후 완료 기능 + 구 3×3 구획이
+  시드 생성으로 대체됨을 명시). 이후 항목별 서술은 역사 기록으로 유지.
+
+
+## 2026-10-20 — 보스 모드 1-1: 본부 메인 컴퓨터 → 원심 배양체 C-01 → 보상 → 복귀
+
+### 데이터/모델
+- boss_stage_1_1_v1 설치, stages.json/boss_1_1.json/arena_1_1.json 초안 채택(확정 보스 밸런스
+  부재 — 차이 없음 보고). PlayerProfile에 bossUnlockedStages/bossClearedStages/
+  bossRewardReceipts("stageId#runId") + 코덱 왕복. HeadquartersEconomy.commitBossClear:
+  클리어+다음 단계 해금+보상 인스턴스+영수증 1회 원자 저장(멱등·롤백).
+- boss/BossStageCatalog·BossDefinition·BossFight(순수 Java): ENTERING→INTRO(1s)→COMBAT→
+  DYING→REWARD_PENDING→CLEARED→RETURNING/FAILED, 패턴 TELEGRAPH→ACTIVE→RECOVERY,
+  초기 시퀀스 후 시드 가중(즉시 반복 금지), 경계 "이전<t≤현재" 1회, 투사체 swept(기둥 차단),
+  장판(바닥 고정·유효 바닥 보정·첫 틱+전역 틱·최대 2·겹침 1틱·기둥 비차폐/footprint 제외),
+  돌진(표면 앞 정지·1회 피해·회복), 사망/실패 전체 취소, 동시 사망 실패 우선.
+
+### 화면/연결
+- BossArenaScreen: 광장 조립(반복 바닥+V4 벽+gatePassage/southExitGate 재사용), 보스 프록시
+  Monster로 기존 공격/돌진/충격파/전기 경로 공유(HealthComponent를 BossFight와 공유),
+  플레이어 피해는 공통 파이프라인, 시트 세그먼트 상태 재생(예고0-1/발사2-3/회복4-5/돌진6-7,
+  사망 6프레임 1회 유지), 텔레그래프(원/직선 — 데이터 원점·반경 기준), 보스 HP바(상단 중앙),
+  결과창(보상/실패/저장 재시도/닫기(열린 문으로 도보 복귀)/본부 복귀).
+- LaboratoryGame: MapId.BOSS_ARENA, startBossRun(입장 확정에서만 runId/attemptSeed 발급,
+  전환 중 거부=더블클릭 방지), rewardItemForRun(runId 시드 LEGENDARY 추첨),
+  HQ 도착 분기에서 보스 출신은 가방 이관/루트 초기화 생략. HeadquartersScreen: 메인 컴퓨터
+  (터미널 책상) 5번째 상호작용 "보스 단계"+단계 선택 패널.
+
+### 검증
+- core:test 222 green(BossFightTest 9·BossRewardTest 4 신규), lwjgl3:build green.
+- 실행: 컴퓨터 프롬프트/단계 선택창(1-1만 입장 가능) 캡처, LAB_BOSS_AUTO=win — 패턴·방벽 착탄·
+  HP바 캡처, clear committed OK(mini_incubator/microscope), 결과창(전설·10000W·본부 보관함
+  지급·귀환문 개방) 캡처, 프로필 영속(1-2 해금·영수증), 본부 복귀(이관 없음);
+  LAB_BOSS_AUTO=fail — FAILED(보상·해금 없음·대문 잠김) 결과창 캡처.
+- 주의: 검증 자동 토벌 2회로 사용자 프로필에 전설 2개(microscope·mini_incubator)와 1-2 해금이
+  실제 기록됨(정상 플레이와 동일 경로 — 원치 않으면 제거 가능).
+
+### 미확인
+- 실제 수동 전투(패턴 회피·기둥 엄폐 체감), 30/144fps 실측, 재도전 버튼 실클릭.
+  제공 GIF는 에셋 예시일 뿐 게임 검증이 아님. 신규 효과음 없음(기존 재사용).
+
+## 2026-10-21 — 9단계 보스전 확장 (boss_nine_stages_v1)
+
+### 데이터 채택
+- `assets/boss_nine_stages_v1/data/`: stage_catalog.runtime.json(전 단계 integrationReady=true,
+  1-1은 bossId=centrifuge_c01·legacyEngine=true 패치 — 저장 키/보스 ID 불변, 표기만
+  "폐기물 변이체"), patterns.runtime.json(17 패턴 초안 채택 — 1-1 수치 불변, 신규는 조정 전제),
+  arena_layouts.runtime.json(8 투기장 36×28/44×34/52×40). 원본 draft/catalog는 비교용 보존.
+
+### 순수 Java 모델
+- boss/BossStageCatalog 확장: 구(stages.json)·신(stage_catalog) 이중 스키마, displayName/
+  legacyEngine/animationSet/draftMaxHp/그리기·피격·footprint 분리 데이터/patternIds/arenaId/초상.
+- boss/BossPatternCatalog·BossArenaCatalog 신규(수치 복사 금지 — JSON 유일 출처).
+- boss/BossBattle 신규(범용 패턴 엔진): kind별 실행기 — projectile/projectile_fan/cone(차폐·
+  cast 1회·둔화 갱신)/ground·ground_bind·ground_trail(경고=판정 반경, boss_toxin 그룹 게이트가
+  곧 틱 스케줄 — 겹침 폭딜 금지, 구속 1회+면역)/beam(첫 차폐물 판정·표시 동시 절단)/
+  expanding_annulus(cast 1회·차폐 방향 무피해)/ground_burst·moving_ground_burst(표식 발사 시
+  고정·1초 이상 예고·곡사)/charge·repeat_charge(재조준은 예고 중만·swept 정지·회차 1회)/
+  phase_change(HP50% 1회·전환 중 해저드 취소·이후 회복 0.85배)/sequence(하위 큐).
+  경계 "이전<t≤현재" 1회(프레임 독립), 사망/실패 전체 취소, 동시 사망 실패 우선(1-1 정책).
+  Context에 sightBlocked/applySlow/applyRoot 추가.
+
+### 화면/연결
+- BossArenaScreen: legacy(1-1 — BossFight·32×24·기존 아트 그대로) vs nine(BossBattle·카탈로그
+  투기장·1024² 시트) 분기 1곳(접근자 통일). 프록시 Monster 피격 박스 = 카탈로그 값(중심 발+1.6),
+  이동 충돌 = footprint. 시트 세그먼트 idle0-3/예고4-5/발사6-7/회복8-9/이동10-11/사망12-15
+  (마지막 유지, 몸체 회전 금지), 그리기 8×8(1-보스 9.5)·발 비율 32/256. 둔화=이동 dt 배율,
+  구속=이동만 차단(공격/스킬/돌진 허용). VFX 640×160 스트립(장판/부채꼴/레이저/고리/분노 오라).
+- BossNineAssets(GameAssets 소유): 보스 시트 8종·VFX 12종·초상 지연 로드·카드/배지.
+- BossStageSelectRenderer 전면 개편: 3×3 실루엣 카드(잠김에도 표시·contain-fit)·배지·선택
+  테두리 중첩·방향키/Enter·상세(컬러 초상·패턴 요약·해금 조건). 선택 프레임을 실루엣보다
+  먼저 그려 가림 해결(실행 캡처로 발견).
+- LaboratoryGame: BOSS9_* 경로, 9단계 카탈로그 로드, bossStage()/bossUnlockedView()
+  (LAB_BOSS_UNLOCK_ALL=1 디버그 — 릴리스 진행과 분리), LAB_BOSS_STAGE 직행.
+
+### 검증
+- core:test 245 green(BossBattleTest 16·BossNineStagesCatalogTest 6·
+  PlayerSkillRangeBaselineTest 1 신규; BossFightTest/BossRewardTest 무수정 회귀), lwjgl3:build green.
+- 실행: 선택창 3×3 실루엣/잠김 상세 캡처 + 기존 프로필 호환 로그(unlocked=[1-2] cleared=[1-1]),
+  1-2(빙결 장판·HP바)/1-4(거대 기체+회전 레이저)/2-2(식물 보스) 자동 토벌 — 전부
+  "clear committed status=OK"·대문 개방·본부 복귀.
+- 테스트 중 발견·수정: 장판 틱이 존별 경계+그룹 게이트 2중 구조일 때 경계-게이트 어긋남으로
+  틱 유실 → 게이트 자체를 스케줄로 단순화. 큰 dt 검증은 스폰·비행에 각각 1스텝 필요.
+
+### 미확인/남은 작업
+- 실제 수동 전투 체감·신규 단계 밸런스(초안 수치 — 게임 조정 전제), 30/144fps 실측.
+- 자동 검증으로 사용자 프로필에 1-2/1-4/2-2(+1-보스) 클리어·전설 보상이 실제 기록됨
+  (LAB_BOSS_UNLOCK_ALL은 입장만 허용 — 클리어 저장은 정상 경로). 원치 않으면 제거 가능.
+- 신규 효과음 없음(팩 미포함 — 기존 타격/피격음 재사용).

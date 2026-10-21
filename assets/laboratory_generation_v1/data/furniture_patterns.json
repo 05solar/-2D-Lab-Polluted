@@ -1,0 +1,129 @@
+{
+  "version": 1,
+  "footprintStatus": "PROXY_ONLY_REPLACE_WITH_REAL_ASSET_METADATA",
+  "roleProxyFootprints": {
+    "terminal": [
+      1,
+      1
+    ],
+    "shelf": [
+      2,
+      1
+    ],
+    "desk": [
+      2,
+      1
+    ],
+    "chemical_hood": [
+      3,
+      1
+    ],
+    "sink": [
+      2,
+      1
+    ],
+    "incubator": [
+      2,
+      1
+    ],
+    "lab_bench": [
+      3,
+      1
+    ],
+    "centrifuge": [
+      2,
+      1
+    ],
+    "locker": [
+      1,
+      1
+    ],
+    "display_case": [
+      2,
+      1
+    ],
+    "computer_desk": [
+      2,
+      1
+    ],
+    "cctv_console": [
+      3,
+      1
+    ],
+    "cupboard": [
+      2,
+      1
+    ],
+    "fridge": [
+      1,
+      1
+    ],
+    "dining_table": [
+      2,
+      2
+    ],
+    "sofa": [
+      3,
+      1
+    ],
+    "coffee_table": [
+      2,
+      1
+    ],
+    "bunk_bed": [
+      2,
+      3
+    ],
+    "toilet": [
+      1,
+      1
+    ],
+    "bench": [
+      2,
+      1
+    ],
+    "shower": [
+      1,
+      1
+    ],
+    "filing_cabinet": [
+      1,
+      1
+    ],
+    "bookcase": [
+      2,
+      1
+    ]
+  },
+  "minimumMajorPropsPerRoom": 5,
+  "patterns": [
+    {
+      "id": "wall_banks",
+      "majorPropTarget": 14,
+      "islands": false
+    },
+    {
+      "id": "two_work_bays",
+      "majorPropTarget": 12,
+      "islands": true
+    },
+    {
+      "id": "storage_and_work",
+      "majorPropTarget": 16,
+      "islands": true
+    }
+  ],
+  "wallView": {
+    "N": "front",
+    "S": "back",
+    "W": "true_left_wall_view",
+    "E": "true_right_wall_view"
+  },
+  "reservedBeforeProps": [
+    "door approach",
+    "primary room aisle",
+    "planned cabinet/drop sockets",
+    "valid elite corner candidate"
+  ],
+  "smallProps": "attach to existing tabletop/shelf sockets after major placement, no random floor scattering"
+}

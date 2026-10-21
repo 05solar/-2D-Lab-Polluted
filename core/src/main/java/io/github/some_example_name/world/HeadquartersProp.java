@@ -47,6 +47,18 @@ public final class HeadquartersProp {
             56f / 64f, 34f / 64f);
     }
 
+    /**
+     * 북쪽 벽 전용 스킬 테이블(hq_upgrade_tree_v1의 192×128 금속 벤치 아트 재사용 — 회전 금지).
+     * 2026-10-20: 강화 트리는 망치 있는 접이식 작업대(folding_workbench)로 옮기고,
+     * 이 테이블은 SPACE로 스킬 장착/단축키 등록 창을 연다.
+     * 카탈로그 footprint(168×42px)를 월드 배율로 환산한 바닥 점유만 충돌한다(투명 여백 제외).
+     */
+    public static HeadquartersProp skillTable(float x, float y) {
+        float drawWidth = 2.25f, drawHeight = 1.5f; // 192:128 비율 유지
+        return new HeadquartersProp("skill_table", x, y, drawWidth, drawHeight,
+            drawWidth * (168f / 192f), drawHeight * (42f / 128f));
+    }
+
     public String id() { return id; }
     public float anchorX() { return anchorX; }
     public float anchorY() { return anchorY; }

@@ -5,40 +5,34 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * F 돌진 상태(순수 Java — 입력/렌더에 의존하지 않아 단위 테스트 가능).
+ * 돌진 "이동" 상태(순수 Java). 2026-10-20 공통 스킬 시스템 도입으로 쿨다운은 이 클래스가
+ * 아니라 {@link io.github.some_example_name.profile.SkillRuntime}이 skillId("dash") 기준으로
+ * 한 곳에서만 관리한다(이중 관리 금지). 여기는 방향·지속·대상당 1회 타격만 담당한다.
  *
- * - 발동: 쿨다운이 끝났고 돌진 중이 아닐 때만. 키를 누르고 있어도 엣지 입력에서만 호출되므로
- *   자동 재발동이 없다. 방향은 현재 이동 입력(정규화, 대각선 포함), 입력이 없으면 마지막으로
- *   바라본 방향이다.
- * - 쿨다운은 발동 순간부터 시작한다. 쿨다운 중 tryStart는 false(이동/피해/효과음 없음).
- * - 피해 대상 중복 방지: 한 돌진에서 같은 몬스터는 markHit로 1회만 맞는다.
- * - 달리기(Shift) 상태와 별개의 상태로, RunStartDetector를 건드리지 않는다.
+ * - 발동: 공통 스킬 서비스가 허용했을 때만 start()가 불린다(엣지 입력 — 자동 재발동 없음).
+ *   방향은 이동 입력(대각선 정규화), 없으면 바라본 방향.
+ * - 이동·충돌·피해 규칙(3타일/0.18s/하위 단계/관통 금지)은 기존 그대로 호출 측이 수행한다.
  */
 public final class PlayerDashState {
 
-    private final float distance, duration, cooldownSeconds;
+    private final float distance, duration;
     private final Set<Long> hitIds = new HashSet<>();
-    private float cooldown;
     private float elapsed;
     private boolean active;
     private float dirX, dirY;
 
-    public PlayerDashState(float distanceTiles, float durationSeconds, float cooldownSeconds) {
-        if (distanceTiles <= 0f || durationSeconds <= 0f || cooldownSeconds < 0f)
+    public PlayerDashState(float distanceTiles, float durationSeconds) {
+        if (distanceTiles <= 0f || durationSeconds <= 0f)
             throw new IllegalArgumentException("dash config");
         this.distance = distanceTiles;
         this.duration = durationSeconds;
-        this.cooldownSeconds = cooldownSeconds;
     }
 
     /**
-     * 돌진 발동 시도. 이동 입력(moveX/moveY)이 있으면 그 방향(대각선 정규화),
-     * 없으면 facing 방향으로 돌진한다.
-     *
-     * @return 실제로 발동했으면 true (false면 이동/피해/효과음 모두 없어야 한다)
+     * 돌진 시작(쿨다운 검증은 호출 전 공통 서비스가 완료). 이미 돌진 중이면 false.
      */
-    public boolean tryStart(float moveX, float moveY, Direction facing) {
-        if (active || cooldown > 0f || facing == null) return false;
+    public boolean start(float moveX, float moveY, Direction facing) {
+        if (active || facing == null) return false;
         float dx = moveX, dy = moveY;
         if (dx == 0f && dy == 0f) {
             switch (facing) {
@@ -53,18 +47,15 @@ public final class PlayerDashState {
         dirY = dy / length;
         active = true;
         elapsed = 0f;
-        cooldown = cooldownSeconds;   // 발동 순간부터 쿨다운
         hitIds.clear();
         return true;
     }
 
     /**
      * 이번 프레임의 돌진 이동 거리(월드 단위)를 돌려주고 시간을 진행시킨다.
-     * 지속 시간을 넘는 마지막 프레임은 남은 거리만큼만 이동해 총거리가 정확히 distance가 된다.
-     * 돌진 중이 아니면 0.
+     * 마지막 프레임은 남은 거리만큼만 이동해 총거리가 정확히 distance가 된다.
      */
     public float advance(float delta) {
-        cooldown = Math.max(0f, cooldown - delta);
         if (!active) return 0f;
         float step = Math.min(delta, duration - elapsed);
         elapsed += step;
@@ -72,10 +63,10 @@ public final class PlayerDashState {
         return distance / duration * step;
     }
 
-    /** 벽에 막히는 등 돌진을 즉시 끝낸다(쿨다운은 그대로 유지). */
+    /** 벽에 정면으로 막히는 등 돌진을 즉시 끝낸다(쿨다운은 SkillRuntime이 그대로 유지). */
     public void interrupt() { active = false; }
 
-    /** 사망/맵 전환 시 완전 초기화. */
+    /** 사망/맵 전환 시 이동 상태 초기화(쿨다운은 건드리지 않는다). */
     public void cancel() {
         active = false;
         elapsed = 0f;
@@ -88,7 +79,4 @@ public final class PlayerDashState {
     public boolean active() { return active; }
     public float dirX() { return dirX; }
     public float dirY() { return dirY; }
-    public float cooldownRemaining() { return cooldown; }
-    public float cooldownTotal() { return cooldownSeconds; }
-    public boolean ready() { return !active && cooldown <= 0f; }
 }

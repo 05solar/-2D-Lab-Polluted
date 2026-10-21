@@ -1,0 +1,144 @@
+{
+  "templateVersion": 1,
+  "templateId": "easy_staggered",
+  "difficulty": "easy",
+  "mapSize": [
+    128,
+    96
+  ],
+  "roomCount": 16,
+  "gridPitch": [
+    22,
+    16
+  ],
+  "roomInteriorSize": [
+    17,
+    11
+  ],
+  "roomJitterTiles": 1,
+  "allowedShapes": [
+    "rectangle",
+    "notch_ne",
+    "notch_sw",
+    "stepped"
+  ],
+  "corridorWidthTiles": 3,
+  "logicalDoorWidthTiles": 1,
+  "doorSizeNote": "Reference 1-cell proxy only; real adapter must use actual asset doorSocket width and actor collider.",
+  "roomSlots": [
+    {
+      "roomId": "r00",
+      "grid": [
+        0,
+        0
+      ]
+    },
+    {
+      "roomId": "r01",
+      "grid": [
+        1,
+        0
+      ]
+    },
+    {
+      "roomId": "r02",
+      "grid": [
+        2,
+        0
+      ]
+    },
+    {
+      "roomId": "r03",
+      "grid": [
+        3,
+        0
+      ]
+    },
+    {
+      "roomId": "r04",
+      "grid": [
+        1,
+        1
+      ]
+    },
+    {
+      "roomId": "r05",
+      "grid": [
+        2,
+        1
+      ]
+    },
+    {
+      "roomId": "r06",
+      "grid": [
+        3,
+        1
+      ]
+    },
+    {
+      "roomId": "r07",
+      "grid": [
+        4,
+        1
+      ]
+    },
+    {
+      "roomId": "r08",
+      "grid": [
+        0,
+        2
+      ]
+    },
+    {
+      "roomId": "r09",
+      "grid": [
+        1,
+        2
+      ]
+    },
+    {
+      "roomId": "r10",
+      "grid": [
+        2,
+        2
+      ]
+    },
+    {
+      "roomId": "r11",
+      "grid": [
+        3,
+        2
+      ]
+    },
+    {
+      "roomId": "r12",
+      "grid": [
+        1,
+        3
+      ]
+    },
+    {
+      "roomId": "r13",
+      "grid": [
+        2,
+        3
+      ]
+    },
+    {
+      "roomId": "r14",
+      "grid": [
+        3,
+        3
+      ]
+    },
+    {
+      "roomId": "r15",
+      "grid": [
+        4,
+        3
+      ]
+    }
+  ],
+  "connectionRule": "Kruskal spanning tree on orthogonal adjacent room slots + seeded optional short edges",
+  "gateRule": "single south gate attached to the central-most southern room"
+}

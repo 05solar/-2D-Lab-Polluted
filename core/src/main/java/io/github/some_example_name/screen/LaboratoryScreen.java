@@ -26,6 +26,13 @@ import io.github.some_example_name.input.InputState;
 import io.github.some_example_name.input.KeyBindings;
 import io.github.some_example_name.input.PlayerController;
 import io.github.some_example_name.input.PlayerIntent;
+import io.github.some_example_name.combat.ElectricProjectile;
+import io.github.some_example_name.combat.PlayerShieldState;
+import io.github.some_example_name.combat.ShockwaveState;
+import io.github.some_example_name.combat.SkillCast;
+import io.github.some_example_name.profile.SkillCatalog;
+import io.github.some_example_name.profile.SkillLoadout;
+import io.github.some_example_name.profile.SkillService;
 import io.github.some_example_name.movement.MovementSystem;
 import io.github.some_example_name.movement.RunStartDetector;
 import io.github.some_example_name.render.AnimationController;
@@ -109,7 +116,7 @@ public class LaboratoryScreen extends BaseScreen {
     private final io.github.some_example_name.render.ContainerInteractionRenderer containerFx;
     private LootContainer promptTarget;        // 이번 프레임 상호작용 대상(안내 표시용)
     private float containerGlowHeight = 1f;    // 마지막 유효 입력 대상의 표시 높이(발광 반경 기준)
-    // F 돌진: 별도 상태(달리기 RunStartDetector와 분리). 쿨다운·방향·대상당 1회 피해를 관리한다.
+    // 돌진: 이동·충돌·대상당 1회 피해 상태만 — 쿨다운은 공통 SkillRuntime("dash")이 관리한다.
     private final PlayerDashState dash;
     private final CollisionSystem dashCollision = new CollisionSystem();
     private final Rectangle dashHitArea = new Rectangle();
@@ -121,6 +128,23 @@ public class LaboratoryScreen extends BaseScreen {
     private final boolean perfLog = "1".equals(System.getenv("LAB_PERF"));
     private float perfAccum, perfMax;
     private int perfFrames;
+    // 공통 스킬 시스템: 슬롯 키 폴링 → SkillService 파이프라인 → 효과/쿨다운/연출.
+    // 회복 캐스트 연출(시트 1회 재생)·퀵슬롯 HUD·장착/키 등록 패널.
+    private final io.github.some_example_name.render.HealCastRenderer healCast;
+    private final io.github.some_example_name.render.SkillBarRenderer skillBar;
+    private final io.github.some_example_name.render.SkillLoadoutRenderer skillPanel;
+    private final io.github.some_example_name.render.SkillMenuButtonRenderer skillMenuButton =
+        new io.github.some_example_name.render.SkillMenuButtonRenderer();
+    // 추가 스킬 3종(충격파/전기 투척/보호막) 활성 효과 — 순수 모델이 판정하고 화면은
+    // 공용 타격·VFX만 연결한다. 맵 이탈/화면 재생성 시 함께 사라진다(쿨다운은 게임 루트 유지).
+    private final List<ShockwaveState> shockwaves = new ArrayList<>();
+    private final List<ElectricProjectile> projectiles = new ArrayList<>();
+    private SkillCast electricCast;              // 준비 2/15초 — 방향은 시전 시 확정
+    private float electricDirX, electricDirY;
+    private final PlayerShieldState shieldState;
+    private final io.github.some_example_name.render.SkillVfxRenderer skillVfx;
+    private final ShockwaveState.Occlusion shockOcclusion;
+    private final ElectricProjectile.Solid projectileSolid;
     // 사망 → 쓰러짐 연출을 보여준 뒤 소지품을 모두 잃고 본부로 재소환한다(1회).
     private float deathTimer;
     private boolean deathRespawnRequested;
@@ -168,8 +192,27 @@ public class LaboratoryScreen extends BaseScreen {
         // 모든 난이도 맵의 벽·문을 V4 규격으로 논리 점유에서 직접 그린다(구형 스킨/Interior/Exterior 링 대체).
         worldRenderer.setLaboratoryStructureV4(
             new io.github.some_example_name.render.LaboratoryStructureRendererV4(assets.structureV4()), room);
-        dash = new PlayerDashState(config.dashDistanceTiles, config.dashDurationSeconds,
-            config.dashCooldownSeconds);
+        dash = new PlayerDashState(config.dashDistanceTiles, config.dashDurationSeconds);
+        healCast = new io.github.some_example_name.render.HealCastRenderer(assets.skills());
+        skillBar = new io.github.some_example_name.render.SkillBarRenderer(assets.uiFont());
+        skillPanel = new io.github.some_example_name.render.SkillLoadoutRenderer(
+            assets.skills(), assets.threeSkills(), assets.combatUi().dashIcon(), assets.uiFont());
+        // 보호막: 공통 피해 파이프라인에 연결(흡수는 PlayerCombatState.takeDamage 한 곳).
+        shieldState = new PlayerShieldState(game.skillCatalog().shieldActivateDelay);
+        playerCombat.setShield(shieldState);
+        skillVfx = new io.github.some_example_name.render.SkillVfxRenderer(
+            assets.threeSkills(), game.skillCatalog().shockwaveRadius);
+        // 충격파 차폐: 벽·닫힌 문·solid 가구(장식 오버레이 제외) — 기존 시야/통로 검사 재사용.
+        shockOcclusion = new ShockwaveState.Occlusion() {
+            @Override public boolean blocked(float fx, float fy, float tx, float ty) {
+                return room.blocksActorAlongPath(fx, fy, tx, ty, .05f, .05f);
+            }
+        };
+        projectileSolid = new ElectricProjectile.Solid() {
+            @Override public boolean blockedAt(float cx, float cy, float radius) {
+                return room.blocksActorAt(cx, cy - radius, radius * 2f, radius * 2f);
+            }
+        };
         // 몬스터에 실제 피해가 적용된 순간에만 타격음(허공 공격은 스윙음만).
         combatSystem.setStrikeListener(new io.github.some_example_name.combat.CombatSystem.StrikeListener() {
             @Override public void onMonsterStruck(Monster monster, boolean killed) {
@@ -207,11 +250,20 @@ public class LaboratoryScreen extends BaseScreen {
         if (transitionLocked) inputState.update(EnumSet.noneOf(GameAction.class));
         else input.poll(inputState);
         boolean active = !transitionLocked;
-        if (active && Gdx.input.isKeyJustPressed(Input.Keys.R)) backpackOpen = !backpackOpen;
+        if (active && !skillPanel.isOpen() && Gdx.input.isKeyJustPressed(Input.Keys.R))
+            backpackOpen = !backpackOpen;
         if (active && inputState.isPressed(GameAction.PAUSE)) {
-            if (backpackOpen) backpackOpen = false;   // 가방이 열려 있으면 Esc는 가방부터 닫는다
-            else paused = !paused;
+            // Esc 우선순위: 스킬 패널(키 대기 취소 포함) → 가방 → 일시정지.
+            if (!skillPanel.onEscape()) {
+                if (backpackOpen) backpackOpen = false;
+                else paused = !paused;
+            }
         }
+        // H: 귀환 경로 토글(재추가 — 미니맵 아래 버튼과 같은 동작, 엣지 1회).
+        if (active && !backpackOpen && !paused && !skillPanel.isOpen()
+            && inputState.isPressed(GameAction.RETURN_ROUTE))
+            routeEnabled = !routeEnabled;
+        if (active) skillPanel.handleInput();
         if (active && Gdx.input.isKeyJustPressed(Input.Keys.F1)) debugEnabled = !debugEnabled;
         if (active && Gdx.input.isKeyJustPressed(Input.Keys.F2)) tileDebugEnabled = !tileDebugEnabled;
         // F12: 현재 프레임을 PNG로 저장(실제 렌더 검증). F1 켜면 충돌 디버그 포함 프레임이 저장된다.
@@ -219,9 +271,12 @@ public class LaboratoryScreen extends BaseScreen {
         // 버튼 클릭: 오디오 토글(HP 바 오른쪽) 또는 귀환 경로 토글(미니맵 아래 버튼 — 단축키 없음).
         // UI 버튼을 클릭한 프레임은 같은 클릭이 공격(마우스 전용)으로 새지 않게 소비한다.
         boolean uiClickConsumed = false;
-        if (active && !backpackOpen && !paused && Gdx.input.justTouched()) {
+        if (active && !backpackOpen && !paused && !skillPanel.isOpen() && Gdx.input.justTouched()) {
             if (sfxToggle.buttonHit(Gdx.input.getX(), Gdx.input.getY())) {
                 assets.toggleAudio();
+                uiClickConsumed = true;
+            } else if (skillMenuButton.buttonHit(Gdx.input.getX(), Gdx.input.getY())) {
+                openSkillPanel();
                 uiClickConsumed = true;
             } else if (navigationRenderer.buttonHit(Gdx.input.getX(), Gdx.input.getY())) {
                 routeEnabled = !routeEnabled;
@@ -233,8 +288,8 @@ public class LaboratoryScreen extends BaseScreen {
             && !session.collect("debug_sample")) hud.flashBackpackFull();
 
         boolean runStarted = false;
-        float animDelta = paused || transitionLocked || backpackOpen ? 0f : dt;
-        if (!paused && !transitionLocked && !backpackOpen && !player.isDead()) {
+        float animDelta = paused || transitionLocked || backpackOpen || skillPanel.isOpen() ? 0f : dt;
+        if (!paused && !transitionLocked && !backpackOpen && !skillPanel.isOpen() && !player.isDead()) {
             int hpBefore = player.hp();
             if (testDeath && ++testDeathFrame == 30) {
                 session.collect("debug_death_a");
@@ -247,15 +302,19 @@ public class LaboratoryScreen extends BaseScreen {
             // 클릭은 공격으로 처리하지 않는다.
             if (uiClickConsumed && intent.attack)
                 intent = new PlayerIntent(intent.moveX, intent.moveY, intent.run, false, intent.interact);
-            // F 돌진: 엣지 입력만(누르고 있어도 재발동 없음). 쿨다운 중이면 tryStart가 거부해
-            // 이동/피해/효과음이 모두 발생하지 않는다. 사망/일시정지/가방/전환 중에는 이
-            // 블록에 들어오지 않아 입력이 차단된다.
-            if (inputState.isPressed(GameAction.DASH)
-                && dash.tryStart(intent.moveX, intent.moveY, player.facing())) {
-                Direction dashFacing = Direction.fromInput(dash.dirX(), dash.dirY());
-                if (dashFacing != null) player.setFacing(dashFacing);
-                assets.combatSounds().playDash();
+            // 스킬 슬롯 키 폴링: 등록된 실제 키만, 엣지 1회(길게 눌러도 재발동 없음).
+            // 장착/해금/쿨다운/효과별 검증과 상태 변경은 전부 SkillService 공통 파이프라인이
+            // 처리하고, 실패 시 HP·쿨다운·이펙트가 바뀌지 않는다. 사망/일시정지/가방/패널/
+            // 전환 중에는 이 블록에 들어오지 않아 입력이 차단된다.
+            for (int slot = 0; slot < SkillLoadout.SLOT_COUNT; slot++) {
+                int key = game.skillLoadout().keyAt(slot);
+                if (key != SkillLoadout.KEY_NONE && Gdx.input.isKeyJustPressed(key))
+                    trySkillSlot(slot, intent.moveX, intent.moveY);
             }
+            // 쿨다운은 플레이 가능한 시간에만 흐른다(일시정지/가방/패널/전환 중 정지).
+            game.tickSkillCooldowns(dt);
+            // 충격파/투사체/감전/보호막 진행도 같은 게임 시간으로만 흐른다.
+            updateSkillEffects(dt);
             if (intent.attack && playerCombat.attack().start(player.facing()))
                 assets.combatSounds().playAttackSwing();
             playerGrid.forPlayer(monsters);
@@ -280,6 +339,13 @@ public class LaboratoryScreen extends BaseScreen {
                 movementSystem.stop(player);
                 playerCombat.attack().cancel();
                 dash.cancel();
+                // 사망 중단: 아직 발생하지 않은 효과(준비 중 투사체)를 취소하고 보호막·VFX를
+                // 정리한다. 이미 시작한 쿨다운은 되돌리지 않는다.
+                if (electricCast != null) { electricCast.cancel(); electricCast = null; }
+                shieldState.clear();
+                shockwaves.clear();
+                projectiles.clear();
+                skillVfx.clear();
             } else {
                 combatSystem.updatePlayerAttack(player, playerCombat, assets.playerAnimations(), monsters, room, dt);
             }
@@ -302,8 +368,8 @@ public class LaboratoryScreen extends BaseScreen {
         }
 
         // 상호작용 안내 대상: 플레이 가능한 상태에서만 선택(가방/일시정지/사망/전환 중엔 없음).
-        promptTarget = (!paused && !transitionLocked && !backpackOpen && !player.isDead())
-            ? selectContainerTarget() : null;
+        promptTarget = (!paused && !transitionLocked && !backpackOpen && !skillPanel.isOpen()
+            && !player.isDead()) ? selectContainerTarget() : null;
         containerFx.update(animDelta);
 
         updateCamera();
@@ -338,11 +404,20 @@ public class LaboratoryScreen extends BaseScreen {
                 chest.x() - s / 2f, chest.y(), s, s);
         }
         containerFx.renderGlow(batch, containerGlowHeight);
+        // 충격파 링: 바닥/엔티티 아래 레이어(몬스터·플레이어보다 먼저 그린다).
+        skillVfx.renderGround(batch, shockwaves);
         for (LootDrop drop : lootDrops) if(!drop.collected())
             batch.draw(assets.loot().itemBase(drop.item()),drop.x()-.28f,drop.y()+.18f,.56f,.56f);
         monsterRenderer.render(batch, monsters);
         entityRenderer.render(batch, player, animDelta, playerCombat.attack(),
             config.playerAttackCooldownSeconds);
+        // 회복 캐스트 시트(1회): 플레이어를 따라다니며 캐릭터 위에 알파 0.7로 덧그린다.
+        healCast.update(animDelta);
+        healCast.render(batch, player.feetX(), player.feetY());
+        // 피격·착탄·투사체·보호막·감전 오버레이: 엔티티 위 레이어(월드 좌표 — HUD/미니맵
+        // 아래). 보호막은 낮은 알파로 캐릭터가 읽힌다.
+        skillVfx.renderOverlay(batch, projectiles, monsters, shieldState,
+            player.feetX(), player.feetY());
         worldRenderer.renderForegroundProps(batch, visuals, camera, player.feetY());
         // 아이템 공개 연출: 컨테이너/가구에 가려지지 않는 월드 효과 레이어(HUD보다 아래).
         containerFx.renderReveal(batch);
@@ -371,13 +446,21 @@ public class LaboratoryScreen extends BaseScreen {
         if (!overviewMode) {
             hud.render(assets.hud(), assets.loot(), assets.fadePixel(), player,
                 session.backpack(), backpackOpen, dt);
-            // 돌진/공격 키 안내(우하단) — HP(좌상단)·R 안내(좌하단)·미니맵(우상단)과 분리.
-            combatHud.render(assets.combatUi(), assets.fadePixel(), attackKeyLabel, dash);
+            // 공격 키 안내(우하단) — 스킬은 하단 중앙 퀵슬롯 바가 담당한다.
+            combatHud.render(assets.combatUi(), attackKeyLabel);
+            skillBar.render(assets.skills(), assets.threeSkills(), assets.combatUi().dashIcon(),
+                assets.fadePixel(), game.skillLoadout(), game.skillRuntime(),
+                game.activeSkillSlots(), skillCooldownTotals());
             // 효과음 토글 버튼: 좌상단 HP 바 바로 오른쪽(프레임 세로 중앙 정렬, 64px).
+            // 스킬 패널 버튼은 그 오른쪽에 같은 크기로.
             io.github.some_example_name.asset.HudLayout hudLayout = assets.hud().layout();
             sfxToggle.render(assets.sfxToggle(assets.combatSounds().sfxEnabled()),
                 hudLayout.marginX + hudLayout.frameW + 14f,
                 hudLayout.marginY + (hudLayout.frameH - 64f) / 2f, 64f);
+            skillMenuButton.render(assets.skills().slotNormal(), assets.skills().iconHeal(),
+                hudLayout.marginX + hudLayout.frameW + 14f + 64f + 10f,
+                hudLayout.marginY + (hudLayout.frameH - 64f) / 2f, 64f);
+            skillPanel.render();
         }
         renderFade(batch, viewport);
         // Some blended debug/font pixels can lower the default framebuffer's
@@ -422,20 +505,54 @@ public class LaboratoryScreen extends BaseScreen {
                     }
                 }
             }
-            // LAB_AUTO_DASH=1: 실제 돌진을 발동해 이동·쿨다운 HUD를 렌더 프레임으로 검증한다.
+            // LAB_AUTO_DASH=1: 공통 스킬 경로로 실제 돌진을 발동해 이동·쿨다운 HUD를 검증한다.
             if ("1".equals(System.getenv("LAB_AUTO_DASH"))) {
                 if (autoCaptureFrame == 20) {
                     float beforeX = player.feetX(), beforeY = player.feetY();
-                    if (dash.tryStart(1f, 0f, player.facing()))
-                        Gdx.app.log("AutoDash", "started at " + beforeX + "," + beforeY);
+                    SkillService.Result result =
+                        trySkillSlot(game.skillLoadout().slotOf(SkillLoadout.DASH), 1f, 0f);
+                    Gdx.app.log("AutoDash", "result=" + result + " at " + beforeX + "," + beforeY);
                 }
                 if (autoCaptureFrame == 26) {
                     Gdx.app.log("AutoDash", "now at " + player.feetX() + "," + player.feetY()
-                        + " cooldown=" + dash.cooldownRemaining());
+                        + " cooldown=" + game.skillRuntime().remainingSeconds(SkillLoadout.DASH));
                     io.github.some_example_name.render.FrameCapture.capture(
                         "lab_" + difficultyTag() + "_dash");
                 }
             }
+            // LAB_AUTO_HEAL=1: 피해 → 회복 스킬 실행 → 캐스트 연출·HP·쿨다운 HUD를 검증.
+            // 만피 상태의 재시도도 함께 기록해 실패(FULL_HP) 시 무변화임을 확인한다.
+            if ("1".equals(System.getenv("LAB_AUTO_HEAL"))) {
+                if (autoCaptureFrame == 20) {
+                    Gdx.app.log("AutoHeal", "hp before damage=" + player.hp());
+                    player.takeDamage(40);
+                    Gdx.app.log("AutoHeal", "hp after damage=" + player.hp());
+                }
+                if (autoCaptureFrame == 40) {
+                    int before = player.hp();
+                    SkillService.Result result =
+                        trySkillSlot(game.skillLoadout().slotOf(SkillLoadout.HEAL), 0f, 0f);
+                    Gdx.app.log("AutoHeal", "result=" + result + " hp " + before + "->" + player.hp()
+                        + " cooldown=" + game.skillRuntime().remainingSeconds(SkillLoadout.HEAL));
+                }
+                if (autoCaptureFrame == 44)
+                    io.github.some_example_name.render.FrameCapture.capture(
+                        "lab_" + difficultyTag() + "_heal_cast");
+                if (autoCaptureFrame == 46) {
+                    int before = player.hp();
+                    SkillService.Result retry =
+                        trySkillSlot(game.skillLoadout().slotOf(SkillLoadout.HEAL), 0f, 0f);
+                    Gdx.app.log("AutoHeal", "retry=" + retry + " hp " + before + "->" + player.hp()
+                        + " cooldown=" + game.skillRuntime().remainingSeconds(SkillLoadout.HEAL));
+                }
+                if (autoCaptureFrame == 90)
+                    io.github.some_example_name.render.FrameCapture.capture(
+                        "lab_" + difficultyTag() + "_heal_cooldown");
+            }
+            // LAB_AUTO_SKILL3=shockwave|electric|shield: 테스트 몬스터를 소환해 실제 공통
+            // 경로로 스킬을 발동하고 판정(피해/감전/흡수)·VFX·쿨다운 HUD를 캡처·로그로 검증.
+            String skill3 = System.getenv("LAB_AUTO_SKILL3");
+            if (skill3 != null) runSkill3Script(skill3);
             // LAB_CAPTURE_SERIES=1: 몬스터 이동 검증용 연속 캡처(2초 간격 3장).
             if ("1".equals(System.getenv("LAB_CAPTURE_SERIES"))
                 && (autoCaptureFrame == 30 || autoCaptureFrame == 150 || autoCaptureFrame == 270))
@@ -468,6 +585,256 @@ public class LaboratoryScreen extends BaseScreen {
             if (autoCaptureFrame == debugFrame + 1) debugEnabled = false;
             if (autoCaptureFrame >= exitFrame) Gdx.app.exit();
         }
+    }
+
+    /**
+     * 슬롯 스킬 실행: 공통 파이프라인(SkillService)에 화면 상태·효과 적용을 Context로 넘긴다.
+     * 돌진은 기존 이동/충돌/피해 규칙 그대로 시작만 하고, 회복은 계산된 실제 회복량만 적용한다.
+     * 실패(쿨다운/만피/잠김/미장착 등)는 아무 상태도 바꾸지 않는다.
+     */
+    private SkillService.Result trySkillSlot(final int slot, final float moveX, final float moveY) {
+        SkillService.Context ctx = new SkillService.Context() {
+            @Override public boolean worldSkillInputAllowed() {
+                return !paused && !backpackOpen && !skillPanel.isOpen()
+                    && !game.transition().inputLocked();
+            }
+            @Override public boolean alive() { return !player.isDead(); }
+            @Override public int currentHp() { return player.hp(); }
+            @Override public int currentMaxHp() { return player.maxHp(); }
+            @Override public boolean unlocked(String skillId) {
+                return game.unlockedSkills().contains(skillId);
+            }
+            @Override public float cooldownSeconds(String skillId) {
+                return game.skillCooldownSeconds(skillId);
+            }
+            @Override public int healAmount() { return game.healSkillAmount(); }
+            @Override public boolean applyEffect(String skillId, int effectValue) {
+                if (SkillLoadout.DASH.equals(skillId)) {
+                    if (!dash.start(moveX, moveY, player.facing())) return false;
+                    Direction dashFacing = Direction.fromInput(dash.dirX(), dash.dirY());
+                    if (dashFacing != null) player.setFacing(dashFacing);
+                    assets.combatSounds().playDash();
+                    return true;
+                }
+                if (SkillLoadout.SHOCKWAVE.equals(skillId)) {
+                    // 원점은 시전 시작 위치에 고정 — 이후 이동해도 따라가지 않는다.
+                    shockwaves.add(new ShockwaveState(player.feetX(), player.feetY(),
+                        game.skillCatalog().shockwaveDamageStart,
+                        game.skillCatalog().shockwaveDamageEnd,
+                        game.skillCatalog().shockwaveDuration,
+                        new ShockwaveState.RadiusAt() {
+                            @Override public float radius(float t) {
+                                return game.skillCatalog().shockwaveFrontRadius(t);
+                            }
+                        }, facingDirX(), facingDirY()));
+                    return true;
+                }
+                if (SkillLoadout.ELECTRIC_THROW.equals(skillId)) {
+                    if (electricCast != null && electricCast.pending()) return false;
+                    // 방향은 시전 시작에 확정(이동 입력 → 없으면 바라보는 방향). 유도 없음.
+                    float dx = moveX, dy = moveY;
+                    if (dx == 0f && dy == 0f) { dx = facingDirX(); dy = facingDirY(); }
+                    float len = (float) Math.sqrt(dx * dx + dy * dy);
+                    electricDirX = dx / len;
+                    electricDirY = dy / len;
+                    electricCast = new SkillCast(game.skillCatalog().electricSpawnDelay);
+                    return true;
+                }
+                if (SkillLoadout.SHIELD.equals(skillId)) {
+                    // 준비/활성 중 재시전은 실패(상태·쿨다운 무소모 — tryCast가 거부).
+                    return shieldState.tryCast(game.shieldAbsorbAmount(),
+                        game.skillCatalog().shieldDurationSeconds);
+                }
+                player.heal(effectValue);
+                healCast.play();
+                return true;
+            }
+        };
+        return SkillService.tryExecute(slot, game.skillLoadout(), game.activeSkillSlots(),
+            game.skillRuntime(), ctx);
+    }
+
+    /** 쿨다운 전체 길이 공급: 수치 원본은 BalanceConfig(돌진)·강화/스킬 카탈로그. */
+    private io.github.some_example_name.render.SkillBarRenderer.CooldownTotals skillCooldownTotals() {
+        return new io.github.some_example_name.render.SkillBarRenderer.CooldownTotals() {
+            @Override public float total(String skillId) {
+                return game.skillCooldownSeconds(skillId);
+            }
+        };
+    }
+
+    private void openSkillPanel() {
+        skillPanel.open(game.skillLoadout(), game.activeSkillSlots(), game.unlockedSkills(),
+            KeyBindings.reservedKeys(),
+            new io.github.some_example_name.render.SkillLoadoutRenderer.SkillInfo() {
+                @Override public int healAmount() { return game.healSkillAmount(); }
+                @Override public float cooldownSeconds(String skillId) {
+                    return game.skillCooldownSeconds(skillId);
+                }
+                @Override public int skillDamage(String skillId) { return game.skillDamage(skillId); }
+                @Override public int shieldAbsorb() { return game.shieldAbsorbAmount(); }
+            },
+            new Runnable() { @Override public void run() { game.saveSkillLoadout(); } });
+    }
+
+    private float facingDirX() {
+        switch (player.facing()) {
+            case LEFT: return -1f;
+            case RIGHT: return 1f;
+            default: return 0f;
+        }
+    }
+
+    private float facingDirY() {
+        switch (player.facing()) {
+            case UP: return 1f;
+            case DOWN: return -1f;
+            default: return 0f;
+        }
+    }
+
+    /**
+     * 추가 스킬 3종의 활성 효과 진행(플레이 가능한 게임 시간만). 판정은 순수 모델이 하고
+     * 여기서는 결과를 공용 타격 경로·VFX에 연결한다. 피격/착탄 연출은 실제 명중 시에만
+     * 생성된다(빗나간 대상에 미리 띄우지 않는다).
+     */
+    private void updateSkillEffects(float dt) {
+        SkillCatalog cat = game.skillCatalog();
+        // 충격파: 파면이 이번 구간에 덮은 대상에 1회 피해+바깥 밀어내기(충돌 해석은 AI의
+        // 기존 넉백 경로 — 벽·문·가구를 관통하지 않는다).
+        for (java.util.Iterator<ShockwaveState> it = shockwaves.iterator(); it.hasNext();) {
+            ShockwaveState wave = it.next();
+            for (ShockwaveState.Hit hit : wave.update(dt, monsters, shockOcclusion)) {
+                combatSystem.applyPlayerSkillStrike(player, hit.monster,
+                    game.skillDamage(SkillLoadout.SHOCKWAVE), hit.dirX, hit.dirY,
+                    cat.shockwaveKnockback);
+                skillVfx.spawnShockHit(hit.monster.bounds().x + hit.monster.bounds().width / 2f,
+                    hit.monster.bounds().y + hit.monster.bounds().height / 2f);
+            }
+            if (wave.finished()) it.remove();
+        }
+        // 전기 투척: 준비 2/15초 뒤 spawn_projectile 1회 — 이벤트 시점의 플레이어 위치에서,
+        // 시전 시 확정한 방향으로 나타난다.
+        if (electricCast != null && electricCast.update(dt)) {
+            projectiles.add(new ElectricProjectile(player.feetX(),
+                player.feetY() + player.bounds().height * 0.5f, electricDirX, electricDirY,
+                cat.electricSpeed, cat.electricMaxDistance, cat.electricCollisionRadius));
+            electricCast = null;
+            if (autoCapture) Gdx.app.log("Skill3", String.format(
+                "projectile spawned at %.2f,%.2f dir %.2f,%.2f",
+                player.feetX(), player.feetY() + player.bounds().height * 0.5f,
+                electricDirX, electricDirY));
+        }
+        for (java.util.Iterator<ElectricProjectile> it = projectiles.iterator(); it.hasNext();) {
+            ElectricProjectile projectile = it.next();
+            ElectricProjectile.Outcome outcome = projectile.update(dt, projectileSolid, monsters);
+            if (outcome == ElectricProjectile.Outcome.HIT_MONSTER) {
+                Monster target = projectile.hitMonster();
+                combatSystem.applyPlayerSkillStrike(player, target,
+                    game.skillDamage(SkillLoadout.ELECTRIC_THROW),
+                    projectile.dirX(), projectile.dirY(), config.monsterKnockbackDistance);
+                if (target.isAlive()) target.applyShock(cat.electricStunSeconds);
+                skillVfx.spawnElectricImpact(projectile.x(), projectile.y());
+                it.remove();
+            } else if (outcome == ElectricProjectile.Outcome.HIT_WALL) {
+                skillVfx.spawnElectricImpact(projectile.x(), projectile.y()); // 벽 뒤는 안 맞는다
+                if (autoCapture) Gdx.app.log("Skill3", String.format(
+                    "projectile HIT_WALL at %.2f,%.2f", projectile.x(), projectile.y()));
+                it.remove();
+            } else if (outcome == ElectricProjectile.Outcome.EXPIRED) {
+                if (autoCapture) Gdx.app.log("Skill3", String.format(
+                    "projectile EXPIRED at %.2f,%.2f", projectile.x(), projectile.y()));
+                it.remove(); // 최대 사거리 — 피해·착탄 없이 소멸
+            }
+        }
+        // 보호막: 만료를 피해보다 먼저 처리(프레임 선두 update). 파괴/만료 연출은 1회·구분.
+        shieldState.update(dt);
+        shieldState.consumeActivated(); // 활성 전환은 상태 기반 렌더가 그린다
+        if (shieldState.consumeBroke()) skillVfx.spawnShieldBreak(player.feetX(), player.feetY());
+        if (shieldState.consumeExpired()) skillVfx.spawnShieldFade(player.feetX(), player.feetY());
+        skillVfx.update(dt);
+    }
+
+    /** 개발 전용(LAB_AUTO_SKILL3): 추가 스킬 3종 실행 검증 — 소환→발동→판정 로그→캡처. */
+    private Monster skill3Target;
+    private void runSkill3Script(String which) {
+        if (autoCaptureFrame == 12) {
+            // LAB_START_ROOM 중앙 스폰은 가구와 겹칠 수 있다 — 몸이 서고, 투사체와 같은
+            // 판정으로 남쪽 2.6타일 사격선이 비는 지점으로 옮긴 뒤 검증한다.
+            boolean found = false;
+            outer:
+            for (float oy = -6f; oy <= 6f; oy += 0.5f) {
+                for (float ox = 0f; ox <= 8f; ox += 0.5f) {
+                    for (float sx : new float[]{ox, -ox}) {
+                        float x = player.feetX() + sx, y = player.feetY() + oy;
+                        if (room.blocksActorAt(x, y, 0.6f, 0.5f)) continue;
+                        boolean clear = true;
+                        for (float d = 0f; d <= 2.6f && clear; d += 0.1f)
+                            if (room.blocksActorAt(x, y + 0.07f - d, 0.36f, 0.36f)) clear = false;
+                        if (clear) {
+                            player.bounds().setPosition(x - player.bounds().width / 2f, y);
+                            found = true;
+                            break outer;
+                        }
+                    }
+                }
+            }
+            Gdx.app.log("Skill3", String.format("test spot %.2f,%.2f clear=%b",
+                player.feetX(), player.feetY(), found));
+        }
+        if (autoCaptureFrame == 15) {
+            // 생존 확인(감전/HP 수치 로그)을 위해 피해 1회에 죽지 않는 60HP로 소환.
+            // 방 중앙은 가구가 많아, 가구 footprint가 없는 남쪽 바닥을 향해 검증한다.
+            skill3Target = new Monster(9001L, io.github.some_example_name.combat.MonsterType.SLIME,
+                player.feetX(), player.feetY() - 2.4f,
+                config.monsterBoundsWidth, config.monsterBoundsHeight, 60);
+            monsters.add(skill3Target);
+            Gdx.app.log("Skill3", which + " target spawned hp=" + skill3Target.health().hp()
+                + " at -2.4 tiles(south), player hp=" + player.hp());
+        }
+        if (autoCaptureFrame == 20) {
+            String skillId = "electric".equals(which) ? SkillLoadout.ELECTRIC_THROW
+                : "shield".equals(which) ? SkillLoadout.SHIELD : SkillLoadout.SHOCKWAVE;
+            player.setFacing(Direction.DOWN);
+            SkillService.Result result = trySkillSlot(game.skillLoadout().slotOf(skillId), 0f, 0f);
+            Gdx.app.log("Skill3", skillId + " cast result=" + result
+                + " cooldown=" + game.skillRuntime().remainingSeconds(skillId));
+        }
+        if (autoCaptureFrame == 24)
+            io.github.some_example_name.render.FrameCapture.capture("skill3_" + which + "_early");
+        if (autoCaptureFrame == 34)
+            io.github.some_example_name.render.FrameCapture.capture("skill3_" + which + "_mid");
+        if ("shield".equals(which)) {
+            if (autoCaptureFrame == 40) {
+                int hpBefore = player.hp(), absorbBefore = shieldState.absorbRemaining();
+                boolean accepted = playerCombat.takeDamage(player, 35, 0f, 0f,
+                    config.playerInvulnerabilitySeconds);
+                Gdx.app.log("Skill3", "shield hit35 accepted=" + accepted
+                    + " absorb " + absorbBefore + "->" + shieldState.absorbRemaining()
+                    + " hp " + hpBefore + "->" + player.hp());
+            }
+            if (autoCaptureFrame == 42) {
+                // 무적 중 재공격: 보호막도 깎이지 않아야 한다.
+                int absorbBefore = shieldState.absorbRemaining();
+                boolean accepted = playerCombat.takeDamage(player, 35, 0f, 0f,
+                    config.playerInvulnerabilitySeconds);
+                Gdx.app.log("Skill3", "shield invuln-hit accepted=" + accepted
+                    + " absorb " + absorbBefore + "->" + shieldState.absorbRemaining());
+            }
+            if (autoCaptureFrame == 110) {
+                int hpBefore = player.hp(), absorbBefore = shieldState.absorbRemaining();
+                playerCombat.takeDamage(player, 35, 0f, 0f, config.playerInvulnerabilitySeconds);
+                Gdx.app.log("Skill3", "shield hit35(2nd) absorb " + absorbBefore + "->"
+                    + shieldState.absorbRemaining() + " hp " + hpBefore + "->" + player.hp());
+                io.github.some_example_name.render.FrameCapture.capture("skill3_shield_break");
+            }
+        }
+        if (autoCaptureFrame == 60 && skill3Target != null)
+            Gdx.app.log("Skill3", which + " target alive=" + skill3Target.isAlive()
+                + " hp=" + skill3Target.health().hp()
+                + " shocked=" + skill3Target.shocked()
+                + " shockTime=" + skill3Target.shockTime());
+        if (autoCaptureFrame >= 130) Gdx.app.exit();
     }
 
     private String difficultyTag() {
@@ -697,5 +1064,8 @@ public class LaboratoryScreen extends BaseScreen {
         navigationRenderer.dispose();
         exteriorWalls.dispose();
         containerFx.dispose();
+        skillBar.dispose();
+        skillPanel.dispose();
+        skillMenuButton.dispose();
     }
 }

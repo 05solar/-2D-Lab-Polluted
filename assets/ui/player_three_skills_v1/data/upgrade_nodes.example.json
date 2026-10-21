@@ -1,0 +1,102 @@
+{
+  "catalogVersion": 1,
+  "status": "PROPOSED_INITIAL_BALANCE_MERGE_WITH_EXISTING_CATALOG",
+  "uiPlacement": "Add to existing skill branch with scroll/layout; do not overlap old nodes.",
+  "nodes": [
+    {
+      "nodeId": "shockwave_unlock",
+      "branch": "skill",
+      "displayName": "충격파 해금",
+      "costWon": 4000,
+      "prerequisites": [],
+      "effectType": "SKILL_UNLOCK",
+      "skillId": "shockwave",
+      "effectValue": 1,
+      "iconId": "shockwave"
+    },
+    {
+      "nodeId": "shockwave_power_1",
+      "branch": "skill",
+      "displayName": "충격파 강화 I",
+      "costWon": 6500,
+      "prerequisites": [
+        "shockwave_unlock"
+      ],
+      "effectType": "SKILL_DAMAGE_ADD",
+      "skillId": "shockwave",
+      "effectValue": 10,
+      "iconId": "shockwave"
+    },
+    {
+      "nodeId": "electric_throw_unlock",
+      "branch": "skill",
+      "displayName": "전기 투척 해금",
+      "costWon": 5000,
+      "prerequisites": [],
+      "effectType": "SKILL_UNLOCK",
+      "skillId": "electric_throw",
+      "effectValue": 1,
+      "iconId": "electric_throw"
+    },
+    {
+      "nodeId": "electric_throw_power_1",
+      "branch": "skill",
+      "displayName": "전기 투척 강화 I",
+      "costWon": 8000,
+      "prerequisites": [
+        "electric_throw_unlock"
+      ],
+      "effectType": "SKILL_DAMAGE_ADD",
+      "skillId": "electric_throw",
+      "effectValue": 10,
+      "iconId": "electric_throw"
+    },
+    {
+      "nodeId": "shield_unlock",
+      "branch": "skill",
+      "displayName": "보호막 해금",
+      "costWon": 5500,
+      "prerequisites": [],
+      "effectType": "SKILL_UNLOCK",
+      "skillId": "shield",
+      "effectValue": 1,
+      "iconId": "shield"
+    },
+    {
+      "nodeId": "shield_power_1",
+      "branch": "skill",
+      "displayName": "보호막 강화 I",
+      "costWon": 8500,
+      "prerequisites": [
+        "shield_unlock"
+      ],
+      "effectType": "SHIELD_ABSORB_ADD",
+      "skillId": "shield",
+      "effectValue": 30,
+      "iconId": "shield"
+    }
+  ],
+  "optionalSlotNodes": [
+    {
+      "nodeId": "active_slot_4",
+      "displayName": "활성 슬롯 추가 IV",
+      "costWon": 12000,
+      "prerequisites": [
+        "active_slot_2"
+      ],
+      "effectType": "ACTIVE_SLOT_ADD",
+      "effectValue": 1
+    },
+    {
+      "nodeId": "active_slot_5",
+      "displayName": "활성 슬롯 추가 V",
+      "costWon": 20000,
+      "prerequisites": [
+        "active_slot_4"
+      ],
+      "effectType": "ACTIVE_SLOT_ADD",
+      "effectValue": 1
+    }
+  ],
+  "optionalSlotNote": "Only if existing catalog cannot reach 5 slots. Resolve actual IDs, count and existing purchased upgrades before merge; do not duplicate equivalent nodes."
+}

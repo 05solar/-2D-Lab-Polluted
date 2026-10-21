@@ -1,0 +1,210 @@
+{
+  "version": 1,
+  "frameClock": "simulation elapsed; same clock as gameplay events",
+  "animations": {
+    "shockwave": {
+      "file": "runtime/vfx/shockwave_512x256.png",
+      "columns": 4,
+      "rows": 2,
+      "frameSize": [
+        128,
+        128
+      ],
+      "frameCount": 8,
+      "origin": "top-left",
+      "order": "row-major",
+      "frameSeconds": 0.06666666666666667,
+      "durationSeconds": 0.5333333333333333,
+      "anchor": [
+        64,
+        64
+      ],
+      "loop": false,
+      "sourceCellSize": [
+        443,
+        443
+      ],
+      "packing": "fixed source grid; shared scale/offset across all frames; no per-frame trim or resize",
+      "visualExtent": {
+        "maximumRingFrame": 4,
+        "approxOuterRadiusPx": 46.819,
+        "center": [
+          64,
+          64
+        ],
+        "calibration": "90th-percentile radius of bright amber pixels at max frame; verify against debug ring in game; faint particles are excluded"
+      },
+      "damageFramesInclusive": [
+        1,
+        4
+      ],
+      "radiusCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.06666666666666667,
+          0.3921
+        ],
+        [
+          0.13333333333333333,
+          0.5229
+        ],
+        [
+          0.2,
+          0.7714
+        ],
+        [
+          0.26666666666666666,
+          1.0
+        ],
+        [
+          0.3333333333333333,
+          1
+        ]
+      ],
+      "chargeFrameZeroHasNoDamage": true
+    },
+    "shock_hit": {
+      "file": "runtime/vfx/shock_hit_384x256.png",
+      "columns": 3,
+      "rows": 2,
+      "frameSize": [
+        128,
+        128
+      ],
+      "frameCount": 6,
+      "origin": "top-left",
+      "order": "row-major",
+      "frameSeconds": 0.06666666666666667,
+      "durationSeconds": 0.4,
+      "anchor": [
+        64,
+        64
+      ],
+      "loop": false,
+      "sourceCellSize": [
+        512,
+        512
+      ],
+      "packing": "fixed source grid; shared scale/offset across all frames; no per-frame trim or resize"
+    },
+    "electric_projectile": {
+      "file": "runtime/vfx/electric_projectile_256x256.png",
+      "columns": 2,
+      "rows": 2,
+      "frameSize": [
+        128,
+        128
+      ],
+      "frameCount": 4,
+      "origin": "top-left",
+      "order": "row-major",
+      "frameSeconds": 0.06666666666666667,
+      "durationSeconds": 0.26666666666666666,
+      "anchor": [
+        64,
+        64
+      ],
+      "loop": true,
+      "sourceCellSize": [
+        887,
+        443
+      ],
+      "packing": "fixed source grid; shared scale/offset across all frames; no per-frame trim or resize",
+      "forward": "+X / right"
+    },
+    "electric_impact": {
+      "file": "runtime/vfx/electric_impact_384x256.png",
+      "columns": 3,
+      "rows": 2,
+      "frameSize": [
+        128,
+        128
+      ],
+      "frameCount": 6,
+      "origin": "top-left",
+      "order": "row-major",
+      "frameSeconds": 0.06666666666666667,
+      "durationSeconds": 0.4,
+      "anchor": [
+        64,
+        64
+      ],
+      "loop": false,
+      "sourceCellSize": [
+        512,
+        512
+      ],
+      "packing": "fixed source grid; shared scale/offset across all frames; no per-frame trim or resize",
+      "stunOverlayLoopFrames": [
+        1,
+        2,
+        3
+      ],
+      "overlayLifetimeSource": "actual stun remaining time; original impact still plays once"
+    },
+    "shield_active": {
+      "file": "runtime/vfx/shield_active_384x256.png",
+      "columns": 3,
+      "rows": 2,
+      "frameSize": [
+        128,
+        128
+      ],
+      "frameCount": 6,
+      "origin": "top-left",
+      "order": "row-major",
+      "frameSeconds": 0.06666666666666667,
+      "durationSeconds": 0.4,
+      "anchor": [
+        64,
+        102
+      ],
+      "loop": true,
+      "sourceCellSize": [
+        512,
+        512
+      ],
+      "packing": "shared scale; foot ring registered to [64,102] per frame without changing frame dimensions",
+      "introFrames": [
+        0,
+        1
+      ],
+      "activeLoopFrames": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "activeFromSeconds": 0.13333333333333333,
+      "suggestedRenderAlpha": 0.65
+    },
+    "shield_break": {
+      "file": "runtime/vfx/shield_break_384x256.png",
+      "columns": 3,
+      "rows": 2,
+      "frameSize": [
+        128,
+        128
+      ],
+      "frameCount": 6,
+      "origin": "top-left",
+      "order": "row-major",
+      "frameSeconds": 0.06666666666666667,
+      "durationSeconds": 0.4,
+      "anchor": [
+        64,
+        102
+      ],
+      "loop": false,
+      "sourceCellSize": [
+        512,
+        512
+      ],
+      "packing": "shared scale/offset calibrated to the active shield width and intact frame foot ring"
+    }
+  },
+  "note": "PNG frames are VFX only. Characters, damage numbers, UI text and colliders are runtime objects. Center/foot anchors are starting calibration values; verify against the actual actor."
+}

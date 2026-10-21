@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "defaultBaseActiveSlots": 2,
+  "maximumVisibleSlots": 5,
+  "slots": [
+    {
+      "slotId": 0,
+      "defaultKey": "F",
+      "defaultSkill": "dash"
+    },
+    {
+      "slotId": 1,
+      "defaultKey": "Q",
+      "defaultSkill": "heal"
+    },
+    {
+      "slotId": 2,
+      "defaultKey": "1",
+      "defaultSkill": null
+    },
+    {
+      "slotId": 3,
+      "defaultKey": "2",
+      "defaultSkill": null
+    },
+    {
+      "slotId": 4,
+      "defaultKey": "3",
+      "defaultSkill": null
+    }
+  ],
+  "skills": {
+    "dash": {
+      "defaultUnlocked": true,
+      "cooldownSeconds": 3,
+      "icon": "REUSE_EXISTING_DASH_ICON"
+    },
+    "heal": {
+      "unlockNode": "heal_unlock",
+      "healAmount": 30,
+      "cooldownSeconds": 10,
+      "icon": "runtime/icon_heal_64.png",
+      "effect": "heal_animation.json",
+      "noCastAtFullHp": true
+    }
+  },
+  "reservedActions": {
+    "R": "backpack",
+    "H": "return-guide",
+    "SPACE": "interaction"
+  },
+  "note": "Default heal assignment is conditional on unlock and an empty slot. Preserve existing user bindings and purchased slot upgrades. Other reserved keys must be derived from actual inputs."
+}

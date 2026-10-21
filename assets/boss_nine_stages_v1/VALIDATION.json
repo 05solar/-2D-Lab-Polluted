@@ -1,0 +1,64 @@
+{
+  "pngCount": 279,
+  "newBosses": 8,
+  "reusedBosses": 1,
+  "newBodyFrames": 128,
+  "newEffectFrames": 48,
+  "silhouettePortraits": 9,
+  "colorPortraits": 9,
+  "stageCount": 9,
+  "sourceChecks": [
+    {
+      "source": "exec-499aed05-8e8c-417a-b27b-8024c048c807.png",
+      "opaquePixelsOnSourceOuterEdge": 0,
+      "subjects": 16
+    },
+    {
+      "source": "exec-a572e37d-fccf-4a68-8fb5-eafaa4822e21.png",
+      "opaquePixelsOnSourceOuterEdge": 0,
+      "subjects": 16
+    },
+    {
+      "source": "exec-109410ed-0ed5-49a6-8b18-3921375e14c2.png",
+      "opaquePixelsOnSourceOuterEdge": 0,
+      "subjects": 16
+    },
+    {
+      "source": "exec-a78e4263-9985-41f4-bf71-3476b3f38159.png",
+      "opaquePixelsOnSourceOuterEdge": 0,
+      "subjects": 16
+    },
+    {
+      "source": "exec-510f1371-708b-4f48-b1a1-5f9d36d5ee17.png",
+      "opaquePixelsOnSourceOuterEdge": 0,
+      "subjects": 16
+    },
+    {
+      "source": "exec-06f654bf-bbd1-464f-83d4-0c38b4ebac11.png",
+      "opaquePixelsOnSourceOuterEdge": 0,
+      "subjects": 16
+    },
+    {
+      "source": "exec-60e97c06-e4c8-4b28-8172-a469bef8a2d1.png",
+      "opaquePixelsOnSourceOuterEdge": 0,
+      "subjects": 16
+    },
+    {
+      "source": "exec-157c35fa-564e-4a7c-918d-de2aca2a6dd3.png",
+      "opaquePixelsOnSourceOuterEdge": 0,
+      "subjects": 16
+    }
+  ],
+  "bodyFrameSize": [
+    256,
+    256
+  ],
+  "bodyAnchor": [
+    128,
+    224
+  ],
+  "sourceBorderCheck": "no opaque body cut by original outer image edges",
+  "bodyPaddingCheck": "all 128 frames inside safe margins",
+  "playerSkillRangeChanged": false,
+  "verificationScope": "PNG/JSON and composite previews only; no Java gameplay integration or tests run"
+}

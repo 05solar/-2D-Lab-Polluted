@@ -1,0 +1,12 @@
+{
+  "pngCount": 45,
+  "animationFrameCount": 36,
+  "allRuntimeImagesDecoded": true,
+  "fixedCellSize": [
+    128,
+    128
+  ],
+  "allCellsHaveTransparentMargin": true,
+  "eventTimesUseSameFrameSeconds": true,
+  "actualGameTested": false
+}

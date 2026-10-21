@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "status": "PROPOSED_INITIAL_BALANCE",
+  "stageId": "1-1",
+  "bossId": "centrifuge_c01",
+  "displayName": "원심 배양체 C-01",
+  "maxHp": 600,
+  "introSeconds": 1,
+  "betweenPatternSeconds": 0.6,
+  "firstPatternSequence": [
+    "reagent_throw",
+    "contamination",
+    "ram"
+  ],
+  "avoidImmediatePatternRepeat": true,
+  "worldUnit": "oneTile",
+  "bodyProxyCollider": [
+    1.8,
+    1.2
+  ],
+  "bodyViews": "front-only; do not rotate sprite",
+  "resistances": {
+    "knockbackImmune": true,
+    "stunImmune": true,
+    "electricDirectDamageImmune": false
+  },
+  "patterns": [
+    {
+      "patternId": "reagent_throw",
+      "weight": 35,
+      "telegraphSeconds": 0.8,
+      "aimLockAt": 0.5,
+      "events": [
+        {
+          "eventId": "shot_left",
+          "atSeconds": 0.8,
+          "type": "spawn_projectile",
+          "angleDegrees": -18
+        },
+        {
+          "eventId": "shot_center",
+          "atSeconds": 0.95,
+          "type": "spawn_projectile",
+          "angleDegrees": 0
+        },
+        {
+          "eventId": "shot_right",
+          "atSeconds": 1.1,
+          "type": "spawn_projectile",
+          "angleDegrees": 18
+        }
+      ],
+      "recoveryInterval": [
+        1.2,
+        2.1
+      ],
+      "durationSeconds": 2.1,
+      "damage": 20,
+      "projectileSpeed": 6.5,
+      "projectileMaxDistance": 18,
+      "projectileRadius": 0.18,
+      "pillarPolicy": "stop_at_first_collision; no hazard left on impact"
+    },
+    {
+      "patternId": "contamination",
+      "weight": 35,
+      "telegraphSeconds": 1,
+      "aimLockAt": 0,
+      "visualCues": [
+        {
+          "atSeconds": 0.8666666666666667,
+          "type": "area_intro_frames_0_1",
+          "damage": false
+        }
+      ],
+      "events": [
+        {
+          "eventId": "area_activate",
+          "atSeconds": 1,
+          "type": "spawn_area_and_begin_loop_frame_2"
+        }
+      ],
+      "recoveryInterval": [
+        1.2,
+        2.2
+      ],
+      "durationSeconds": 2.2,
+      "radius": 2.2,
+      "areaActiveSeconds": 4,
+      "damagePerTick": 8,
+      "tickSeconds": 0.5,
+      "firstTickAtActivation": true,
+      "maximumActiveAreas": 2,
+      "overlapPolicy": "one accepted boss_acid tick per actor per .5 sec",
+      "pillarPolicy": "does_not_occlude_landing; exclude solid footprint cells"
+    },
+    {
+      "patternId": "ram",
+      "weight": 30,
+      "telegraphSeconds": 0.9,
+      "aimLockAt": 0.55,
+      "events": [
+        {
+          "eventId": "charge_start",
+          "atSeconds": 0.9,
+          "type": "start_charge"
+        }
+      ],
+      "chargeSpeed": 9,
+      "chargeMaxDistance": 8,
+      "chargeColliderWidth": 1.8,
+      "damage": 30,
+      "hitsPerActorPerCast": 1,
+      "recoveryAfterStopSeconds": 0.9,
+      "pillarPolicy": "stop_before_surface_then_recovery; pillar stays intact"
+    }
+  ],
+  "onDefeat": "cancel all active/pending attacks and show death once",
+  "reward": {
+    "count": 1,
+    "source": "existing loot catalog",
+    "rarityFilter": "LEGENDARY",
+    "weights": "reuse existing item weights",
+    "destination": "headquartersStorage",
+    "receiptKey": [
+      "runId",
+      "stageId"
+    ],
+    "commitWith": [
+      "clear record",
+      "next progress unlock",
+      "item instance",
+      "reward receipt"
+    ]
+  }
+}

@@ -13,7 +13,7 @@ import io.github.some_example_name.movement.MovementMode;
 public class Player {
 
     private final Rectangle bounds;
-    private final int maxHp;
+    private int maxHp; // 영구 강화로 변할 수 있다(setMaxHp) — 항상 0 <= hp <= maxHp 유지
     private int hp;
 
     private Direction facing = Direction.DOWN;
@@ -45,6 +45,16 @@ public class Player {
 
     public int maxHp() {
         return maxHp;
+    }
+
+    /**
+     * 영구 강화 반영: 최대 HP를 새 값으로 바꾼다. 현재 HP 숫자는 유지하되 새 최대를
+     * 넘으면 잘라낸다 — 체력 강화 구매가 공짜 완전 회복이 되지 않는다.
+     */
+    public void setMaxHp(int newMaxHp) {
+        if (newMaxHp <= 0) throw new IllegalArgumentException("maxHp");
+        maxHp = newMaxHp;
+        hp = Math.min(hp, maxHp);
     }
 
     /** Restores a living player to maximum health without reviving a dead player. */

@@ -44,6 +44,11 @@ public class GameAssets implements Disposable {
     private final CombatSoundAssets combatSounds;
     private final CombatUiAssets combatUi;
     private final HqSalesAssets hqSales;
+    private final UpgradeAssets upgrade;
+    private final SkillAssets skills;
+    private final ThreeSkillsAssets threeSkills;
+    private final BossAssets boss;
+    private final BossNineAssets bossNine;
     // 배경음악: Sound와 달리 스트리밍되는 Music 인스턴스. 여기서 소유·해제하고
     // 재생 시작(무한 반복)은 게임 루트가 한 번만 호출한다.
     private final com.badlogic.gdx.audio.Music backgroundMusic;
@@ -92,6 +97,11 @@ public class GameAssets implements Disposable {
         combatSounds = new CombatSoundAssets();
         combatUi = new CombatUiAssets();
         hqSales = new HqSalesAssets();
+        upgrade = new UpgradeAssets();
+        skills = new SkillAssets();
+        threeSkills = new ThreeSkillsAssets();
+        boss = new BossAssets();
+        bossNine = new BossNineAssets();
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(AssetPaths.MUSIC_BACKGROUND));
         // Mona12 Text KR(픽셀 폰트, 12px 설계)을 2배수 24px로 생성해 선명하게 쓴다.
         com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator fontGenerator =
@@ -237,6 +247,11 @@ public class GameAssets implements Disposable {
     public CombatSoundAssets combatSounds() { return combatSounds; }
     public CombatUiAssets combatUi() { return combatUi; }
     public HqSalesAssets hqSales() { return hqSales; }
+    public UpgradeAssets upgrade() { return upgrade; }
+    public SkillAssets skills() { return skills; }
+    public ThreeSkillsAssets threeSkills() { return threeSkills; }
+    public BossAssets boss() { return boss; }
+    public BossNineAssets bossNine() { return bossNine; }
     public com.badlogic.gdx.audio.Music backgroundMusic() { return backgroundMusic; }
     /** 화면 UI 텍스트(HP 숫자·쿨다운·키 라벨 등)용 Mona BitmapFont(공유 — 해제 금지). */
     public com.badlogic.gdx.graphics.g2d.BitmapFont uiFont() { return uiFont; }
@@ -288,6 +303,11 @@ public class GameAssets implements Disposable {
         combatSounds.dispose();
         combatUi.dispose();
         hqSales.dispose();
+        upgrade.dispose();
+        skills.dispose();
+        threeSkills.dispose();
+        boss.dispose();
+        bossNine.dispose();
         backgroundMusic.dispose();
         uiFont.dispose();
         worldFont.dispose();

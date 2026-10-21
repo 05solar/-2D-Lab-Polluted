@@ -1,0 +1,19 @@
+{
+  "runtimePngCount": 59,
+  "bodyFrameCount": 18,
+  "vfxAnimationFrameCount": 16,
+  "gateStateCount": 4,
+  "jsonTelegraphEventOrdering": true,
+  "allPngsDecodedRgba": true,
+  "allNonFullBleedImagesHaveTransparentMargin": true,
+  "actualGameIntegrationTested": false,
+  "hpFillRegionTransparent": true,
+  "openGatePassageTransparent": true,
+  "bodyReferencePoseCorePx": [
+    160,
+    108
+  ],
+  "sourceBodySubjectsExtractedWhole": true,
+  "visualFrameReviewCompleted": true,
+  "floorRepeatPreviewInspected": true
+}

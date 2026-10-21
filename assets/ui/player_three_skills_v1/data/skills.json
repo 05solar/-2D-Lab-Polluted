@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "status": "PROPOSED_INITIAL_BALANCE",
+  "cooldownBegins": "successful cast start",
+  "pauseUsesSimulationTime": true,
+  "skills": [
+    {
+      "skillId": "shockwave",
+      "displayName": "충격파",
+      "icon": "runtime/icons/icon_shockwave_64.png",
+      "unlockNode": "shockwave_unlock",
+      "cooldownSeconds": 6,
+      "worldUnit": "oneTile",
+      "damage": 30,
+      "radius": 2.5,
+      "knockbackDistance": 0.8,
+      "castOrigin": "snapshot at cast start",
+      "timeline": {
+        "durationSeconds": 0.5333333333333333,
+        "events": [
+          {
+            "eventId": "wave_begin",
+            "atSeconds": 0.06666666666666667,
+            "type": "START_WAVE_DAMAGE"
+          },
+          {
+            "eventId": "wave_max",
+            "atSeconds": 0.26666666666666666,
+            "type": "REACH_MAX_RADIUS"
+          },
+          {
+            "eventId": "wave_end",
+            "atSeconds": 0.3333333333333333,
+            "type": "STOP_WAVE_DAMAGE"
+          }
+        ],
+        "radiusCurve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.06666666666666667,
+            0.3921
+          ],
+          [
+            0.13333333333333333,
+            0.5229
+          ],
+          [
+            0.2,
+            0.7714
+          ],
+          [
+            0.26666666666666666,
+            1.0
+          ],
+          [
+            0.3333333333333333,
+            1
+          ]
+        ]
+      },
+      "animation": "shockwave",
+      "onActualHitAnimation": "shock_hit",
+      "hitsPerTargetPerCast": 1,
+      "blockedBySolid": true
+    },
+    {
+      "skillId": "electric_throw",
+      "displayName": "전기 투척",
+      "icon": "runtime/icons/icon_electric_throw_64.png",
+      "unlockNode": "electric_throw_unlock",
+      "cooldownSeconds": 5,
+      "worldUnit": "oneTile",
+      "damage": 25,
+      "projectileSpeed": 10,
+      "maxTravelDistance": 8,
+      "collisionRadius": 0.18,
+      "stunSeconds": 0.5,
+      "piercing": false,
+      "timeline": {
+        "events": [
+          {
+            "eventId": "projectile_spawn",
+            "atSeconds": 0.13333333333333333,
+            "type": "SPAWN_PROJECTILE"
+          }
+        ]
+      },
+      "animation": "electric_projectile",
+      "impactAnimation": "electric_impact",
+      "collision": "swept earliest hit; world solids and actor hurtboxes"
+    },
+    {
+      "skillId": "shield",
+      "displayName": "보호막",
+      "icon": "runtime/icons/icon_shield_64.png",
+      "unlockNode": "shield_unlock",
+      "cooldownSeconds": 12,
+      "absorbAmount": 60,
+      "durationSeconds": 4,
+      "timeline": {
+        "events": [
+          {
+            "eventId": "shield_activate",
+            "atSeconds": 0.13333333333333333,
+            "type": "ACTIVATE_SHIELD"
+          }
+        ]
+      },
+      "animation": "shield_active",
+      "breakAnimation": "shield_break",
+      "naturalExpiry": "fade current loop frame for .2 sec; no shatter",
+      "damageOverflowToHp": true,
+      "rejectWhileAlreadyActive": true
+    }
+  ]
+}

@@ -4,9 +4,18 @@
 계산·상태 전환은 LibGDX 화면 없이 순수 Java로 테스트한다. 시간은 주입 가능한 delta/GameTime,
 랜덤은 seed/공급자 주입으로 재현 가능하게 한다.
 
-## 현재 상태 (2026-10-12)
-- clean 검증 기준 core 테스트 **107개 통과** (`./gradlew.bat clean core:test lwjgl3:build --no-daemon`).
-- 실제 화면에서 쉬움 맵/roomkit 렌더링, 미니맵·F 경로, 쉬움 연구소→본부 복귀→쉬움 재입장을 확인했다. 난이도별 화면·전 방 충돌·상자 수집/교체·팀장 분노의 수동 확인은 남아 있다.
+## 현재 상태 (2026-10-20)
+- core 테스트 **209개 통과** + `lwjgl3:build` 성공 (`./gradlew.bat core:test lwjgl3:build`).
+- 주요 스위트: 생성기(LaboratoryGeneratorTest — 난이도별 100시드 전수), 스킬(SkillSystemTest·
+  ThreeSkillsModelTest·PlayerDashStateTest), 경제/프로필(HeadquartersEconomyTest·
+  ProfilePersistenceTest·UpgradeTreeTest), 몬스터(MonsterBehaviorTest), 맵(EasyLaboratoryLayoutTest·
+  DifficultyLayoutTest·ReturnRouteRegressionTest·HeadquartersLayoutTest) 등 — 세부는 아래 기능별 절.
+- 실행 검증은 FrameCapture 실프레임(docs/images/frames/)과 LabGen/Skill3 등 실행 로그로 남긴다.
+  수동 체감(효과음 청취·키보드 실입력·보통/어려움 밸런스)은 사용자 핸즈온 권장.
+
+## (이전 기준선: 2026-10-12)
+- clean 검증 기준 core 테스트 107개 통과.
+- 실제 화면에서 쉬움 맵/roomkit 렌더링, 미니맵·F 경로, 쉬움 연구소→본부 복귀→쉬움 재입장을 확인했다.
 - 추가 테스트: `EasyLaboratoryLayoutTest`, `RoomPathfinderTest`, `DifficultyLayoutTest`, `LootTableCatalogTest`, `LootContainerTest`, `BackpackValueSwapTest`.
   - `movement/RunStartDetectorTest` (4): 달리기 시작 1회성/재시작 2회성.
   - `movement/MovementSystemTest` (3): 이동 거리=speed*delta(프레임 독립), 뛰기>걷기, 벽 비통과.
@@ -218,3 +227,51 @@ PNG 알파(`LaboratoryTileCatalogV2Test`): 벽/구조물/오버레이의 알파 
 - `profile/ProfilePersistenceTest`(7): 코덱 왕복 전 필드 보존(알 수 없는 강화 ID 포함), 과거 세이브 마이그레이션(재화 보존·알 수 없는 최상위 필드 재기록), 디스크 왕복·첫 실행 null, 주 저장 손상→백업 복구, 둘 다 손상→*.corrupt 보존(조용한 덮어쓰기 없음), 선택 상태 수량 제한·합계·판매 불가 제외.
 - 실행 검증: LAB_TEST_SALE 훅 — 표본 5개 이관→판매창 캡처(hq_sale_panel/selected/sold.png)→전체 선택→판매 9240W 정확. 재실행 시 "loaded rev=2 money=9240" 복원 확인. 이후 실제 수동 플레이로 연구소 수집→귀환 이관(items=1)→판매(+210원)→프로필 rev=4/9450원 저장까지 확인(profile.json+backup 생성).
 - 미확인: 창 크기별(작은/큰 창) 글자·스크롤·클릭 수동 확인, 저장 실패 UI 메시지 실화면(로직은 테스트로 검증).
+
+## 영구 강화 트리 테스트 (2026-10-20)
+- `profile/UpgradeTreeTest`(10): 실제 카탈로그 로드/수치, 중복 ID·없는 선행·순환·음수가·미지 효과 로딩 거부, 선행 미충족·재화 부족·중복 노드·거래 ID 반복 차단+정확한 차감, 저장 실패 롤백+재시도, 해금 자동 장착·해금 전 성능 강화 차단·슬롯 +1, 파생 능력치 멱등·알 수 없는 노드 보존, setMaxHp 현재 HP 유지·정수기 새 최대 회복·회복 상한·축소 클램프, HUD 색 비율(120/170 healthy·80/170 warning·40/170 critical), 장착·카탈로그 버전 저장 왕복, 구 프로필(레벨 맵) 마이그레이션.
+- 실행 검증(LAB_TEST_UPGRADE 훅): 구매 2건 차감 정확(10000→8800→5800), maxHp 120/현재 100 유지, 재실행 복원(rev=4·5800원), 이미 구매한 노드 재구매 거부(재화 불변), 연구소 HUD 120/120+Q 회복 슬롯 캡처, 강화창 상태 4종 실프레임(hq_upgrade_tree/purchased.png).
+- 수동: 실제 Space로 강화대 패널 열기/닫기, 노드 클릭→상세→구매 버튼, 연구소 전투에서 공격 +3 체감·Q 회복(녹색 연출·쿨다운), 리사이즈별 글자·클릭 확인.
+
+## 공통 스킬 시스템 테스트 (2026-10-20)
+- `profile/SkillSystemTest`(17): 회복 30 적용+정확히 10초 쿨다운(9초 재사용 거부→10초 가능), 실제 회복량 = min(30, maxHp−HP)(90→100), 강화 최대치(150)·강화 회복량(+10→40) 반영, **만피 실패 시 HP·쿨다운·효과 무변화**, 사망 시 회복 불가(부활 아님), 입력 차단 시 무변화, 잠긴/빈/미해금 슬롯 이유 구분, 돌진 공통 경로 3초 쿨다운+쿨다운 중 재발동 금지(이중 관리 없음), 돌진 시작 거부 시 쿨다운 미시작, **쿨다운은 skillId 기준 — 재장착/슬롯 이동에도 유지**, 중복 장착·용량 밖·미해금 장착 거부(상태 불변), 예약 키·중복 키 등록 거부(기존 키 유지), 최초 프로필 기본 로드아웃(F=돌진, 기본 키 F/Q/1/2/3) 1회, 구 equippedSkills→슬롯 2 회복 마이그레이션, 손상 설정 정리(미지 스킬·중복 장착·중복/예약 키→기본 키 복구+사유 로그, 유효 항목 보존), 저장 리스트 왕복, 런타임 스냅샷(0 초과만)·복원(오프라인 경과 없음).
+- `combat/PlayerDashStateTest`(5, 개편): 쿨다운 제거 후 이동 전용 — 방향 정규화/바라봄 폴백, 돌진 중 재시작 금지, 총거리 정확히 3타일, 대상당 1회 타격, interrupt 즉시 정지.
+- `profile/ProfilePersistenceTest`: 코덱 왕복에 skillSlots/skillKeys/skillCooldowns 추가.
+- 실행 검증(2026-10-20, 전부 실프레임/실로그): ① LAB_TEST_SKILLS — 구 프로필(equippedSkills=[heal]) 마이그레이션 "initialized default loadout" → slots=[dash,heal,,,] keys=[34,45,8,9,10] capacity=2 저장(profile.json에 skillSlots/skillKeys/skillCooldowns 기록 확인), 스킬창·키 대기 캡처(skill_panel_hq/keywait.png). ② profile.json에 dash 2.5초 주입 후 재시작 — LAB_AUTO_DASH 발동 결과 **ON_COOLDOWN**(이동 0, 쿨다운 2.5→2.08 플레이 시간만 감소) = 저장 쿨다운 복원 실증. ③ 스냅샷 초기화 후 — OK(63.5→64.7 이동, 쿨다운 2.9) + 퀵슬롯 바 가림+올림 초 "3" 캡처(skill_dash_cooldown_hud.png). ④ LAB_AUTO_HEAL — 120→80 피해 후 회복 OK(80→110, 쿨다운 10.0) → 즉시 재시도 **ON_COOLDOWN(110→110 무변화)**, 캐스트 연출·Q 슬롯 "10" 캡처(skill_heal_cast/cooldown_hud.png).
+- 미확인(수동 필요): 실제 키보드로 키 재등록 후 기존 키 무발동·새 키 발동 체감(로직은 keyAt 폴링 구조+단위 테스트로 보장), 슬롯 확장(active_slot_2) 구매 후 3번째 슬롯 실사용(용량 로직은 단위 테스트로 검증), 리사이즈별 퀵슬롯/스킬창 글자·클릭.
+
+## 추가 스킬 3종 테스트 (2026-10-20)
+- `combat/ThreeSkillsModelTest`(13): 채택 카탈로그 수치/곡선 단조 증가/곡선 끝 고정, 시전 이벤트 경계 1회(t=0 시작 실행·큰 delta 누락 없음·취소), 충격파 — 바깥 대상 처음부터 안 맞음·파면 도달 1회·잔상 무재타격, 큰 delta 1프레임에 전체 창 통과해도 원점 위 대상 포함 전부 1회+방향 정규화(NaN 없음), 차폐 차단·이동 적 고리 검출, 전기 — 방향 고정·1투사체 1충돌, swept 얇은 벽(0.2타일) 정지·벽이 몬스터보다 앞이면 무피해, 사거리 소멸·죽은 대상 무시, 감전 max 갱신·자연 복귀, 보호막 — 60→35피해→25·HP 0 / 25→35→0·HP10, 준비 중 무방어+재시전 거부, 만료 선처리·만료≠파괴·만료 후 무흡수, clear 정리, 공통 파이프라인 통합(전부 흡수 시 HP 불변+무적 시작, 무적 거절 시 보호막 불변, 잔여만 차감).
+- `profile/SkillSystemTest` +1: 3종이 같은 공통 파이프라인(쿨다운 1회/재시전 거부/시작 실패 무소모/미해금 거부).
+- `profile/UpgradeTreeTest` 확장: 17노드, SKILL_DAMAGE_ADD/SHIELD_ABSORB_ADD, 슬롯 확장 III→IV→V 사슬(기본2+3=최대5), 해금≠슬롯 증가.
+- 실행 검증(2026-10-20, LAB_AUTO_SKILL3 훅 — 60HP 테스트 몬스터 소환→공통 경로 발동→로그·캡처):
+  충격파 `OK cooldown=6.0`, 대상 60→30(정확 30), 금빛 링+명중 연출+넉백 캡처(skill3_shockwave_*).
+  전기 `OK cooldown=5.0`, 스폰→비행→명중 60→35(정확 25)+`shocked=true shockTime=0.235`(0.5에서 정상 감소), 착탄·감전 오버레이 캡처. 가구 옆 발사 시 즉시 가구 착탄(=solid 가구 차단 실증) 로그 포함.
+  보호막 `OK cooldown=12.0`, 35피해 흡수 60→25·HP 200→200, **무적 중 재공격 거절 시 보호막 불변**, 2차 35피해 25→0·HP 200→190(잔여 10만), 파괴 캡처(skill3_shield_*). HQ 스킬창 5종 목록·강화 트리 17노드 캡처(skill3_panel_5skills/upgrade_tree_17nodes).
+- 미확인(수동 필요): 실제 키보드 1/2/3 발동 체감, 30/144fps 실측(큰 delta 동등성은 단위 테스트로 검증 — 1프레임에 전체 피해 창 통과 케이스 포함), 효과음(팩에 신규 사운드 미포함 — 재생 안 함), 다수 몬스터 동시 명중 실화면(모델 테스트로 검증).
+
+## 보스 모드 1-1 테스트 (2026-10-20)
+- `boss/BossFightTest`(9): 단계 카탈로그(1-1만 기본 입장, 클리어 기록 해금, 미구현 입장 차단), 소개 중 공격 0·예고 중 피해 0, 조준 고정 전 추적/고정 후 비추적, 큰 delta 1프레임에 3발사 경계 전부 1회(재발사 없음), 투사체 기둥 첫 충돌·착탄·뒤 플레이어 무피해, 장판 시전 시작 바닥 고정·기둥 비차폐·활성 첫 틱+0.5s 간격(간격 전 재피해 없음)·만료 해제, 돌진 기둥 앞 정지(관통 없음)·막히면 무피해·개활지 1돌진 1회 피해(정지 후 겹침 무피해), 보스 사망 시 잔여 투사체/장판 취소·사망 중 늦은 타이머 공격 없음·DYING→REWARD_PENDING→CLEARED→복귀 1회(중복 무시), 동시 사망 실패 우선+잔여 판정 제거, 같은 attemptSeed 같은 패턴 순서(초기 투척→장판→돌진, 즉시 반복 금지).
+- `boss/BossRewardTest`(4): 1run 1보상(같은 runId 재호출 ALREADY_PROCESSED — 아이템/해금 복제 없음), 새 runId 토벌 새 보상 1개+최초 해금 중복 누적 없음+인스턴스 ID 유일, 저장 실패 시 이전 상태 유지(물품/해금/영수증 없음)·같은 보상 재시도 성공, 보스 진행/영수증 코덱 왕복(재실행 선확인), 보상 풀=기존 LEGENDARY 테이블(이름/가격 복사 없음)·runId 파생 시드 안정.
+- 실행 검증(2026-10-20): ① LAB_HQ_TEST=COMPUTER+LAB_TEST_BOSSPANEL — "보스 단계"+SPACE 프롬프트, 단계 선택창(1-1 입장 가능·나머지 잠김·상세·입장 버튼) 캡처. ② LAB_START_BOSS+LAB_BOSS_AUTO=win — 입장 로그(runId/seed/HP600), 패턴 텔레그래프·투사체·방벽 착탄·보스 HP바(360/600) 캡처, 자동 토벌 → "clear committed status=OK" → 결과창(전설·미니 인큐베이터·10000W·본부 보관함 지급·귀환문 개방) 캡처, 프로필 영속(bossUnlockedStages=[1-2]·영수증) 확인, 본부 복귀(이관/루트 재생성 없음). ③ LAB_BOSS_AUTO=fail — 사망 → FAILED(보상/해금 없음·대문 잠김 유지) 결과창(재도전/본부 복귀) 캡처.
+- 미확인(수동 필요): 실제 키보드/마우스로 세 패턴 회피·기둥 엄폐 체감, 30/144fps 실측(경계 1회·큰 delta는 단위 테스트), 재도전 버튼 실클릭 흐름(로직은 상태 기계+테스트 검증), 효과음(신규 없음 — 기존 재사용).
+
+## 9단계 보스전 확장 테스트 (2026-10-21)
+- `boss/BossBattleTest`(16, 순수 Java — 수치는 *.runtime.json에서): 부채꼴 예고 중 피해 0·cast당 1회+둔화 1회(갱신형)·기둥 차폐 무피해, 부채 투사체 경계 1회 정확히 5발(재발사 없음), 큰 dt(2.5s/2.0s 두 스텝)로 조준 고정·발사·비행 경계를 건너도 명중 1회(작은 스텝과 동일 — 프레임 독립), 회전 레이저 개활지 명중/기둥 차폐 시 무피해+표시 길이 절단(trimmedLength), 연속 돌진 기둥 앞 swept 정지(관통 없음)·기둥 뒤 무피해·재조준은 예고 중에만(돌진 중 방향 고정), 확장 고리 cast당 1회·차폐 방향 무피해, 겹친 독성 장판 그룹 틱 공유(1.3초 3틱 — 폭딜 없음), 뿌리 구속 겹침 1회+재적용 면역 2초+해제 후에만 재적용, 지연 폭발 표식 후 보스 즉사 → 예약 폭발/해저드 전부 취소·추가 피해 없음, 표식 위치 발사 시 고정(이동 추적 없음)+예고 1초 이상, 분노 전환 HP50% 1회(전환 중 해저드 없음·신규 피해 없음·이후 재등장 없음·회복 0.85배), 동시 사망 실패 우선, 이동 포격 중 보스 이동+표식 고정, 누출 흔적 최대 5개 상한·수명 경과 소멸.
+- `boss/BossNineStagesCatalogTest`(6): 9단계 ID·nextStage 순차 사슬(1-1→…→2-3), 기존 세이브 마이그레이션(unlocked=["1-2"]로 1-2 입장 가능·1-3 잠김·잠긴 단계 입장 차단), 1-1 레거시 계약(bossId centrifuge_c01·legacyEngine·표기 "폐기물 변이체"), 전 단계 패턴/투기장/초상/그리기·피격·footprint 분리 데이터 해석(1-보스 9.5타일), 투기장 BFS 도달성(플레이어 반경 부풀림, 스폰→보스→대문)+보스 스폰-기둥 비충돌, 데이터 정책 선언(boss_toxin 공유 그룹·차폐/관통 플래그·분노 0.5·복합 하위 패턴).
+- `combat/PlayerSkillRangeBaselineTest`(1): 확장 전 기록한 스킬 수치 불변 — 근접 0.9, 돌진 3/0.18/쿨3, 충격파 2.5/0.8, 전기 10/8/기절 0.5, 보호막 60/4s.
+- 1-1 회귀: 기존 `BossFightTest`(9)·`BossRewardTest`(4) 무수정 green(총 245).
+- 실행 검증(2026-10-21): ① LAB_TEST_BOSSPANEL — 3×3 실루엣 카드(잠김에도 실루엣 표시·contain-fit 잘림 없음·토벌/잠금 배지·선택 테두리), 1-1 상세(컬러 초상·폐기물 변이체·패턴 요약), "1-보스" 잠김 상세 캡처, 기존 프로필 로그 unlocked=[1-2] cleared=[1-1](마이그레이션 없이 호환). ② LAB_BOSS_STAGE=1-2 자동 토벌 — engine=nine·HP700, 빙결 장판 VFX·보스 HP바(냉각관 거수) 캡처, "clear committed status=OK"(보상 centrifuge)·대문 개방·본부 복귀. ③ 1-4 — 거대 기체(8×8)+회전 레이저 빔 캡처·토벌 커밋 OK. ④ 2-2/1-보스/1-1 레거시 회귀 동일 절차.
+- 미확인(수동 필요): 실제 키보드로 9단계 전 패턴 회피 체감·밸런스(초안 수치 — 조정 전제), 30/144fps 실측(프레임 독립은 단위 테스트), 둔화/구속 중 입력 체감, 신규 효과음 없음(기존 재사용).
+
+## 난이도별 시드 기반 연구소 생성 테스트 (2026-10-20)
+- `world/LaboratoryGeneratorTest`(7): RNG golden vector(파이썬 참조 reference_generator.py와 FNV-1a32+XorShift32 완전 일치 — 64비트 시드 문자열/unsigned shift/오버플로 포함), 같은 시드 동일 결과(contentHash·몬스터 좌표)·다른 시드 상이, 하위 스트림 독립(다른 scope 소비가 수열을 밀지 않음), **난이도별 100시드(총 300) 전수 검증** — 12개 구조 틀 전부 선택·방 활동 영역/캐비넷/문 양방향 접근(배우 그리드 BFS 재확인)·쉬움 금지 몬스터(경비원/팀장) 0·쉬움 예산 정확 56·보통/어려움 최소 종 보장·팀장 구석 조건·몬스터 간격·대문 존재, 난이도별 규모/방 수/몬스터/캐비넷 증가, golden 폴백 시드 상시 유효, 16개 테마 전 난이도 등장.
+- 실측 통계(100시드×3): 재시도 0, 폴백 0, 몬스터 56/88/126 고정, 복도 평균 6~7타일·최대 10(기준 ≤9는 참조 팩 좌표 기준 — 실제 이식 후 도그레그 포함 10까지 허용), 캐비넷 23/35/49~50(드롭 ≤1).
+- 실행 검증: LAB_SEED=424242 — 쉬움/보통/어려움 조감 캡처(gen_easy/normal/hard_overview.png: 16/25/36방·대문·가구·몬스터), 실내 캡처(gen_easy_ingame.png: V4 문·방향별 가구·컨테이너·미니맵·스폰), 같은 시드 재실행 contentHash 4dbd3700 일치(결정성), LabGen 메타데이터 로그(재현 정보) 확인.
+- 기존 수제 쉬움 맵: 고정 회귀 기준으로 보존(EasyLaboratoryLayoutTest·DifficultyLayoutTest·ReturnRouteRegressionTest 등 기존 테스트 전부 유지, LAB_CLASSIC_MAP=1로 실행 가능).
+- 미확인(수동 필요): 생성 맵에서 실제 문 Space 개폐/캐비넷 연타/H 귀환/대문 본부 복귀 체감(로직은 기존 공유 경로 + BFS 검증), 보통/어려움 실제 전투 밸런스 체감, 재입장 반복 플레이.
+
+## 본부 스킬 테이블·강화 작업대 분리 (2026-10-20)
+- `world/HeadquartersLayoutTest`: 스킬 테이블(북벽 금속 벤치) 남쪽 정면 근접 안내+상호작용 가능/뒤(북쪽) 거부, 강화 트리 = 접이식 작업대 전면 상호작용, 원거리 거부, 침대(field_medical_cot) 제거 확인, 상호작용 지점은 skill_table/folding_workbench로 교체(침대 지점 null).
+- 실행 검증(2026-10-20): LAB_HQ_TEST=SKILL 스폰 — 침대 없는 서쪽 배치 + 스킬 테이블 상판 위 "스킬 등록"+SPACE 프롬프트(HP HUD에 안 가림) 실프레임(hq_prompt_skill.png), 이어서 스킬창 열림 캡처. LAB_HQ_TEST=BENCH 스폰 — 망치 작업대 위 "영구 강화"+SPACE 프롬프트(hq_prompt_bench.png).
+- 미확인(수동): 실제 SPACE 키로 테이블/작업대 창 열림 체감(발화 경로는 자판기와 동일 코드·단위 테스트 검증), 4개 대상 동시 근접 시 최근접 선택 체감.

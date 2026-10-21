@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "mapSize": [
+    32,
+    24
+  ],
+  "origin": "bottom-left",
+  "unit": "oneTile",
+  "floorRect": [
+    2,
+    2,
+    28,
+    20
+  ],
+  "outerWallThickness": 2,
+  "wallAssetSource": "existing laboratory wall/corner catalog",
+  "playerSpawn": [
+    16,
+    4
+  ],
+  "bossSpawn": [
+    16,
+    17
+  ],
+  "entryReturnGate": {
+    "id": "arena_south_gate",
+    "logicalPassageRect": [
+      14,
+      0,
+      4,
+      2
+    ],
+    "interactionAnchor": [
+      16,
+      3
+    ],
+    "sharedEntryAndExit": true,
+    "duringCombat": "locked",
+    "afterRewardCommitted": "open"
+  },
+  "pillars": [
+    {
+      "id": "pillar_0",
+      "proxyFootprint": [
+        8,
+        8,
+        2,
+        2
+      ],
+      "asset": "runtime/arena/pillar_96x128.png"
+    },
+    {
+      "id": "pillar_1",
+      "proxyFootprint": [
+        22,
+        8,
+        2,
+        2
+      ],
+      "asset": "runtime/arena/pillar_96x128.png"
+    },
+    {
+      "id": "pillar_2",
+      "proxyFootprint": [
+        8,
+        15,
+        2,
+        2
+      ],
+      "asset": "runtime/arena/pillar_96x128.png"
+    },
+    {
+      "id": "pillar_3",
+      "proxyFootprint": [
+        22,
+        15,
+        2,
+        2
+      ],
+      "asset": "runtime/arena/pillar_96x128.png"
+    }
+  ],
+  "barriers": [
+    {
+      "id": "barrier_0",
+      "proxyFootprint": [
+        12,
+        11,
+        3,
+        1
+      ],
+      "asset": "runtime/arena/barrier_128x64.png"
+    },
+    {
+      "id": "barrier_1",
+      "proxyFootprint": [
+        18,
+        11,
+        3,
+        1
+      ],
+      "asset": "runtime/arena/barrier_128x64.png"
+    }
+  ],
+  "footprintStatus": "proxy calibration; replace with actual world anchors/collider before game verification"
+}

@@ -1,0 +1,155 @@
+{
+  "version": 1,
+  "animations": {
+    "boss_idle": {
+      "file": "runtime/boss/boss_idle_384x384.png",
+      "columns": 2,
+      "rows": 2,
+      "frameSize": [
+        192,
+        192
+      ],
+      "count": 4,
+      "order": "row-major from top-left",
+      "frameSeconds": 0.1,
+      "loop": true,
+      "anchor": [
+        96,
+        160
+      ],
+      "packing": "complete source subjects extracted to avoid grid clipping; shared reference-pose calibration within each sheet; idle/attack/death first-pose 160x108 core; fixed output cells and feet",
+      "muzzleAnchor": [
+        96,
+        128
+      ]
+    },
+    "boss_attack": {
+      "file": "runtime/boss/boss_attack_768x384.png",
+      "columns": 4,
+      "rows": 2,
+      "frameSize": [
+        192,
+        192
+      ],
+      "count": 8,
+      "order": "row-major from top-left",
+      "frameSeconds": 0.1,
+      "loop": false,
+      "anchor": [
+        96,
+        160
+      ],
+      "packing": "complete source subjects extracted to avoid grid clipping; shared reference-pose calibration within each sheet; idle/attack/death first-pose 160x108 core; fixed output cells and feet",
+      "segments": {
+        "telegraph": [
+          0,
+          1
+        ],
+        "release": [
+          2,
+          3
+        ],
+        "recovery": [
+          4,
+          5
+        ],
+        "dash": [
+          6,
+          7
+        ]
+      },
+      "playback": "state-driven; never play all 8 frames for every pattern"
+    },
+    "boss_death": {
+      "file": "runtime/boss/boss_death_576x384.png",
+      "columns": 3,
+      "rows": 2,
+      "frameSize": [
+        192,
+        192
+      ],
+      "count": 6,
+      "order": "row-major from top-left",
+      "frameSeconds": 0.1,
+      "loop": false,
+      "anchor": [
+        96,
+        160
+      ],
+      "packing": "complete source subjects extracted to avoid grid clipping; shared reference-pose calibration within each sheet; idle/attack/death first-pose 160x108 core; fixed output cells and feet",
+      "holdLast": true,
+      "durationSeconds": 0.6
+    },
+    "boss_projectile": {
+      "file": "runtime/vfx/boss_projectile_256x256.png",
+      "columns": 2,
+      "rows": 2,
+      "frameSize": [
+        128,
+        128
+      ],
+      "count": 4,
+      "order": "row-major from top-left",
+      "frameSeconds": 0.06666666666666667,
+      "loop": true,
+      "anchor": [
+        64,
+        64
+      ],
+      "packing": "shared scale; orb core registered to [64,64]",
+      "forward": "+X/right",
+      "anchorIs": "amber orb center, not the center of its tail"
+    },
+    "acid_pool": {
+      "file": "runtime/vfx/acid_pool_384x256.png",
+      "columns": 3,
+      "rows": 2,
+      "frameSize": [
+        128,
+        128
+      ],
+      "count": 6,
+      "order": "row-major from top-left",
+      "frameSeconds": 0.06666666666666667,
+      "loop": true,
+      "anchor": [
+        64,
+        64
+      ],
+      "packing": "fixed source grid and shared scale; no per-frame trim",
+      "introFrames": [
+        0,
+        1
+      ],
+      "introTiming": "play during the final 2/15 sec of telegraph without damage",
+      "activeLoopFrames": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "activeFramesStartAt": "area activation time; full visible size and damage start together",
+      "sizeSource": "actual hazard radius; particle/vapor bounds are not damage bounds"
+    },
+    "boss_impact": {
+      "file": "runtime/vfx/boss_impact_384x256.png",
+      "columns": 3,
+      "rows": 2,
+      "frameSize": [
+        128,
+        128
+      ],
+      "count": 6,
+      "order": "row-major from top-left",
+      "frameSeconds": 0.06666666666666667,
+      "loop": false,
+      "anchor": [
+        64,
+        64
+      ],
+      "packing": "fixed source grid and shared scale; no per-frame trim"
+    }
+  },
+  "bodyViews": "single elevated front orthographic view; not a 4-direction sheet",
+  "useOneSimulationClock": true
+}

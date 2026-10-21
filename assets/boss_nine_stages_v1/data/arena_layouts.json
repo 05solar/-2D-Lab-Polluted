@@ -1,0 +1,506 @@
+{
+  "status": "logical layout drafts; use existing wall/door autotiling and furniture rules",
+  "arenas": [
+    {
+      "id": "arena_waste_mutant",
+      "sizeTiles": [
+        36,
+        28
+      ],
+      "boundaryThickness": 2,
+      "playerSpawn": [
+        18,
+        5
+      ],
+      "bossSpawn": [
+        18,
+        20
+      ],
+      "southGatePassage": [
+        16,
+        0,
+        4,
+        2
+      ],
+      "southGateInteraction": [
+        18,
+        3
+      ],
+      "pillars": [
+        [
+          7,
+          8,
+          2,
+          2
+        ],
+        [
+          27,
+          8,
+          2,
+          2
+        ],
+        [
+          7,
+          19,
+          2,
+          2
+        ],
+        [
+          27,
+          19,
+          2,
+          2
+        ]
+      ],
+      "requiresFootprintAwareReachability": true,
+      "coverRules": "see per-pattern occludedByPillars / blockedByPillars; ground drops bypass cover",
+      "keepCentralCombatAreaClear": true
+    },
+    {
+      "id": "arena_coolant_colossus",
+      "sizeTiles": [
+        36,
+        28
+      ],
+      "boundaryThickness": 2,
+      "playerSpawn": [
+        18,
+        5
+      ],
+      "bossSpawn": [
+        18,
+        20
+      ],
+      "southGatePassage": [
+        16,
+        0,
+        4,
+        2
+      ],
+      "southGateInteraction": [
+        18,
+        3
+      ],
+      "pillars": [
+        [
+          8,
+          8,
+          2,
+          2
+        ],
+        [
+          26,
+          8,
+          2,
+          2
+        ],
+        [
+          8,
+          19,
+          2,
+          2
+        ],
+        [
+          26,
+          19,
+          2,
+          2
+        ]
+      ],
+      "requiresFootprintAwareReachability": true,
+      "coverRules": "see per-pattern occludedByPillars / blockedByPillars; ground drops bypass cover",
+      "keepCentralCombatAreaClear": true
+    },
+    {
+      "id": "arena_culture_colony",
+      "sizeTiles": [
+        36,
+        28
+      ],
+      "boundaryThickness": 2,
+      "playerSpawn": [
+        18,
+        5
+      ],
+      "bossSpawn": [
+        18,
+        20
+      ],
+      "southGatePassage": [
+        16,
+        0,
+        4,
+        2
+      ],
+      "southGateInteraction": [
+        18,
+        3
+      ],
+      "pillars": [
+        [
+          9,
+          8,
+          2,
+          2
+        ],
+        [
+          25,
+          8,
+          2,
+          2
+        ],
+        [
+          9,
+          19,
+          2,
+          2
+        ],
+        [
+          25,
+          19,
+          2,
+          2
+        ]
+      ],
+      "requiresFootprintAwareReachability": true,
+      "coverRules": "see per-pattern occludedByPillars / blockedByPillars; ground drops bypass cover",
+      "keepCentralCombatAreaClear": true
+    },
+    {
+      "id": "arena_security_suppressor",
+      "sizeTiles": [
+        44,
+        34
+      ],
+      "boundaryThickness": 2,
+      "playerSpawn": [
+        22,
+        5
+      ],
+      "bossSpawn": [
+        22,
+        26
+      ],
+      "southGatePassage": [
+        20,
+        0,
+        4,
+        2
+      ],
+      "southGateInteraction": [
+        22,
+        3
+      ],
+      "pillars": [
+        [
+          7,
+          8,
+          2,
+          2
+        ],
+        [
+          35,
+          8,
+          2,
+          2
+        ],
+        [
+          7,
+          24,
+          2,
+          2
+        ],
+        [
+          35,
+          24,
+          2,
+          2
+        ],
+        [
+          22,
+          12,
+          2,
+          2
+        ]
+      ],
+      "requiresFootprintAwareReachability": true,
+      "coverRules": "see per-pattern occludedByPillars / blockedByPillars; ground drops bypass cover",
+      "keepCentralCombatAreaClear": true
+    },
+    {
+      "id": "arena_neural_specimen",
+      "sizeTiles": [
+        44,
+        34
+      ],
+      "boundaryThickness": 2,
+      "playerSpawn": [
+        22,
+        5
+      ],
+      "bossSpawn": [
+        22,
+        26
+      ],
+      "southGatePassage": [
+        20,
+        0,
+        4,
+        2
+      ],
+      "southGateInteraction": [
+        22,
+        3
+      ],
+      "pillars": [
+        [
+          8,
+          8,
+          2,
+          2
+        ],
+        [
+          34,
+          8,
+          2,
+          2
+        ],
+        [
+          8,
+          25,
+          2,
+          2
+        ],
+        [
+          34,
+          25,
+          2,
+          2
+        ]
+      ],
+      "requiresFootprintAwareReachability": true,
+      "coverRules": "see per-pattern occludedByPillars / blockedByPillars; ground drops bypass cover",
+      "keepCentralCombatAreaClear": true
+    },
+    {
+      "id": "arena_containment_fusion",
+      "sizeTiles": [
+        44,
+        34
+      ],
+      "boundaryThickness": 2,
+      "playerSpawn": [
+        22,
+        5
+      ],
+      "bossSpawn": [
+        22,
+        26
+      ],
+      "southGatePassage": [
+        20,
+        0,
+        4,
+        2
+      ],
+      "southGateInteraction": [
+        22,
+        3
+      ],
+      "pillars": [
+        [
+          9,
+          8,
+          2,
+          2
+        ],
+        [
+          33,
+          8,
+          2,
+          2
+        ],
+        [
+          9,
+          25,
+          2,
+          2
+        ],
+        [
+          33,
+          25,
+          2,
+          2
+        ]
+      ],
+      "requiresFootprintAwareReachability": true,
+      "coverRules": "see per-pattern occludedByPillars / blockedByPillars; ground drops bypass cover",
+      "keepCentralCombatAreaClear": true
+    },
+    {
+      "id": "arena_cryogenic_multipod",
+      "sizeTiles": [
+        52,
+        40
+      ],
+      "boundaryThickness": 2,
+      "playerSpawn": [
+        26,
+        5
+      ],
+      "bossSpawn": [
+        26,
+        32
+      ],
+      "southGatePassage": [
+        24,
+        0,
+        4,
+        2
+      ],
+      "southGateInteraction": [
+        26,
+        3
+      ],
+      "pillars": [
+        [
+          7,
+          8,
+          2,
+          2
+        ],
+        [
+          43,
+          8,
+          2,
+          2
+        ],
+        [
+          7,
+          31,
+          2,
+          2
+        ],
+        [
+          43,
+          31,
+          2,
+          2
+        ]
+      ],
+      "requiresFootprintAwareReachability": true,
+      "coverRules": "see per-pattern occludedByPillars / blockedByPillars; ground drops bypass cover",
+      "keepCentralCombatAreaClear": true
+    },
+    {
+      "id": "arena_mutant_botanical",
+      "sizeTiles": [
+        52,
+        40
+      ],
+      "boundaryThickness": 2,
+      "playerSpawn": [
+        26,
+        5
+      ],
+      "bossSpawn": [
+        26,
+        32
+      ],
+      "southGatePassage": [
+        24,
+        0,
+        4,
+        2
+      ],
+      "southGateInteraction": [
+        26,
+        3
+      ],
+      "pillars": [
+        [
+          8,
+          8,
+          2,
+          2
+        ],
+        [
+          42,
+          8,
+          2,
+          2
+        ],
+        [
+          8,
+          31,
+          2,
+          2
+        ],
+        [
+          42,
+          31,
+          2,
+          2
+        ]
+      ],
+      "requiresFootprintAwareReachability": true,
+      "coverRules": "see per-pattern occludedByPillars / blockedByPillars; ground drops bypass cover",
+      "keepCentralCombatAreaClear": true
+    },
+    {
+      "id": "arena_mobile_culture_tank",
+      "sizeTiles": [
+        52,
+        40
+      ],
+      "boundaryThickness": 2,
+      "playerSpawn": [
+        26,
+        5
+      ],
+      "bossSpawn": [
+        26,
+        32
+      ],
+      "southGatePassage": [
+        24,
+        0,
+        4,
+        2
+      ],
+      "southGateInteraction": [
+        26,
+        3
+      ],
+      "pillars": [
+        [
+          9,
+          8,
+          2,
+          2
+        ],
+        [
+          41,
+          8,
+          2,
+          2
+        ],
+        [
+          9,
+          31,
+          2,
+          2
+        ],
+        [
+          41,
+          31,
+          2,
+          2
+        ]
+      ],
+      "requiresFootprintAwareReachability": true,
+      "coverRules": "see per-pattern occludedByPillars / blockedByPillars; ground drops bypass cover",
+      "keepCentralCombatAreaClear": true
+    }
+  ]
+}

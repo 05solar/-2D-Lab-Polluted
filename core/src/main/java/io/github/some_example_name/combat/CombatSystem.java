@@ -53,10 +53,21 @@ public final class CombatSystem {
      * @return 이 타격으로 몬스터가 죽었으면 true
      */
     public boolean applyPlayerStrike(Player player, Monster monster, float dirX, float dirY) {
-        boolean dead = monster.health().damage(config.playerAttackDamage);
+        return applyPlayerSkillStrike(player, monster, config.playerAttackDamage,
+            dirX, dirY, config.monsterKnockbackDistance);
+    }
+
+    /**
+     * 스킬(충격파/전기 투척 등) 공용 타격: 피해·넉백 거리만 스킬 데이터 값으로 바꾸고
+     * HIT/DEAD 전환·처치 회복·타격 알림은 일반 공격과 같은 경로를 쓴다. 스킬 기본 피해는
+     * 고정값+전용 강화라 기본 공격력 보너스를 중복 가산하지 않는다.
+     */
+    public boolean applyPlayerSkillStrike(Player player, Monster monster, int damage,
+                                          float dirX, float dirY, float knockbackDistance) {
+        boolean dead = monster.health().damage(damage);
         monster.setHitTime(config.knockbackSeconds);
-        monster.setKnockback(dirX * config.monsterKnockbackDistance,
-            dirY * config.monsterKnockbackDistance, config.knockbackSeconds);
+        monster.setKnockback(dirX * knockbackDistance, dirY * knockbackDistance,
+            config.knockbackSeconds);
         monster.setState(dead ? MonsterState.DEAD : MonsterState.HIT);
         monster.setStateTime(0f);
         if (dead) player.heal(config.killHealHp);

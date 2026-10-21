@@ -107,7 +107,10 @@ public class HeadquartersLayoutTest {
         approach.setFacing(Direction.DOWN);
         assertTrue("vending prompt is proximity-based", room.isNearVending(approach));
         assertFalse(room.canInteractWithVending(approach));
-        assertNotNull(room.interactionPoint("field_medical_cot"));
+        // 2026-10-20: 침대(field_medical_cot) 제거 — 스킬 테이블·강화 작업대가 상호작용 지점을 갖는다.
+        assertNull(room.interactionPoint("field_medical_cot"));
+        assertNotNull(room.interactionPoint("skill_table"));
+        assertNotNull(room.interactionPoint("folding_workbench"));
         assertNotNull(room.interactionPoint("vending_machine"));
         Rectangle range = room.vendingInteractionArea();
         for (Rectangle footprint : room.furnitureFootprints()) {
@@ -192,6 +195,27 @@ public class HeadquartersLayoutTest {
         assertTrue("route blocked near " + targetX + "," + targetY, guard < 10000);
         assertEquals(targetX, p.feetX(), 0.06f);
         assertEquals(targetY, p.feetY(), 0.06f);
+    }
+
+    /** 2026-10-20: 스킬 테이블(북벽 금속 벤치)·강화 작업대(망치) 전면 접근 상호작용 + 침대 제거. */
+    @Test public void skillTableAndUpgradeWorkbenchHaveFrontInteractions() {
+        HeadquartersRoom room = HeadquartersLayout.create().room();
+        // 스킬 테이블은 중앙 터미널 책상 오른쪽(8.75,7.45 — 2026-10-20 콘솔과 위치 교환).
+        Player atSkillTable = player(8.75f, 6.35f);
+        assertTrue("근접 안내(SPACE 프롬프트)", room.isNearSkillTable(atSkillTable));
+        assertTrue("남쪽 정면 상호작용 가능", room.canInteractWithSkillTable(atSkillTable));
+        assertFalse("테이블 뒤(북쪽)에서는 불가", room.canInteractWithSkillTable(player(8.75f, 8.2f)));
+        // 강화 작업대는 중앙 터미널 책상 왼쪽(4.35,7.45 — 2026-10-20 콘솔과 위치 교환).
+        Player atWorkbench = player(4.35f, 6.35f);
+        assertTrue(room.isNearUpgradeBench(atWorkbench));
+        assertTrue("강화 트리는 접이식 작업대에서", room.canInteractWithUpgradeBench(atWorkbench));
+        Player far = player(6.5f, 3f);
+        assertFalse(room.isNearSkillTable(far));
+        assertFalse(room.canInteractWithUpgradeBench(far));
+        boolean cotPresent = false;
+        for (HeadquartersProp prop : HeadquartersLayout.create().visuals().props())
+            if (prop.id().equals("field_medical_cot")) cotPresent = true;
+        assertFalse("침대 제거 — 스킬 테이블 남쪽 접근로 확보", cotPresent);
     }
 
     @Test public void repeatedLayoutsHaveIdenticalVisualsAndProps() {

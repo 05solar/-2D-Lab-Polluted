@@ -68,10 +68,15 @@ public final class HeadquartersLayout {
         solid[SOUTH_WALL_Y][8] = true;
 
         List<HeadquartersProp> props = new ArrayList<>();
-        // North center: terminal_desk includes the monitor; consoles flank it.
-        props.add(HeadquartersProp.furniture("communications_console", 4.35f, 7.45f));
+        // 북벽 가구 줄(서→동): 콘솔 · 강화 작업대 · 중앙 터미널 책상 · 스킬 테이블.
+        // (2026-10-20: 중앙 오른쪽 콘솔 ↔ 스킬 테이블, 중앙 왼쪽 콘솔 ↔ 강화 작업대 교환,
+        //  서쪽 침대 제거)
+        props.add(HeadquartersProp.furniture("communications_console", 2.15f, 7.45f));
+        // 망치 있는 접이식 작업대 = 영구 강화 트리 상호작용 대상(SPACE).
+        props.add(HeadquartersProp.furniture("folding_workbench", 4.35f, 7.45f));
         props.add(HeadquartersProp.furniture("terminal_desk", 6.55f, 7.35f));
-        props.add(HeadquartersProp.furniture("communications_console", 8.75f, 7.45f));
+        // 스킬 테이블(정면/상부 가구 — 북벽 전용, 회전 없음). SPACE로 스킬 장착/단축키 등록 창.
+        props.add(HeadquartersProp.skillTable(8.75f, 7.45f));
         props.add(HeadquartersProp.furniture("notice_board", 6.55f, 8.45f));
         // Northeast shop: front art naturally faces south; leave its southern approach clear.
         props.add(HeadquartersProp.vending(11.45f, 7.1f));
@@ -80,9 +85,10 @@ public final class HeadquartersLayout {
         props.add(HeadquartersProp.furniture("reinforced_lockers", 11.85f, 3.35f));
         props.add(HeadquartersProp.furniture("water_dispenser", 9.8f, 2.05f));
         props.add(HeadquartersProp.furniture("stacked_supply_crates", 11.8f, 1.85f));
-        props.add(HeadquartersProp.furniture("field_medical_cot", 1.75f, 6.4f));
+        // 2026-10-20: 서쪽 침대(field_medical_cot) 제거. 서쪽 유지보수 줄에는 트롤리와
+        // (강화 작업대와 자리를 바꾼) 통신 콘솔이 남는다.
         props.add(HeadquartersProp.furniture("medical_trolley", 2.6f, 5.05f));
-        props.add(HeadquartersProp.furniture("folding_workbench", 1.75f, 3.95f));
+        props.add(HeadquartersProp.furniture("communications_console", 1.75f, 3.95f));
         props.add(HeadquartersProp.furniture("portable_generator", 3.7f, 2.05f));
         props.add(HeadquartersProp.furniture("command_table", 5.1f, 2.05f));
         props.add(HeadquartersProp.furniture("stacked_supply_crates", 4.75f, 3.75f));

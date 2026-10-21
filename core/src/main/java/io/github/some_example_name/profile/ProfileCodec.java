@@ -15,8 +15,10 @@ import com.badlogic.gdx.utils.JsonWriter;
 public final class ProfileCodec {
 
     private static final String[] KNOWN_FIELDS = {"schemaVersion", "profileRevision",
-        "currencyWon", "headquartersStorage", "purchasedUpgrades",
-        "processedReturnIds", "processedTransactionIds", "nextInstanceId"};
+        "currencyWon", "headquartersStorage", "purchasedUpgrades", "equippedSkills",
+        "skillSlots", "skillKeys", "skillCooldowns",
+        "bossUnlockedStages", "bossClearedStages", "bossRewardReceipts",
+        "upgradeCatalogVersion", "processedReturnIds", "processedTransactionIds", "nextInstanceId"};
 
     private ProfileCodec() { }
 
@@ -37,6 +39,19 @@ public final class ProfileCodec {
         for (java.util.Map.Entry<String, Integer> e : profile.purchasedUpgrades.entrySet())
             upgrades.addChild(e.getKey(), new JsonValue(e.getValue()));
         root.addChild("purchasedUpgrades", upgrades);
+        root.addChild("equippedSkills", stringArray(profile.equippedSkills));
+        root.addChild("skillSlots", stringArray(profile.skillSlots));
+        JsonValue keyArray = new JsonValue(JsonValue.ValueType.array);
+        for (Integer key : profile.skillKeys) keyArray.addChild(new JsonValue(key == null ? 0 : key));
+        root.addChild("skillKeys", keyArray);
+        JsonValue cooldowns = new JsonValue(JsonValue.ValueType.object);
+        for (java.util.Map.Entry<String, Float> e : profile.skillCooldowns.entrySet())
+            cooldowns.addChild(e.getKey(), new JsonValue(e.getValue()));
+        root.addChild("skillCooldowns", cooldowns);
+        root.addChild("bossUnlockedStages", stringArray(profile.bossUnlockedStages));
+        root.addChild("bossClearedStages", stringArray(profile.bossClearedStages));
+        root.addChild("bossRewardReceipts", stringArray(profile.bossRewardReceipts));
+        root.addChild("upgradeCatalogVersion", new JsonValue(profile.upgradeCatalogVersion));
         root.addChild("processedReturnIds", stringArray(profile.processedReturnIds));
         root.addChild("processedTransactionIds", stringArray(profile.processedTransactionIds));
         root.addChild("nextInstanceId", new JsonValue(profile.nextInstanceId));
@@ -65,6 +80,22 @@ public final class ProfileCodec {
         JsonValue upgrades = root.get("purchasedUpgrades");
         if (upgrades != null) for (JsonValue e = upgrades.child; e != null; e = e.next)
             profile.purchasedUpgrades.put(e.name(), e.asInt()); // 알 수 없는 강화 ID도 보존
+        JsonValue equipped = root.get("equippedSkills");
+        if (equipped != null) for (JsonValue e = equipped.child; e != null; e = e.next)
+            if (e.isString()) profile.equippedSkills.add(e.asString());
+        JsonValue slotArray = root.get("skillSlots");
+        if (slotArray != null) for (JsonValue e = slotArray.child; e != null; e = e.next)
+            profile.skillSlots.add(e.isString() ? e.asString() : "");
+        JsonValue keyArray = root.get("skillKeys");
+        if (keyArray != null) for (JsonValue e = keyArray.child; e != null; e = e.next)
+            profile.skillKeys.add(e.isNumber() ? e.asInt() : 0);
+        JsonValue cooldowns = root.get("skillCooldowns");
+        if (cooldowns != null) for (JsonValue e = cooldowns.child; e != null; e = e.next)
+            profile.skillCooldowns.put(e.name(), e.asFloat());
+        readStrings(root.get("bossUnlockedStages"), profile.bossUnlockedStages);
+        readStrings(root.get("bossClearedStages"), profile.bossClearedStages);
+        readStrings(root.get("bossRewardReceipts"), profile.bossRewardReceipts);
+        profile.upgradeCatalogVersion = root.getInt("upgradeCatalogVersion", 0);
         readStrings(root.get("processedReturnIds"), profile.processedReturnIds);
         readStrings(root.get("processedTransactionIds"), profile.processedTransactionIds);
         profile.nextInstanceId = Math.max(root.getLong("nextInstanceId", 1L), maxInstance + 1);

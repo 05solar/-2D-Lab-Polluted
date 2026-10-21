@@ -34,6 +34,8 @@ public final class HeadquartersEconomy {
     /** 아이템 ID → 개당 판매 가격(원). 카탈로그(loot_tables.json)가 유일한 가격 기준. */
     private final Map<String, Integer> catalogPrices;
     private PlayerProfile profile;
+    /** 저장 시점에 스킬 쿨다운 스냅샷을 싣기 위한 공급자(게임 루트가 주입, 선택적). */
+    private java.util.concurrent.Callable<Map<String, Float>> cooldownSnapshotProvider;
 
     public HeadquartersEconomy(PlayerProfile profile, ProfileStore store,
                                Map<String, Integer> catalogPrices) {
@@ -145,6 +147,68 @@ public final class HeadquartersEconomy {
         return sell(transactionId, quantities);
     }
 
+    /**
+     * 강화 노드 구매(1회 구매·AND 선행·재화 검증·거래 ID 중복 차단).
+     * 재화 차감 + 구매 ID 추가 + (해금 노드) 빈 활성 슬롯 자동 장착을 하나의 다음 프로필로
+     * 만들고, 판매와 같은 거래 경계(저장 성공 → 메모리 교체)로 처리한다.
+     * UI 상태를 신뢰하지 않고 모델에서 전부 다시 검증한다.
+     *
+     * @param baseActiveSlots 기본 활성 슬롯 수(확장 노드 효과는 구매 집합에서 재계산)
+     */
+    public synchronized Result purchaseUpgrade(String transactionId, UpgradeCatalog catalog,
+                                               String nodeId, int baseActiveSlots) {
+        if (transactionId == null || transactionId.isEmpty() || catalog == null || nodeId == null)
+            return new Result(Status.INVALID, 0, 0L);
+        if (profile.processedTransactionIds.contains(transactionId))
+            return new Result(Status.ALREADY_PROCESSED, 0, 0L);
+        UpgradeCatalog.Node node = catalog.node(nodeId);
+        if (node == null) return new Result(Status.INVALID, 0, 0L);
+        java.util.Set<String> purchased = profile.purchasedNodeIds();
+        if (purchased.contains(nodeId)) return new Result(Status.INVALID, 0, 0L); // 1회 구매
+        if (!catalog.prerequisitesMet(nodeId, purchased)) return new Result(Status.INVALID, 0, 0L);
+        if (node.costWon > profile.currencyWon) return new Result(Status.INVALID, 0, 0L);
+        // 효과 적용 가능성(비용 차감 전 검증): 중복 해금 금지, 성능 강화는 해금 필요.
+        if (node.effectType == UpgradeCatalog.EffectType.SKILL_UNLOCK) {
+            UpgradeEffects current = UpgradeEffects.compute(catalog, purchased);
+            if (node.skillId == null || current.unlockedSkillIds.contains(node.skillId))
+                return new Result(Status.INVALID, 0, 0L);
+        }
+        if (node.effectType == UpgradeCatalog.EffectType.SKILL_HEAL_ADD
+            || node.effectType == UpgradeCatalog.EffectType.SKILL_DAMAGE_ADD
+            || node.effectType == UpgradeCatalog.EffectType.SHIELD_ABSORB_ADD) {
+            UpgradeEffects current = UpgradeEffects.compute(catalog, purchased);
+            if (node.skillId == null || !current.unlockedSkillIds.contains(node.skillId))
+                return new Result(Status.INVALID, 0, 0L);
+        }
+        PlayerProfile next = profile.copy();
+        next.currencyWon -= node.costWon;
+        next.purchasedUpgrades.put(nodeId, 1);
+        next.upgradeCatalogVersion = catalog.catalogVersion;
+        if (node.effectType == UpgradeCatalog.EffectType.SKILL_UNLOCK) {
+            // 빈 활성 슬롯이 있으면 기본 장착한다(기본 위치 우선). 찬 슬롯은 덮어쓰지 않는다.
+            UpgradeEffects after = UpgradeEffects.compute(catalog, next.purchasedNodeIds());
+            int capacity = Math.min(SkillLoadout.SLOT_COUNT, baseActiveSlots + after.extraActiveSlots);
+            while (next.skillSlots.size() < SkillLoadout.SLOT_COUNT) next.skillSlots.add("");
+            boolean alreadyEquipped = next.skillSlots.contains(node.skillId);
+            if (!alreadyEquipped) {
+                int target = -1;
+                int preferred = SkillLoadout.HEAL.equals(node.skillId) ? 1 : 0; // 기본 위치
+                if (preferred < capacity && next.skillSlots.get(preferred).isEmpty()) target = preferred;
+                else for (int i = 0; i < capacity; i++)
+                    if (next.skillSlots.get(i).isEmpty()) { target = i; break; }
+                if (target >= 0) next.skillSlots.set(target, node.skillId);
+            }
+            if (!next.equippedSkills.contains(node.skillId))
+                next.equippedSkills.add(node.skillId); // 구버전 필드도 일관 유지
+        }
+        next.processedTransactionIds.add(transactionId);
+        PlayerProfile.trim(next.processedTransactionIds);
+        next.profileRevision++;
+        if (!persist(next)) return new Result(Status.SAVE_FAILED, 0, 0L);
+        profile = next;
+        return new Result(Status.OK, 1, node.costWon);
+    }
+
     /** 강화 레벨 기록(저장 성공 시에만 반영). 강화 시스템 도입 전 확장 지점. */
     public synchronized Result recordUpgrade(String upgradeId, int level) {
         if (upgradeId == null || upgradeId.isEmpty() || level < 0)
@@ -157,11 +221,66 @@ public final class HeadquartersEconomy {
         return new Result(Status.OK, 0, 0L);
     }
 
+    public void setCooldownSnapshotProvider(java.util.concurrent.Callable<Map<String, Float>> provider) {
+        cooldownSnapshotProvider = provider;
+    }
+
+    /**
+     * 보스 유효 토벌 확정(원자 거래): 토벌 기록 + 다음 단계 진행 해금 + 보상 아이템 인스턴스
+     * 추가 + 보상 영수증("stageId#runId")을 하나의 다음 프로필로 만들어 저장 성공 시에만
+     * 교체한다. 같은 runId의 재호출(결과창 재진입/콜백 중복/재실행)은 ALREADY_PROCESSED로
+     * 복제 없이 멱등 처리되고, 저장 실패 시 이전 상태를 유지해 재시도할 수 있다.
+     * 최초 클리어 해금은 Set이라 중복 누적되지 않는다. 보상은 본부 보관함으로 지급된다
+     * (가방 8칸과 무관 — 삭제/자동 판매 없음).
+     */
+    public synchronized Result commitBossClear(String runId, String stageId,
+                                               String nextStageId, String rewardItemId) {
+        if (runId == null || runId.isEmpty() || stageId == null || rewardItemId == null)
+            return new Result(Status.INVALID, 0, 0L);
+        String receipt = stageId + "#" + runId;
+        if (profile.bossRewardReceipts.contains(receipt))
+            return new Result(Status.ALREADY_PROCESSED, 0, 0L);
+        PlayerProfile next = profile.copy();
+        next.bossClearedStages.add(stageId);
+        if (nextStageId != null && !nextStageId.isEmpty())
+            next.bossUnlockedStages.add(nextStageId);
+        next.storage.add(new ItemInstance(next.nextInstanceId++, rewardItemId));
+        next.bossRewardReceipts.add(receipt);
+        PlayerProfile.trim(next.bossRewardReceipts);
+        next.profileRevision++;
+        if (!persist(next)) return new Result(Status.SAVE_FAILED, 0, 0L);
+        profile = next;
+        return new Result(Status.OK, 1, 0L);
+    }
+
+    /**
+     * 스킬 장착·키 설정 저장(판매/구매와 같은 단일 저장 흐름 — 다른 변경을 덮어쓰지 않도록
+     * 항상 최신 profile의 copy에서 시작한다). 실패 시 이전 설정 유지.
+     */
+    public synchronized Result saveSkillLoadout(java.util.List<String> slots,
+                                                java.util.List<Integer> keys) {
+        if (slots == null || keys == null) return new Result(Status.INVALID, 0, 0L);
+        PlayerProfile next = profile.copy();
+        next.skillSlots.clear();
+        next.skillSlots.addAll(slots);
+        next.skillKeys.clear();
+        next.skillKeys.addAll(keys);
+        next.profileRevision++;
+        if (!persist(next)) return new Result(Status.SAVE_FAILED, 0, 0L);
+        profile = next;
+        return new Result(Status.OK, 0, 0L);
+    }
+
     private boolean persist(PlayerProfile next) {
         try {
+            // 재실행 시 남은 쿨다운 보존: 모든 저장 이벤트에 현재 스냅샷을 싣는다(프레임 저장 없음).
+            if (cooldownSnapshotProvider != null) {
+                next.skillCooldowns.clear();
+                next.skillCooldowns.putAll(cooldownSnapshotProvider.call());
+            }
             store.save(next);
             return true;
-        } catch (IOException failed) {
+        } catch (Exception failed) {
             return false;
         }
     }

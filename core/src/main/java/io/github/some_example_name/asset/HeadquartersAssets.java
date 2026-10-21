@@ -29,6 +29,12 @@ public final class HeadquartersAssets implements Disposable {
     private final TextureRegion promptLabel;
     private final Texture healthPromptLabelTexture;
     private final TextureRegion healthPromptLabel;
+    private final Texture upgradePromptLabelTexture;
+    private final TextureRegion upgradePromptLabel;
+    private final Texture skillPromptLabelTexture;
+    private final TextureRegion skillPromptLabel;
+    private final Texture bossPromptLabelTexture;
+    private final TextureRegion bossPromptLabel;
 
     HeadquartersAssets() {
         JsonValue root = new JsonReader().parse(Gdx.files.internal(AssetPaths.HQ_JSON));
@@ -65,6 +71,12 @@ public final class HeadquartersAssets implements Disposable {
         promptLabel = new TextureRegion(promptLabelTexture);
         healthPromptLabelTexture = createKoreanPromptLabel("체력 회복");
         healthPromptLabel = new TextureRegion(healthPromptLabelTexture);
+        upgradePromptLabelTexture = createKoreanPromptLabel("영구 강화");
+        upgradePromptLabel = new TextureRegion(upgradePromptLabelTexture);
+        skillPromptLabelTexture = createKoreanPromptLabel("스킬 등록");
+        skillPromptLabel = new TextureRegion(skillPromptLabelTexture);
+        bossPromptLabelTexture = createKoreanPromptLabel("보스 단계");
+        bossPromptLabel = new TextureRegion(bossPromptLabelTexture);
     }
 
     private static void requireSize(JsonValue value, int width, int height) {
@@ -90,6 +102,9 @@ public final class HeadquartersAssets implements Disposable {
     public TextureRegion promptFrame(int index) { return promptFrames[index]; }
     public TextureRegion promptLabel() { return promptLabel; }
     public TextureRegion healthPromptLabel() { return healthPromptLabel; }
+    public TextureRegion upgradePromptLabel() { return upgradePromptLabel; }
+    public TextureRegion skillPromptLabel() { return skillPromptLabel; }
+    public TextureRegion bossPromptLabel() { return bossPromptLabel; }
     public float idleFrameDuration() { return idleFrameDuration; }
 
     /** Rasterizes the Korean label separately from the supplied keycap art. */
@@ -136,5 +151,8 @@ public final class HeadquartersAssets implements Disposable {
         promptTexture.dispose();
         promptLabelTexture.dispose();
         healthPromptLabelTexture.dispose();
+        upgradePromptLabelTexture.dispose();
+        skillPromptLabelTexture.dispose();
+        bossPromptLabelTexture.dispose();
     }
 }

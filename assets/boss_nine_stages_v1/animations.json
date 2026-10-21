@@ -1,0 +1,807 @@
+{
+  "schemaVersion": 1,
+  "frameCoordinates": "top-left image coordinates; LibGDX UV Y convention handled by adapter",
+  "legacy_1_1": {
+    "idle": "boss_idle",
+    "attack": "boss_attack",
+    "death": "boss_death"
+  },
+  "animations": {
+    "boss_idle": {
+      "file": "runtime/reused/boss/boss_idle_384x384.png",
+      "columns": 2,
+      "rows": 2,
+      "frameSize": [
+        192,
+        192
+      ],
+      "count": 4,
+      "order": "row-major from top-left",
+      "frameSeconds": 0.1,
+      "loop": true,
+      "anchor": [
+        96,
+        160
+      ],
+      "packing": "complete source subjects extracted to avoid grid clipping; shared reference-pose calibration within each sheet; idle/attack/death first-pose 160x108 core; fixed output cells and feet",
+      "muzzleAnchor": [
+        96,
+        128
+      ]
+    },
+    "boss_attack": {
+      "file": "runtime/reused/boss/boss_attack_768x384.png",
+      "columns": 4,
+      "rows": 2,
+      "frameSize": [
+        192,
+        192
+      ],
+      "count": 8,
+      "order": "row-major from top-left",
+      "frameSeconds": 0.1,
+      "loop": false,
+      "anchor": [
+        96,
+        160
+      ],
+      "packing": "complete source subjects extracted to avoid grid clipping; shared reference-pose calibration within each sheet; idle/attack/death first-pose 160x108 core; fixed output cells and feet",
+      "segments": {
+        "telegraph": [
+          0,
+          1
+        ],
+        "release": [
+          2,
+          3
+        ],
+        "recovery": [
+          4,
+          5
+        ],
+        "dash": [
+          6,
+          7
+        ]
+      },
+      "playback": "state-driven; never play all 8 frames for every pattern"
+    },
+    "boss_death": {
+      "file": "runtime/reused/boss/boss_death_576x384.png",
+      "columns": 3,
+      "rows": 2,
+      "frameSize": [
+        192,
+        192
+      ],
+      "count": 6,
+      "order": "row-major from top-left",
+      "frameSeconds": 0.1,
+      "loop": false,
+      "anchor": [
+        96,
+        160
+      ],
+      "packing": "complete source subjects extracted to avoid grid clipping; shared reference-pose calibration within each sheet; idle/attack/death first-pose 160x108 core; fixed output cells and feet",
+      "holdLast": true,
+      "durationSeconds": 0.6
+    },
+    "boss_projectile": {
+      "file": "runtime/reused/vfx/boss_projectile_256x256.png",
+      "columns": 2,
+      "rows": 2,
+      "frameSize": [
+        128,
+        128
+      ],
+      "count": 4,
+      "order": "row-major from top-left",
+      "frameSeconds": 0.06666666666666667,
+      "loop": true,
+      "anchor": [
+        64,
+        64
+      ],
+      "packing": "shared scale; orb core registered to [64,64]",
+      "forward": "+X/right",
+      "anchorIs": "amber orb center, not the center of its tail"
+    },
+    "acid_pool": {
+      "file": "runtime/reused/vfx/acid_pool_384x256.png",
+      "columns": 3,
+      "rows": 2,
+      "frameSize": [
+        128,
+        128
+      ],
+      "count": 6,
+      "order": "row-major from top-left",
+      "frameSeconds": 0.06666666666666667,
+      "loop": true,
+      "anchor": [
+        64,
+        64
+      ],
+      "packing": "fixed source grid and shared scale; no per-frame trim",
+      "introFrames": [
+        0,
+        1
+      ],
+      "introTiming": "play during the final 2/15 sec of telegraph without damage",
+      "activeLoopFrames": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "activeFramesStartAt": "area activation time; full visible size and damage start together",
+      "sizeSource": "actual hazard radius; particle/vapor bounds are not damage bounds"
+    },
+    "boss_impact": {
+      "file": "runtime/reused/vfx/boss_impact_384x256.png",
+      "columns": 3,
+      "rows": 2,
+      "frameSize": [
+        128,
+        128
+      ],
+      "count": 6,
+      "order": "row-major from top-left",
+      "frameSeconds": 0.06666666666666667,
+      "loop": false,
+      "anchor": [
+        64,
+        64
+      ],
+      "packing": "fixed source grid and shared scale; no per-frame trim"
+    },
+    "coolant_colossus": {
+      "file": "runtime/boss/coolant_colossus_1024x1024.png",
+      "frameSize": [
+        256,
+        256
+      ],
+      "columns": 4,
+      "rows": 4,
+      "count": 16,
+      "anchorTopLeftPx": [
+        128,
+        224
+      ],
+      "order": "row-major top-left",
+      "frameSeconds": 0.12,
+      "segments": {
+        "idle": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "telegraph": [
+          4,
+          5
+        ],
+        "release": [
+          6,
+          7
+        ],
+        "recovery": [
+          8,
+          9
+        ],
+        "move": [
+          10,
+          11
+        ],
+        "death": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "deathHoldLast": true,
+      "loopSegments": [
+        "idle",
+        "move"
+      ],
+      "singleView": "elevated-front orthographic, not four directions",
+      "sharedScaleAcrossSheet": 0.60790273556231,
+      "noRuntimeTrim": true
+    },
+    "culture_colony": {
+      "file": "runtime/boss/culture_colony_1024x1024.png",
+      "frameSize": [
+        256,
+        256
+      ],
+      "columns": 4,
+      "rows": 4,
+      "count": 16,
+      "anchorTopLeftPx": [
+        128,
+        224
+      ],
+      "order": "row-major top-left",
+      "frameSeconds": 0.12,
+      "segments": {
+        "idle": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "telegraph": [
+          4,
+          5
+        ],
+        "release": [
+          6,
+          7
+        ],
+        "recovery": [
+          8,
+          9
+        ],
+        "move": [
+          10,
+          11
+        ],
+        "death": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "deathHoldLast": true,
+      "loopSegments": [
+        "idle",
+        "move"
+      ],
+      "singleView": "elevated-front orthographic, not four directions",
+      "sharedScaleAcrossSheet": 0.6472491909385113,
+      "noRuntimeTrim": true
+    },
+    "security_suppressor": {
+      "file": "runtime/boss/security_suppressor_1024x1024.png",
+      "frameSize": [
+        256,
+        256
+      ],
+      "columns": 4,
+      "rows": 4,
+      "count": 16,
+      "anchorTopLeftPx": [
+        128,
+        224
+      ],
+      "order": "row-major top-left",
+      "frameSeconds": 0.12,
+      "segments": {
+        "idle": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "telegraph": [
+          4,
+          5
+        ],
+        "release": [
+          6,
+          7
+        ],
+        "recovery": [
+          8,
+          9
+        ],
+        "move": [
+          10,
+          11
+        ],
+        "death": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "deathHoldLast": true,
+      "loopSegments": [
+        "idle",
+        "move"
+      ],
+      "singleView": "elevated-front orthographic, not four directions",
+      "sharedScaleAcrossSheet": 0.60790273556231,
+      "noRuntimeTrim": true
+    },
+    "neural_specimen": {
+      "file": "runtime/boss/neural_specimen_1024x1024.png",
+      "frameSize": [
+        256,
+        256
+      ],
+      "columns": 4,
+      "rows": 4,
+      "count": 16,
+      "anchorTopLeftPx": [
+        128,
+        224
+      ],
+      "order": "row-major top-left",
+      "frameSeconds": 0.12,
+      "segments": {
+        "idle": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "telegraph": [
+          4,
+          5
+        ],
+        "release": [
+          6,
+          7
+        ],
+        "recovery": [
+          8,
+          9
+        ],
+        "move": [
+          10,
+          11
+        ],
+        "death": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "deathHoldLast": true,
+      "loopSegments": [
+        "idle",
+        "move"
+      ],
+      "singleView": "elevated-front orthographic, not four directions",
+      "sharedScaleAcrossSheet": 0.6042296072507553,
+      "noRuntimeTrim": true
+    },
+    "containment_fusion": {
+      "file": "runtime/boss/containment_fusion_1024x1024.png",
+      "frameSize": [
+        256,
+        256
+      ],
+      "columns": 4,
+      "rows": 4,
+      "count": 16,
+      "anchorTopLeftPx": [
+        128,
+        224
+      ],
+      "order": "row-major top-left",
+      "frameSeconds": 0.12,
+      "segments": {
+        "idle": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "telegraph": [
+          4,
+          5
+        ],
+        "release": [
+          6,
+          7
+        ],
+        "recovery": [
+          8,
+          9
+        ],
+        "move": [
+          10,
+          11
+        ],
+        "death": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "deathHoldLast": true,
+      "loopSegments": [
+        "idle",
+        "move"
+      ],
+      "singleView": "elevated-front orthographic, not four directions",
+      "sharedScaleAcrossSheet": 0.5875,
+      "noRuntimeTrim": true
+    },
+    "cryogenic_multipod": {
+      "file": "runtime/boss/cryogenic_multipod_1024x1024.png",
+      "frameSize": [
+        256,
+        256
+      ],
+      "columns": 4,
+      "rows": 4,
+      "count": 16,
+      "anchorTopLeftPx": [
+        128,
+        224
+      ],
+      "order": "row-major top-left",
+      "frameSeconds": 0.12,
+      "segments": {
+        "idle": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "telegraph": [
+          4,
+          5
+        ],
+        "release": [
+          6,
+          7
+        ],
+        "recovery": [
+          8,
+          9
+        ],
+        "move": [
+          10,
+          11
+        ],
+        "death": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "deathHoldLast": true,
+      "loopSegments": [
+        "idle",
+        "move"
+      ],
+      "singleView": "elevated-front orthographic, not four directions",
+      "sharedScaleAcrossSheet": 0.6006006006006006,
+      "noRuntimeTrim": true
+    },
+    "mutant_botanical": {
+      "file": "runtime/boss/mutant_botanical_1024x1024.png",
+      "frameSize": [
+        256,
+        256
+      ],
+      "columns": 4,
+      "rows": 4,
+      "count": 16,
+      "anchorTopLeftPx": [
+        128,
+        224
+      ],
+      "order": "row-major top-left",
+      "frameSeconds": 0.12,
+      "segments": {
+        "idle": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "telegraph": [
+          4,
+          5
+        ],
+        "release": [
+          6,
+          7
+        ],
+        "recovery": [
+          8,
+          9
+        ],
+        "move": [
+          10,
+          11
+        ],
+        "death": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "deathHoldLast": true,
+      "loopSegments": [
+        "idle",
+        "move"
+      ],
+      "singleView": "elevated-front orthographic, not four directions",
+      "sharedScaleAcrossSheet": 0.5987261146496815,
+      "noRuntimeTrim": true
+    },
+    "mobile_culture_tank": {
+      "file": "runtime/boss/mobile_culture_tank_1024x1024.png",
+      "frameSize": [
+        256,
+        256
+      ],
+      "columns": 4,
+      "rows": 4,
+      "count": 16,
+      "anchorTopLeftPx": [
+        128,
+        224
+      ],
+      "order": "row-major top-left",
+      "frameSeconds": 0.12,
+      "segments": {
+        "idle": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "telegraph": [
+          4,
+          5
+        ],
+        "release": [
+          6,
+          7
+        ],
+        "recovery": [
+          8,
+          9
+        ],
+        "move": [
+          10,
+          11
+        ],
+        "death": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "deathHoldLast": true,
+      "loopSegments": [
+        "idle",
+        "move"
+      ],
+      "singleView": "elevated-front orthographic, not four directions",
+      "sharedScaleAcrossSheet": 0.6266666666666667,
+      "noRuntimeTrim": true
+    },
+    "cold_cone": {
+      "file": "runtime/vfx/cold_cone_640x160.png",
+      "frameSize": [
+        160,
+        160
+      ],
+      "columns": 4,
+      "rows": 1,
+      "count": 4,
+      "anchorTopLeftPx": [
+        80,
+        80
+      ],
+      "frameSeconds": 0.1,
+      "loop": false,
+      "purpose": "visual only: exact telegraph and damage geometry comes from pattern data",
+      "forward": null
+    },
+    "ice_zone": {
+      "file": "runtime/vfx/ice_zone_640x160.png",
+      "frameSize": [
+        160,
+        160
+      ],
+      "columns": 4,
+      "rows": 1,
+      "count": 4,
+      "anchorTopLeftPx": [
+        80,
+        80
+      ],
+      "frameSeconds": 0.1,
+      "loop": true,
+      "purpose": "visual only: exact telegraph and damage geometry comes from pattern data",
+      "forward": null
+    },
+    "ice_shard": {
+      "file": "runtime/vfx/ice_shard_640x160.png",
+      "frameSize": [
+        160,
+        160
+      ],
+      "columns": 4,
+      "rows": 1,
+      "count": 4,
+      "anchorTopLeftPx": [
+        80,
+        80
+      ],
+      "frameSeconds": 0.1,
+      "loop": false,
+      "purpose": "visual only: exact telegraph and damage geometry comes from pattern data",
+      "forward": "+X"
+    },
+    "ice_impact": {
+      "file": "runtime/vfx/ice_impact_640x160.png",
+      "frameSize": [
+        160,
+        160
+      ],
+      "columns": 4,
+      "rows": 1,
+      "count": 4,
+      "anchorTopLeftPx": [
+        80,
+        80
+      ],
+      "frameSeconds": 0.1,
+      "loop": false,
+      "purpose": "visual only: exact telegraph and damage geometry comes from pattern data",
+      "forward": null
+    },
+    "spore_zone": {
+      "file": "runtime/vfx/spore_zone_640x160.png",
+      "frameSize": [
+        160,
+        160
+      ],
+      "columns": 4,
+      "rows": 1,
+      "count": 4,
+      "anchorTopLeftPx": [
+        80,
+        80
+      ],
+      "frameSeconds": 0.1,
+      "loop": true,
+      "purpose": "visual only: exact telegraph and damage geometry comes from pattern data",
+      "forward": null
+    },
+    "root_eruption": {
+      "file": "runtime/vfx/root_eruption_640x160.png",
+      "frameSize": [
+        160,
+        160
+      ],
+      "columns": 4,
+      "rows": 1,
+      "count": 4,
+      "anchorTopLeftPx": [
+        80,
+        80
+      ],
+      "frameSeconds": 0.1,
+      "loop": false,
+      "purpose": "visual only: exact telegraph and damage geometry comes from pattern data",
+      "forward": null
+    },
+    "toxic_leak": {
+      "file": "runtime/vfx/toxic_leak_640x160.png",
+      "frameSize": [
+        160,
+        160
+      ],
+      "columns": 4,
+      "rows": 1,
+      "count": 4,
+      "anchorTopLeftPx": [
+        80,
+        80
+      ],
+      "frameSeconds": 0.1,
+      "loop": true,
+      "purpose": "visual only: exact telegraph and damage geometry comes from pattern data",
+      "forward": null
+    },
+    "acid_splash": {
+      "file": "runtime/vfx/acid_splash_640x160.png",
+      "frameSize": [
+        160,
+        160
+      ],
+      "columns": 4,
+      "rows": 1,
+      "count": 4,
+      "anchorTopLeftPx": [
+        80,
+        80
+      ],
+      "frameSeconds": 0.1,
+      "loop": false,
+      "purpose": "visual only: exact telegraph and damage geometry comes from pattern data",
+      "forward": null
+    },
+    "red_laser": {
+      "file": "runtime/vfx/red_laser_640x160.png",
+      "frameSize": [
+        160,
+        160
+      ],
+      "columns": 4,
+      "rows": 1,
+      "count": 4,
+      "anchorTopLeftPx": [
+        80,
+        80
+      ],
+      "frameSeconds": 0.1,
+      "loop": true,
+      "purpose": "visual only: exact telegraph and damage geometry comes from pattern data",
+      "forward": "+X"
+    },
+    "psychic_wave": {
+      "file": "runtime/vfx/psychic_wave_640x160.png",
+      "frameSize": [
+        160,
+        160
+      ],
+      "columns": 4,
+      "rows": 1,
+      "count": 4,
+      "anchorTopLeftPx": [
+        80,
+        80
+      ],
+      "frameSeconds": 0.1,
+      "loop": false,
+      "purpose": "visual only: exact telegraph and damage geometry comes from pattern data",
+      "forward": null
+    },
+    "psychic_blast": {
+      "file": "runtime/vfx/psychic_blast_640x160.png",
+      "frameSize": [
+        160,
+        160
+      ],
+      "columns": 4,
+      "rows": 1,
+      "count": 4,
+      "anchorTopLeftPx": [
+        80,
+        80
+      ],
+      "frameSeconds": 0.1,
+      "loop": false,
+      "purpose": "visual only: exact telegraph and damage geometry comes from pattern data",
+      "forward": null
+    },
+    "enrage_aura": {
+      "file": "runtime/vfx/enrage_aura_640x160.png",
+      "frameSize": [
+        160,
+        160
+      ],
+      "columns": 4,
+      "rows": 1,
+      "count": 4,
+      "anchorTopLeftPx": [
+        80,
+        80
+      ],
+      "frameSeconds": 0.1,
+      "loop": true,
+      "purpose": "visual only: exact telegraph and damage geometry comes from pattern data",
+      "forward": null
+    }
+  }
+}

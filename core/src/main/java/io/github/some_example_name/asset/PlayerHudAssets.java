@@ -86,11 +86,10 @@ public final class PlayerHudAssets implements Disposable {
     public TextureRegion slotEmpty() { return slotEmpty; }
     public TextureRegion rPrompt() { return rPrompt; }
 
-    /** 현재 HP에 맞는 채움 색(>healthyAbove healthy, >warningAbove warning, 그 이하 critical). */
-    public TextureRegion fillFor(int hp) {
-        if (hp > layout.healthyAbove) return fillHealthy;
-        if (hp > layout.warningAbove) return fillWarning;
-        return fillCritical;
+    /** 현재 HP "비율"에 맞는 채움 색(50%/25% 경계 — 최대 HP가 늘어도 같은 비율에서 전환). */
+    public TextureRegion fillFor(int hp, int currentMaxHp) {
+        int band = layout.colorBand(hp, currentMaxHp);
+        return band == 0 ? fillHealthy : band == 1 ? fillWarning : fillCritical;
     }
 
     @Override public void dispose() {

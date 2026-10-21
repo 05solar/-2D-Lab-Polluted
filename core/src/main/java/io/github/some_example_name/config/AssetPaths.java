@@ -87,6 +87,81 @@ public final class AssetPaths {
     public static final String HQ_SALES_SLOT = HQ_SALES_DIR + "runtime/item_slot_64.png";
     public static final String HQ_SALES_SELECTED = HQ_SALES_DIR + "runtime/item_selected_border_64.png";
 
+    /** 본부 강화대·영구 강화 트리 팩(hq_upgrade_tree_v1). 버튼·재화는 판매 팩 디자인과 동일. */
+    public static final String UPGRADE_DIR = "ui/hq_upgrade_tree_v1/";
+    public static final String UPGRADE_TREE_DATA = UPGRADE_DIR + "data/upgrade_tree.json";
+    public static final String UPGRADE_PANEL = UPGRADE_DIR + "runtime/upgrade_panel_1120x720.png";
+    public static final String UPGRADE_BENCH = UPGRADE_DIR + "runtime/upgrade_bench_north_192x128.png";
+    public static final String UPGRADE_NODE_LOCKED = UPGRADE_DIR + "runtime/node_locked_96.png";
+    public static final String UPGRADE_NODE_AVAILABLE = UPGRADE_DIR + "runtime/node_available_96.png";
+    public static final String UPGRADE_NODE_PURCHASED = UPGRADE_DIR + "runtime/node_purchased_96.png";
+    public static final String UPGRADE_ICON_HEALTH = UPGRADE_DIR + "runtime/icon_health_64.png";
+    public static final String UPGRADE_ICON_ATTACK = UPGRADE_DIR + "runtime/icon_attack_64.png";
+    public static final String UPGRADE_ICON_SKILL = UPGRADE_DIR + "runtime/icon_skill_64.png";
+    public static final String UPGRADE_LINK_H_ACTIVE = UPGRADE_DIR + "runtime/link_h_active.png";
+    public static final String UPGRADE_LINK_H_COMPLETE = UPGRADE_DIR + "runtime/link_h_complete.png";
+    public static final String UPGRADE_LINK_H_INACTIVE = UPGRADE_DIR + "runtime/link_h_inactive.png";
+    public static final String UPGRADE_LINK_V_ACTIVE = UPGRADE_DIR + "runtime/link_v_active.png";
+    public static final String UPGRADE_LINK_V_COMPLETE = UPGRADE_DIR + "runtime/link_v_complete.png";
+    public static final String UPGRADE_LINK_V_INACTIVE = UPGRADE_DIR + "runtime/link_v_inactive.png";
+
+    /** 보스 1-1 팩(boss_stage_1_1_v1): 보스 시트·광장·텔레그래프·HP바·단계 선택 UI·데이터. */
+    public static final String BOSS_DIR = "boss_stage_1_1_v1/";
+    public static final String BOSS_STAGES_DATA = BOSS_DIR + "data/stages.json";
+    // 9단계 확장 팩(단계/패턴/투기장 데이터는 채택본 *.runtime.json만 로드)
+    public static final String BOSS9_DIR = "boss_nine_stages_v1/";
+    public static final String BOSS9_STAGES_DATA = BOSS9_DIR + "data/stage_catalog.runtime.json";
+    public static final String BOSS9_PATTERNS_DATA = BOSS9_DIR + "data/patterns.runtime.json";
+    public static final String BOSS9_ARENAS_DATA = BOSS9_DIR + "data/arena_layouts.runtime.json";
+    public static final String BOSS_1_1_DATA = BOSS_DIR + "data/boss_1_1.json";
+    public static final String BOSS_IDLE = BOSS_DIR + "runtime/boss/boss_idle_384x384.png";
+    public static final String BOSS_ATTACK = BOSS_DIR + "runtime/boss/boss_attack_768x384.png";
+    public static final String BOSS_DEATH = BOSS_DIR + "runtime/boss/boss_death_576x384.png";
+    public static final String BOSS_PROJECTILE = BOSS_DIR + "runtime/vfx/boss_projectile_256x256.png";
+    public static final String BOSS_ACID_POOL = BOSS_DIR + "runtime/vfx/acid_pool_384x256.png";
+    public static final String BOSS_IMPACT = BOSS_DIR + "runtime/vfx/boss_impact_384x256.png";
+    public static final String BOSS_TELEGRAPH_CIRCLE = BOSS_DIR + "runtime/vfx/telegraph_circle_128.png";
+    public static final String BOSS_TELEGRAPH_LANE = BOSS_DIR + "runtime/vfx/telegraph_lane_256x64.png";
+    public static final String BOSS_ARENA_FLOOR = BOSS_DIR + "runtime/arena/floor_128.png";
+    public static final String BOSS_ARENA_PILLAR = BOSS_DIR + "runtime/arena/pillar_96x128.png";
+    public static final String BOSS_ARENA_BARRIER = BOSS_DIR + "runtime/arena/barrier_128x64.png";
+    public static final String BOSS_GATE_LOCKED = BOSS_DIR + "runtime/arena/gate_locked_192x128.png";
+    public static final String BOSS_GATE_CLOSED = BOSS_DIR + "runtime/arena/gate_closed_192x128.png";
+    public static final String BOSS_GATE_OPEN = BOSS_DIR + "runtime/arena/gate_open_192x128.png";
+    public static final String BOSS_HP_FRAME = BOSS_DIR + "runtime/ui/boss_hp_frame_768x64.png";
+    public static final String BOSS_HP_FILL = BOSS_DIR + "runtime/ui/boss_hp_fill_256x16.png";
+    public static final String BOSS_EMBLEM = BOSS_DIR + "runtime/ui/boss_emblem_96.png";
+    public static final String BOSS_STAGE_PANEL = BOSS_DIR + "runtime/ui/stage_panel_1120x720.png";
+    public static final String BOSS_STAGE_BUTTON = BOSS_DIR + "runtime/ui/stage_button_256x64.png";
+    public static final String BOSS_STAGE_LOCKED = BOSS_DIR + "runtime/ui/stage_locked_96.png";
+    public static final String BOSS_STAGE_READY = BOSS_DIR + "runtime/ui/stage_ready_96.png";
+    public static final String BOSS_REWARD_FRAME = BOSS_DIR + "runtime/ui/reward_frame_96.png";
+    public static final String BOSS_REWARD_GLOW = BOSS_DIR + "runtime/ui/reward_glow_128.png";
+
+    /** 추가 스킬 3종 팩(player_three_skills_v1): 아이콘 3개 + VFX 시트 6종 + 밸런스 JSON. */
+    public static final String THREE_SKILLS_DIR = "ui/player_three_skills_v1/";
+    public static final String THREE_SKILLS_DATA = THREE_SKILLS_DIR + "data/skills.json";
+    public static final String ICON_SHOCKWAVE = THREE_SKILLS_DIR + "runtime/icons/icon_shockwave_64.png";
+    public static final String ICON_ELECTRIC = THREE_SKILLS_DIR + "runtime/icons/icon_electric_throw_64.png";
+    public static final String ICON_SHIELD = THREE_SKILLS_DIR + "runtime/icons/icon_shield_64.png";
+    public static final String VFX_SHOCKWAVE = THREE_SKILLS_DIR + "runtime/vfx/shockwave_512x256.png";
+    public static final String VFX_SHOCK_HIT = THREE_SKILLS_DIR + "runtime/vfx/shock_hit_384x256.png";
+    public static final String VFX_ELECTRIC_PROJECTILE = THREE_SKILLS_DIR + "runtime/vfx/electric_projectile_256x256.png";
+    public static final String VFX_ELECTRIC_IMPACT = THREE_SKILLS_DIR + "runtime/vfx/electric_impact_384x256.png";
+    public static final String VFX_SHIELD_ACTIVE = THREE_SKILLS_DIR + "runtime/vfx/shield_active_384x256.png";
+    public static final String VFX_SHIELD_BREAK = THREE_SKILLS_DIR + "runtime/vfx/shield_break_384x256.png";
+
+    /** 공통 스킬 시스템 팩(player_skill_loadout_v1): 회복 아이콘/캐스트 시트·슬롯·키캡·패널. */
+    public static final String SKILL_DIR = "ui/player_skill_loadout_v1/";
+    public static final String SKILL_ICON_HEAL = SKILL_DIR + "runtime/icon_heal_64.png";
+    public static final String SKILL_HEAL_SHEET = SKILL_DIR + "runtime/heal_cast_sheet_512x384.png";
+    public static final String SKILL_SLOT_NORMAL = SKILL_DIR + "runtime/slot_normal_96.png";
+    public static final String SKILL_SLOT_SELECTED = SKILL_DIR + "runtime/slot_selected_96.png";
+    public static final String SKILL_SLOT_LOCKED = SKILL_DIR + "runtime/slot_locked_96.png";
+    public static final String SKILL_KEYCAP = SKILL_DIR + "runtime/keycap_blank_96x48.png";
+    public static final String SKILL_PANEL = SKILL_DIR + "runtime/skill_panel_1120x720.png";
+    public static final String SKILL_REGISTER_BUTTON = SKILL_DIR + "runtime/register_button_256x64.png";
+
     /** 효과음 켜기/끄기 버튼(청록 음파=켜짐, 주황 빗금=꺼짐). 배경음악과 독립. */
     public static final String SFX_TOGGLE_ON = "sfx_toggle_ui_v1/runtime/sfx_on_96.png";
     public static final String SFX_TOGGLE_OFF = "sfx_toggle_ui_v1/runtime/sfx_off_96.png";

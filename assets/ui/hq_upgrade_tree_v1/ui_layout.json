@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "referenceSize": [
+    1120,
+    720
+  ],
+  "origin": "top-left",
+  "nodeCenterSource": "data/upgrade_tree.example.json uiPosition",
+  "nodeFrameSize": [
+    96,
+    96
+  ],
+  "nodeIconSize": [
+    44,
+    44
+  ],
+  "rects": {
+    "title": [
+      48,
+      44,
+      550,
+      42
+    ],
+    "wallet": [
+      840,
+      48,
+      220,
+      36
+    ],
+    "tree": [
+      48,
+      112,
+      718,
+      490
+    ],
+    "details": [
+      800,
+      125,
+      260,
+      400
+    ],
+    "purchaseButton": [
+      810,
+      565,
+      240,
+      60
+    ],
+    "closeButton": [
+      1060,
+      48,
+      28,
+      28
+    ]
+  },
+  "headerCenters": {
+    "health": [
+      150,
+      115
+    ],
+    "attack": [
+      370,
+      115
+    ],
+    "skill": [
+      590,
+      115
+    ]
+  },
+  "panelScale": "min(viewportWidth*0.92/1120, viewportHeight*0.86/720)",
+  "hudNote": "Reserve top-left HP HUD safe area or render HUD above modal; use consistent input viewport."
+}
