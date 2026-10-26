@@ -2,7 +2,7 @@
 
 > 폐쇄 오염 연구소 탐사 2D 액션 게임. LibGDX 1.14.2 / Java 8 / Gradle 멀티모듈(core + lwjgl3),
 > gdx-liftoff 기반, 패키지 `io.github.some_example_name`. 원격: github.com/05solar/-2D-Lab-Polluted (main).
-> 커밋 저자: lotus05f@gmail.com 단독.
+> 커밋 저자: lotus05f@gmail.com (84ec3e4부터 Claude 공동 서명 포함).
 
 이 문서는 지금까지의 작업을 한눈에 보는 요약이다. 세부 작업 로그는 `docs/process.md`,
 설계/규칙/테스트는 `ARCHITECTURE.md`·`GAME_RULES.md`·`TEST_PLAN.md`·`ROADMAP.md` 참고.
@@ -13,11 +13,7 @@
 
 | 커밋 | 내용 |
 |------|------|
-| *(미커밋)* | **난이도별 시드 기반 연구소 생성(2026-10-20, laboratory_generation_v1)**: 난이도 확정마다 64비트 시드 생성(쉬움 16방/보통 25방/어려움 36방, 구조 틀 12종), GenRng(FNV-1a32+XorShift32) 하위 스트림, 기존 쉬움 품질 파이프라인(V4 벽·문/방향별 가구/컨테이너 가중 배치/대문) 전 난이도 공유, 접근성 BFS+재시도 3회+검증 폴백, 쉬움은 경비원·팀장 금지(56), 보통 88/어려움 126, 팀장 구석 소환, 난이도별 100시드 자동 검증, LAB_SEED/LAB_CLASSIC_MAP |
-| *(미커밋)* | **추가 스킬 3종(2026-10-20, player_three_skills_v1)**: 충격파(30dmg/2.5타일 파면/밀치기/쿨 6s)·전기 투척(25dmg/감전 0.5s/swept 투사체/쿨 5s)·보호막(흡수 60/4s/쿨 12s, 공통 피해 파이프라인 흡수) — 공통 스킬 파이프라인 확장, skills.json 수치 단일 출처, 강화 트리 17노드(해금 3+강화 3+슬롯 IV/V, 최대 5슬롯), VFX 6종 레이어 분리 |
-| *(미커밋)* | **본부 스킬 테이블·강화 작업대 분리(2026-10-20)**: 침대 제거, 북벽 금속 테이블(중앙 책상 오른쪽)=스킬창 SPACE, 망치 작업대(중앙 책상 왼쪽)=강화 트리 SPACE, 프롬프트 "스킬 등록"/"영구 강화" 상판 표시, 4개 상호작용 최근접 선택 |
-| *(미커밋)* | **공통 스킬 시스템(2026-10-20, player_skill_loadout_v1)**: 소유/장착(slotId→skillId)/키(slotId→keyCode)/쿨다운(skillId) 분리 + SkillService 파이프라인(실패=무변화), 돌진 공통 경로 이관, 회복 캐스트 시트, 퀵슬롯 HUD 5칸, 스킬창(키 등록 대기·예약/중복 거부), 기본 슬롯 1→2, H 귀환 토글 재추가, 프로필 skillSlots/skillKeys/skillCooldowns 영속 |
-| *(미커밋)* | **영구 강화 트리(2026-10-20, hq_upgrade_tree_v1)**: 강화대 SPACE → 체력/공격/스킬 세 갈래(카탈로그 JSON 단일 출처, 그래프 검증), 파생 능력치 멱등 재계산, 회복 스킬 해금/강화, HP HUD cur/max·비율 색, 판매와 동일 거래 경계 구매 |
+| `84ec3e4` | **대형 통합 커밋(2026-10-21)** — 기능 6종: ① **영구 강화 트리**(hq_upgrade_tree_v1 — 체력/공격/스킬 17노드, 카탈로그 JSON 단일 출처, 파생 능력치 멱등 재계산) ② **공통 스킬 시스템**(player_skill_loadout_v1 — 소유/장착/키/쿨다운 분리, SkillService 파이프라인, 퀵슬롯 HUD 5칸, 스킬창, 돌진 이관, H 귀환 토글) ③ **추가 스킬 3종**(player_three_skills_v1 — 충격파/전기 투척/보호막, skills.json 단일 출처, 최대 5슬롯) + 본부 스킬 테이블·강화 작업대 분리 ④ **난이도별 시드 기반 연구소 생성**(laboratory_generation_v1 — 구조 틀 12종·테마 16종, GenRng golden vector, BFS 접근성+폴백, 100시드×3 전수 검증) ⑤ **보스 1-1**(boss_stage_1_1_v1 — 메인 컴퓨터→선택창→광장→원심 배양체 C-01→LEGENDARY 보상 원자 커밋→복귀) ⑥ **9단계 보스전**(boss_nine_stages_v1 — 1-1 레거시 보존, 1-2~2-3 데이터 주도 범용 엔진 BossBattle·패턴 kind 12종·투기장 8종·3×3 실루엣 선택창·스킬 수치 불변 계약). 245 테스트+실행 캡처+문서 갱신 |
 | `74d6f26` | **본부 보관함·선택 판매·영속 저장**(hq_sales_storage_v1): 귀환 이관(중복 방지)·판매창·원자 저장+백업+마이그레이션 |
 | `751b74e` | **Mona 픽셀 폰트 전역 적용**·연타음 V4·난이도 모달 중앙 정렬·귀환 발자국 버그 수정 |
 | `b9f3c9c` | 몬스터 감속 + 개봉음 V5→V7 + 획득음 음량 보정 |
@@ -173,22 +169,31 @@ world/     Laboratory*(맵·타일·방·레이아웃) + Headquarters* + Door/Do
            + MapId/MapTransitionController/PlayerSessionState + GameDifficulty + RoomPathfinder
            + Loot*(Container/Placement/Drop) + Laboratory(Prop/RoomArea/FurnitureCoverage)
            + WallMaskV4(8비트→47종) + WallAutotiler(구형, 테스트 맵 전용)
+           + LaboratoryGenerator·GenRng·LabGenData(난이도별 시드 생성 — 틀 12·테마 16·BFS·폴백)
 entity/    player/(Player·PlayerState·PlayerDeathAnimation) + monster/
 combat/    CombatSystem·MonsterAiSystem·PlayerCombatState·CombatCollisionGrid·MonsterSpawnSystem
+           + PlayerDashState·ShockwaveState·ElectricProjectile·PlayerShieldState·SkillCast(스킬 판정)
+boss/      BossStageCatalog·BossPatternCatalog·BossArenaCatalog(*.runtime.json 파서)
+           + BossDefinition·BossFight(1-1 레거시, 회귀 고정) + BossBattle(9단계 범용 패턴 엔진)
+           — 전부 순수 Java(Context 주입, GL 비의존)
 inventory/ Backpack(8칸·가치교체) + LootItem + LootTableCatalog
 interaction/ VendingMachineInteraction
 render/    World·Entity·Monster·Combat·Headquarters·Fade·TileDebug·Debug
            + PlayerHud·Navigation·DifficultyModal·ExteriorWall(대문 전용)
            + LaboratoryStructureRendererV4(벽·문) + FrameCapture(F12 프레임 저장)
            + SalePanel·UpgradeTree·SkillLoadout(패널 3종) + SkillBar(퀵슬롯 HUD)·HealCast(회복 연출)
-           + CombatHud(공격 전용)·SfxToggle·SkillMenuButton + KoreanLabelCache(AWT 한글 라벨)
-           + InteriorWallRenderer(구형, 미사용)
+           + SkillVfxRenderer(스킬 3종 VFX) + CombatHud(공격 전용)·SfxToggle·SkillMenuButton
+           + BossHud(보스 HP바)·BossStageSelect(3×3 실루엣 선택창)·BossResult(결과창)
+           + KoreanLabelCache(AWT 한글 라벨) + InteriorWallRenderer(구형, 미사용)
 asset/     GameAssets(텍스처 단독 소유·해제) + Headquarters·PlayerHud·RoomKit·LaboratoryFurniture
            + Loot·DifficultyModal·ExteriorWall · LaboratoryStructureV4Assets
+           + CombatSound·CombatUi·HqSales·Upgrade·Skill·ThreeSkills
+           + BossAssets(1-1 레거시)·BossNineAssets(9단계 시트/VFX/초상/카드)
            · HudLayout · LaboratoryTileCatalogV2/TileSetV2
-screen/    LaboratoryScreen + HeadquartersScreen (+ BaseScreen)
+screen/    LaboratoryScreen + HeadquartersScreen + BossArenaScreen(레거시/범용 분기 1곳) (+ BaseScreen)
 profile/   PlayerProfile·ItemInstance·ProfileCodec·ProfileStore/FileProfileStore(원자 저장+백업)
-           + HeadquartersEconomy(이관·판매·강화 트랜잭션) + SaleSelection + UpgradeCatalog/UpgradeEffects
+           + HeadquartersEconomy(이관·판매·강화·보스 클리어 트랜잭션) + SaleSelection
+           + UpgradeCatalog/UpgradeEffects + SkillCatalog(skills.json)
            + SkillLoadout(장착·키)·SkillRuntime(쿨다운)·SkillService(공통 실행) — 전부 순수 Java
 config/    AssetPaths · BalanceConfig
 ```
@@ -206,7 +211,11 @@ config/    AssetPaths · BalanceConfig
 `fonts/mona`(Mona12TextKR 픽셀 폰트, OFL 1.1 — gdx-freetype BitmapFont + AWT 한글 라벨 전역 적용),
 `ui/hq_sales_storage_v1`(판매창), `ui/hq_upgrade_tree_v1`(강화 트리 + `data/upgrade_tree.json` 수치 유일 출처),
 `ui/player_skill_loadout_v1`(회복 캐스트 시트·아이콘·슬롯/키캡/패널 — 퀵슬롯 HUD·스킬창),
-`ui/player_three_skills_v1`(충격파/전기/보호막 아이콘 3종+VFX 시트 6종+`data/skills.json` 수치 유일 출처).
+`ui/player_three_skills_v1`(충격파/전기/보호막 아이콘 3종+VFX 시트 6종+`data/skills.json` 수치 유일 출처),
+`laboratory_generation_v1`(구조 틀 12종·난이도 프로필·테마 — 시드 생성 데이터),
+`boss_stage_1_1_v1`(보스 1-1 — `data/boss_1_1.json` 수치 유일 출처, 레거시 시트/광장/UI),
+`boss_nine_stages_v1`(9단계 — `data/*.runtime.json` 채택본이 수치 유일 출처, 보스 시트 8종
+1024²·VFX 스트립 12종·초상 18종·선택창 카드/배지; draft/catalog 원본은 비교용).
 
 ### V4 파일 ↔ 사용 매핑
 - `laboratory_structure_v4/runtime/walls/walls_blob47_atlas_128.png` → `LaboratoryStructureV4Assets.wall(index)`,
@@ -228,22 +237,36 @@ config/    AssetPaths · BalanceConfig
   같은 세션 안에서는 맵·열린 상자 상태가 유지된다.
 - **아이템 구매 상점**: 자판기는 판매 전용 — 구매 UI 미구현.
 - **게임오버 화면 UI**: 재소환 플로우는 완료, 별도 연출 화면은 미구현.
-- **스킬 3종 효과음**: player_three_skills_v1 팩에 사운드 미포함 — 시전/착탄/파괴 효과음 추가 여지.
+- **스킬 3종·보스 효과음**: player_three_skills_v1/boss_nine_stages_v1 팩에 사운드 미포함 —
+  시전/착탄/파괴·보스 패턴 효과음 추가 여지(현재 기존 타격/피격음 재사용).
+- **보스 신규 단계(1-2~2-3) 수동 밸런스 체감**: 수치는 초안(stage_catalog/patterns runtime) —
+  실제 키보드 플레이로 회피 난이도·HP·피해 조정 필요(1-1은 회귀 고정이라 제외).
+- **보스 투기장 시각 밀도**(2026-10-21 피드백 "허전함"): 바닥이 단일 타일 반복이라 빈 평면처럼
+  보임 — 바닥 변형/데칼 시드 배치+단계 테마 색조, INTRO 보스 카메라 연출(또는 중간점 추적),
+  보스 발밑 그림자/피격 플래시/카메라 흔들림 후보(로직 불변 — 렌더링만).
 - hazard(독성/감전 타일) 실제 피해.
 - 월드 아이템 획득: 상자/드롭 외 일반 바닥 아이템은 임시 디버그(G) 수준.
 - 가구 배치 미세 조정(벽면 작업구역화·중앙 섬 묶기)과 생성 맵 수동 밸런스 체감(보통/어려움).
+- **사용자 프로필 테스트 데이터**: 자동 검증이 실제 프로필(~/.2d-lab-polluted)에 스킬 해금·보스
+  클리어(1-1/1-2/1-4/2-2/1-보스)·전설 보상을 기록함 — 깨끗한 진행을 원하면 초기화 필요(보류 중).
 
 ## 5. 검증·환경 메모
 
-- 매 작업: `./gradlew.bat core:test` + `lwjgl3:build` 통과. 현재 **209 tests 0 fail**, 빌드 성공(2026-10-20).
+- 매 작업: `./gradlew.bat core:test` + `lwjgl3:build` 통과. 현재 **245 tests 0 fail**, 빌드 성공(2026-10-21).
 - 2026-10-20 실행 검증: 생성 맵 3난이도 조감+실내 캡처(gen_*.png), 동일 시드 contentHash 일치,
   스킬 3종 판정 로그(충격파 60→30·전기 60→35+감전·보호막 흡수/파괴), 스킬창/강화 트리 17노드 캡처.
-  효과음 실제 청취와 키보드 실입력 체감은 사용자 핸즈온 권장.
+- 2026-10-21 실행 검증(9단계 보스): 선택창 3×3 실루엣/잠김 상세 캡처, 기존 프로필 호환 로그
+  (unlocked=[1-2] cleared=[1-1] — 마이그레이션 불필요), 1-2(빙결 장판)/1-4(거대 기체+회전 레이저)/
+  2-2(식물 보스)/1-보스(9.5타일+장판 예고)/1-1(레거시 회귀) 자동 토벌 — 전부 clear committed OK·
+  대문 개방·본부 복귀(boss*_pattern/result 캡처). 효과음 청취·키보드 실입력 체감은 사용자 핸즈온 권장.
 - 개발 env: `LAB_PERF=1`(프레임 시간), `LAB_AUTO_DASH/LAB_AUTO_HEAL=1`(스킬 자동 검증),
   `LAB_AUTO_SKILL3=shockwave|electric|shield`(3종 스킬 검증), `LAB_EXIT_AFTER=N`(자동 종료),
   `LAB_TEST_SALE/LAB_TEST_UPGRADE/LAB_TEST_SKILLS=1`(본부 패널 스크립트),
-  `LAB_HQ_TEST=VENDING|WATER|SKILL|BENCH`(본부 스폰), `LAB_SEED=<64비트 정수>`(생성 시드 고정),
+  `LAB_HQ_TEST=VENDING|WATER|SKILL|BENCH|COMPUTER`(본부 스폰), `LAB_SEED=<64비트 정수>`(생성 시드 고정),
   `LAB_CLASSIC_MAP=1`(수제 맵 강제), `LAB_MUTE_MUSIC=1`(무음).
+  보스: `LAB_START_BOSS=1`(직행)·`LAB_BOSS_STAGE=1-4`(단계 지정)·`LAB_BOSS_SEED`(패턴 시드)·
+  `LAB_BOSS_AUTO=win|fail`(자동 검증)·`LAB_BOSS_UNLOCK_ALL=1`(전 단계 입장, 개발 전용)·
+  `LAB_TEST_BOSSPANEL=1`(선택창 캡처 스크립트).
   ※ PowerShell 환경변수는 호출 간 비persist — 실행 명령과 같은 줄에서 설정할 것.
 - **실제 GL 렌더 프레임 저장**(합성 미리보기 아님): `render/FrameCapture`가 백버퍼→PNG. F12 키 또는
   `LAB_AUTO_CAPTURE=1`(30프레임 UI, 42프레임 F1 충돌, 46프레임 자동 종료). 저장: `docs/images/frames/`.

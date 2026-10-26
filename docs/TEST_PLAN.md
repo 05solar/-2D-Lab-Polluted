@@ -4,12 +4,15 @@
 계산·상태 전환은 LibGDX 화면 없이 순수 Java로 테스트한다. 시간은 주입 가능한 delta/GameTime,
 랜덤은 seed/공급자 주입으로 재현 가능하게 한다.
 
-## 현재 상태 (2026-10-20)
-- core 테스트 **209개 통과** + `lwjgl3:build` 성공 (`./gradlew.bat core:test lwjgl3:build`).
-- 주요 스위트: 생성기(LaboratoryGeneratorTest — 난이도별 100시드 전수), 스킬(SkillSystemTest·
-  ThreeSkillsModelTest·PlayerDashStateTest), 경제/프로필(HeadquartersEconomyTest·
-  ProfilePersistenceTest·UpgradeTreeTest), 몬스터(MonsterBehaviorTest), 맵(EasyLaboratoryLayoutTest·
-  DifficultyLayoutTest·ReturnRouteRegressionTest·HeadquartersLayoutTest) 등 — 세부는 아래 기능별 절.
+## 현재 상태 (2026-10-21)
+- core 테스트 **245개 통과** + `lwjgl3:build` 성공 (`./gradlew.bat core:test lwjgl3:build`).
+- 주요 스위트: 보스(BossFightTest·BossRewardTest — 1-1 회귀 고정 / BossBattleTest·
+  BossNineStagesCatalogTest — 9단계 범용 엔진·카탈로그 / PlayerSkillRangeBaselineTest —
+  스킬 수치 불변 계약), 생성기(LaboratoryGeneratorTest — 난이도별 100시드 전수),
+  스킬(SkillSystemTest·ThreeSkillsModelTest·PlayerDashStateTest), 경제/프로필
+  (HeadquartersEconomyTest·ProfilePersistenceTest·UpgradeTreeTest), 몬스터(MonsterBehaviorTest),
+  맵(EasyLaboratoryLayoutTest·DifficultyLayoutTest·ReturnRouteRegressionTest·
+  HeadquartersLayoutTest) 등 — 세부는 아래 기능별 절.
 - 실행 검증은 FrameCapture 실프레임(docs/images/frames/)과 LabGen/Skill3 등 실행 로그로 남긴다.
   수동 체감(효과음 청취·키보드 실입력·보통/어려움 밸런스)은 사용자 핸즈온 권장.
 

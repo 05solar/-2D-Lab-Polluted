@@ -18,53 +18,42 @@
 루트 게임이 자산과 맵 간 세션을 소유하고, 각 Screen은 자기 맵의 입력·시스템·렌더 순서를 조정한다.
 
 ```
-core/.../io/github/some_example_name/
-├── LaboratoryGame.java              # GameAssets/세션/맵 전환 소유, 본부에서 시작
-├── asset/
-│   ├── GameAssets.java              # 모든 화면 자산의 공유 로딩·해제 소유자
-│   ├── HeadquartersAssets.java      # 본부 에셋 및 상호작용 프롬프트
-│   ├── PlayerHudAssets.java         # HP/가방 HUD 이미지
-│   └── HudLayout.java               # HUD 배치 설정 파싱
-├── config/
-│   ├── AssetPaths.java              # 자산 경로 상수
-│   └── BalanceConfig.java           # 전투·이동·전환 수치
-├── input/
-│   ├── InputState.java / GdxPlayerInput.java
-│   ├── KeyBindings.java / GameAction.java
-│   └── PlayerController.java / PlayerIntent.java
-├── movement/, collision/            # delta 이동, AABB 충돌, 연구소·본부 장애물
-├── world/
-│   ├── LaboratoryLayout/Room/Visuals # 연구소 논리 맵, 충돌, 타일 레이어
-│   ├── WallAutotiler.java / Door*   # 벽 연결과 문 방향·상태
-│   ├── HeadquartersLayout/Room/Visuals # 14×10 본부 배치·충돌·상호작용 위치
-│   ├── PlayerSessionState.java      # 맵 간 공유 플레이어·가방·재화·진행
-│   └── MapId.java / MapTransitionController.java
-├── entity/
-│   ├── player/Player.java           # 플레이어 상태·HP·위치
-│   └── monster/Monster.java         # 몬스터 상태와 체력
-├── combat/
-│   ├── CombatSystem.java / MonsterAiSystem.java
-│   ├── MonsterSpawnSystem.java / PlayerCombatState.java
-│   └── HealthComponent.java / AttackHitbox.java
-├── inventory/Backpack.java         # 순수 Java 8칸 가방 모델
-├── interaction/VendingMachineInteraction.java # 엣지 입력·짧은 프롬프트 피드백
-├── render/
-│   ├── WorldRenderer.java / HeadquartersRenderer.java
-│   ├── EntityRenderer.java / MonsterRenderer.java
-│   ├── CombatRenderer.java / PlayerHudRenderer.java
-│   └── DebugRenderer.java / TileDebugRenderer.java
+core/.../io/github/some_example_name/        (2026-10-23 기준 — 패키지 단위 요약)
+├── LaboratoryGame.java              # GameAssets/세션/프로필/맵 전환/보스 run 소유
+├── asset/                           # GameAssets(공유 로딩·해제 소유자) + 기능별 로더
+│   │                                # HQ/HUD/RoomKit/가구/loot/전투음·UI/판매/강화/스킬/
+│   └── BossAssets·BossNineAssets    # 보스 1-1 레거시·9단계 시트/VFX/초상/카드
+├── config/AssetPaths·BalanceConfig  # 경로 상수·전투/이동/난이도 수치
+├── input/                           # InputState/GdxPlayerInput/KeyBindings/GameAction/Controller
+├── movement/, collision/            # delta 이동, AABB 충돌 해석(swept 하위 단계)
+├── world/                           # 연구소/본부 논리 맵·충돌·문·세션·맵 전환
+│   ├── LaboratoryGenerator/GenRng/LabGenData # 난이도별 시드 생성(틀 12·테마 16·BFS·폴백)
+│   └── WallMaskV4 / Door* / PlayerSessionState / MapId·MapTransitionController
+├── entity/player·monster            # 상태·HP·위치(텍스처 비소유)
+├── combat/                          # CombatSystem/MonsterAiSystem(상태 기계)/스폰/플레이어 전투
+│   └── Shockwave·ElectricProjectile·PlayerShieldState·SkillCast·PlayerDashState # 스킬 판정(순수 Java)
+├── boss/                            # 보스 전투(순수 Java — GL 비의존, Context 주입)
+│   ├── BossStageCatalog·BossPatternCatalog·BossArenaCatalog # *.runtime.json 파서
+│   ├── BossDefinition·BossFight     # 1-1 레거시(회귀 고정)
+│   └── BossBattle                   # 9단계 범용 패턴 엔진(kind 12종·해저드 소유)
+├── profile/                         # PlayerProfile·ProfileCodec(원자 저장+백업+마이그레이션),
+│   │                                # HeadquartersEconomy(거래/보스 커밋), UpgradeCatalog/Effects,
+│   └── SkillCatalog·SkillLoadout·SkillRuntime·SkillService # 스킬 소유/장착/키/쿨다운 분리
+├── inventory/, loot/                # 8칸 가방, loot 테이블·컨테이너
+├── interaction/                     # 엣지 입력 상호작용(자판기 등)
+├── render/                          # 월드/엔티티/HUD/패널 렌더러(상태 읽기 전용) + FrameCapture
+│   └── Boss*Renderer                # HP바/단계 선택(3×3 실루엣)/결과창
 └── screen/
-    ├── BaseScreen.java
-    ├── HeadquartersScreen.java      # 고정 카메라, 본부 입력·상호작용·HUD
-    └── LaboratoryScreen.java        # 추적 카메라, 이동·전투·AI·HUD
+    ├── HeadquartersScreen           # 고정 카메라, 상호작용 5종·패널(판매/강화/스킬/보스)
+    ├── LaboratoryScreen             # 추적 카메라, 이동·전투·AI·loot·HUD
+    └── BossArenaScreen              # 보스 광장(레거시/범용 엔진 분기 1곳)
 
-lwjgl3/.../lwjgl3/
-├── Lwjgl3Launcher.java              # new LaboratoryGame() 진입
-└── StartupHelper.java               # liftoff 제공
+lwjgl3/.../lwjgl3/                   # Lwjgl3Launcher(진입)·StartupHelper
 ```
 
-아직 구현하지 않은 주요 영역은 실제 보물 획득·반납·보상 경제, 자판기 구매 UI, 저장/불러오기,
-게임오버·부활 흐름이다. 화면별 HUD는 구현됐으며 별도 로딩 화면은 없다.
+미구현으로 남은 주요 영역: 자판기 구매 UI(판매 전용), 진행 중 탐사 저장/복원(본부 영속
+프로필만), hazard 타일 실제 피해, 게임오버 연출 화면(재소환 플로우는 구현됨).
+별도 로딩 화면은 없다.
 
 ## 배경 타일: 논리 / 시각 / 충돌 분리
 배경은 세 가지 책임으로 나뉜다. 하나의 타입이 충돌·시각·배치를 모두 결정하지 않는다.
